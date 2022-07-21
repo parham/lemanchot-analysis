@@ -1,0 +1,19 @@
+
+@startuml
+
+!theme plain
+
+title LeManchot VT-Smart Process Pipeline
+
+start
+
+while (Hungry?)  is (Yes)
+  :Eat Hot Wings;
+  :Drink Homebrew;
+endwhile (No)
+
+:Go To Sleep;
+
+stop
+
+@enduml

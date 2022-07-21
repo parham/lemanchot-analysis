@@ -17,6 +17,8 @@
 
 ## LeManchot-VT-Smart
 
+<!-- ![Diagram Image Link](./design/method.puml) -->
+
 .... under construction
 
 ## Citation
