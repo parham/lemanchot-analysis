@@ -5,14 +5,27 @@
 
 title LeManchot VT-Smart Process Pipeline
 
-start
+group Multi-Modal Imagery Data
 
-while (Hungry?)  is (Yes)
-  :Eat Hot Wings;
-  :Drink Homebrew;
-endwhile (No)
+split
+   -[hidden]->
+   :Visible Image Stream;
+split again
+   -[hidden]->
+   :Thermal Image Stream;
+end split
 
-:Go To Sleep;
+end group
+
+:Preprocess the images;
+:Thermal-Visible Modalities Registration;
+split
+  :Apply Segmentation on Visible Images;
+split again
+  :Apply Segmentation on Thermal Images;
+end split
+
+:Use the visible image segmentation to enhance images;
 
 stop
 
