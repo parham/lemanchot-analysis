@@ -15,6 +15,22 @@
   </p>
 </p>
 
+## Experiments
+
+### Case Study 1 : ULAVAL Road Inspection:
+- We are going to use coupled thermal and visible images for inspection of pavement roads.
+- Since the drone's altitude is static for each data session, we will use the GCP placed at begining of each session to determine the parameters for modality registration.
+**OBJECTIVES**: We will use the visible image to segment vegetation and pavement in visible images, then use these blobs to segment thermal images.
+
+### Case Study 2 : Piping Inspection
+- We are going to use coupled thermal and visible images for piping inspection.
+**OBJECTIVE**: (a) Fusion of thermal and visible images, (b) Distinguish normal and abnormal defects for industrial inspection.
+
+### Case Study 3 : Bridge Inspection
+- We are going to use coupled thermal and visible images for bridge inspection.
+**OBJECTIVE**: (a) Registration of thermal and visible images, (b) Extract concrete areas from thermal images using segmentation of visible images.
+
+
 ## LeManchot-VT-Smart
 
 <!-- ![Diagram Image Link](./design/method.puml) -->
