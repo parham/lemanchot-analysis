@@ -39,7 +39,8 @@
 
 ## Usage
 
-For setting the path for system settings you need to initialize system environment variable:
+For setting the path for system settings you need to initialize system environment variable: 
+
 ``` $ export LEMANCHOT_VT_SETTING_PATH = [ADD YOUR PATH HERE] ```
 
 ## Citation
