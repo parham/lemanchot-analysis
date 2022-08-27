@@ -31,11 +31,16 @@
 **OBJECTIVE**: (a) Registration of thermal and visible images, (b) Extract concrete areas from thermal images using segmentation of visible images.
 
 
-## LeManchot-VT-Smart
+# LeManchot-VT-Smart
 
 <!-- ![Diagram Image Link](./design/method.puml) -->
 
 .... under construction
+
+## Usage
+
+For setting the path for system settings you need to initialize system environment variable:
+``` $ export LEMANCHOT_VT_SETTING_PATH = [ADD YOUR PATH HERE] ```
 
 ## Citation
 
