@@ -43,6 +43,10 @@ For setting the path for system settings you need to initialize system environme
 
 ``` $ export LEMANCHOT_VT_SETTING_PATH = [ADD YOUR PATH HERE] ```
 
+For the system to be able to load the profile setting, you need to initialize system environment variable:
+
+``` $ export LEMANCHOT_VT_PROFILE = [PROFILE NAME] ```
+
 ## Citation
 
 .... the paper will be publish soon!
