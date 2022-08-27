@@ -1,0 +1,16 @@
+
+version: 1
+disable_existing_loggers: false
+formatters:
+  standard:
+    format: "%(asctime)s %(levelname)s <PID %(process)d:%(processName)s> %(name)s.%(funcName)s(): %(message)s"
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: standard
+loggers:
+  sysLogger:
+    handlers: [console]
+    propagate: true
+root:
+  handlers: [console]
