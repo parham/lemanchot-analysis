@@ -1,0 +1,32 @@
+{
+    "model" : {
+        "name" : "test",
+        "config" : {
+            "num_channels" : 100,
+            "num_conv_layers" : 3
+        }
+    },
+    "metrics" : {
+        "mIoU" : {
+            "iou_thresh" : 0.1
+        },
+        "rmse" : {
+            "max_p" : 255
+        }
+    },
+    "segmentation": {
+        "iteration_max" : 25,
+        "similarity_loss" : 1,
+        "continuity_loss" : 0.5,
+        "learning_rate" : 0.1,
+        "momentum" : 0.9,
+        "min_classes" : 5,
+        "min_area" : 0,
+        "iou_thresh" : 0.0001,
+        "use_crf_layer" : true
+    },
+    "general" : {
+        "log_image" : true,
+        "log_metrics" : true
+    }
+}
