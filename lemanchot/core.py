@@ -34,14 +34,14 @@ generate_random_str = lambda x: ''.join(random.choice(string.ascii_lowercase) fo
 
 class BaseCore(torch.nn.Module):
     """Base class for all module like components"""
-    def __init__(self, name : str, device : str, config : Dict[str, Any]) -> None:
+    def __init__(self, name : str, config) -> None:
         super().__init__()
         # Initialize the configuration
         for key, value in config.items():
             setattr(self, key, value)
         self.name = name
-        self.device = torch.device(device)
-        self.to(device)
+        self.device = torch.device(get_device())
+        self.to(self.device)
 
 def initialize_log():
     """Initialize the log configuration"""

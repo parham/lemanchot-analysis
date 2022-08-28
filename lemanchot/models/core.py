@@ -13,6 +13,14 @@ from typing import List, Union
 
 from lemanchot.core import BaseCore, get_device
 
+class BaseModule(BaseCore):
+    """ Base class for all modules """
+    def __init__(self, name : str, config : DotMap) -> None:
+        super().__init__(
+            name=name,
+            config=config
+        )
+
 __model_handler = {}
 
 def model_register(name : Union[str, List[str]]):
@@ -41,13 +49,11 @@ def list_models() -> List[str]:
     global __model_handler
     return list(__model_handler.keys())
 
-def load_model(experiment_config : DotMap):
+def load_model(experiment_config : DotMap) -> BaseModule:
     """Load an instance of a registered model based on the given name
 
     Args:
-        model_name (str): model's name
-        device (str): device's name
-        config (_type_): configuration
+        experiment_config (DotMap): configuration
 
     Raises:
         ValueError: model is not supported
@@ -56,12 +62,10 @@ def load_model(experiment_config : DotMap):
         BaseModule: the instance of the given model
     """
 
-    # Get device name
-    device = get_device()
     # Get model name
-    model_name = experiment_config.name
+    model_name = experiment_config.model.name
     # Get the experiment configuration
-    model_config = experiment_config.config
+    model_config = experiment_config.model.config
 
     if not model_name in list_models():
         msg = f'{model_name} model is not supported!'
@@ -69,16 +73,7 @@ def load_model(experiment_config : DotMap):
         raise ValueError(msg)
     
     return __model_handler[model_name](
-        name=model_name, 
-        device=device, 
+        name=model_name,
         config=model_config
     )
 
-class BaseModule(BaseCore):
-    """ Base class for all modules """
-    def __init__(self, name : str, device : str, config : DotMap) -> None:
-        super().__init__(
-            name=name,
-            device=device,
-            config=config
-        )
