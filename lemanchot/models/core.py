@@ -1,11 +1,10 @@
 
-
-
 """ 
     @title        Multi-modal texture analysis to enhance drone-based thermographic inspection of structures 
     @organization Laval University
     @partner      TORNGATS
 """
+
 import logging
 
 from dotmap import DotMap

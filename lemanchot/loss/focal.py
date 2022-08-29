@@ -1,4 +1,10 @@
 
+""" 
+    @title        Multi-modal texture analysis to enhance drone-based thermographic inspection of structures 
+    @organization Laval University
+    @partner      TORNGATS
+"""
+
 from typing import Any, Dict, Optional, Sequence
 import torch
 import torch.nn as nn
