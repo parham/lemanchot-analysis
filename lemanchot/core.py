@@ -17,7 +17,6 @@ import logging.config
 
 from time import time
 from dotmap import DotMap
-from typing import Any, Dict
 from datetime import datetime
 
 import torch
