@@ -10,7 +10,7 @@ import logging
 from dotmap import DotMap
 from typing import List, Union
 
-from lemanchot.core import BaseCore, get_device
+from lemanchot.core import BaseCore
 
 class BaseModule(BaseCore):
     """ Base class for all modules """

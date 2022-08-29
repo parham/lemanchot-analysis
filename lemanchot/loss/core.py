@@ -8,7 +8,7 @@
 
 import logging
 from dotmap import DotMap
-from typing import Any, Dict, List, Union
+from typing import List, Union
 
 from lemanchot.core import BaseCore, get_device
 
@@ -28,6 +28,11 @@ class BaseLoss(BaseCore):
 __loss_handler = {}
 
 def loss_register(name : Union[str, List[str]]):
+    """Register the loss (decorator)
+
+    Args:
+        name (Union[str, List[str]]): the name of given loss
+    """
     def __embed_clss(clss):
         global __loss_handler
         hname = name if isinstance(name, list) else [name]
@@ -39,16 +44,43 @@ def loss_register(name : Union[str, List[str]]):
     return __embed_clss
 
 def list_losses() -> List[str]:
+    """List of losses
+
+    Returns:
+        List[str]: list containing the names of registered losses
+    """
     global __loss_handler
     return list(__loss_handler.keys())
 
-def load_loss(loss_name : str, device : str, config : Dict[str,Any]):
+def load_loss(experiment_config : DotMap):
+    """_summary_
+
+    Args:
+        loss_name (str): _description_
+        device (str): _description_
+        config (Dict[str,Any]): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    # Get loss name
+    loss_name = experiment_config.loss.name
+    # Get the experiment configuration
+    loss_config = experiment_config.loss.config
+
     if not loss_name in list_losses():
         msg = f'{loss_name} model is not supported!'
         logging.error(msg)
         raise ValueError(msg)
     
-    return __loss_handler[loss_name](loss_name, device, config)
+    return __loss_handler[loss_name](
+        name=loss_name,
+        config=loss_config
+    )
 
 def load_loss(experiment_config : DotMap):
     """Load an instance of a registered model based on the given name
