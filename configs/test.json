@@ -20,5 +20,12 @@
             "gamma" : 0,
             "reduction" : "mean"
         }
+    },
+    "optimizer" : {
+        "name" : "SGD",
+        "config" : {
+            "lr" : 0.1,
+            "momentum": 0.9
+        }
     }
 }
