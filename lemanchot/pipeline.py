@@ -1,18 +1,21 @@
 
 import functools
 import logging
-from typing import Callable, List, Union
-from dotmap import DotMap
+import os
 
+from typing import Callable, Dict, List, Union
+from dotmap import DotMap
 from comet_ml import Experiment
 from ignite.engine import Engine
 
+import torch
 import torch.optim as optim
 from torch.optim import Optimizer
 
 from ignite.engine.events import Events
+from ignite.handlers import ModelCheckpoint, global_step_from_engine
 
-from lemanchot.core import BaseCore, exception_logger, get_experiment, get_profile, running_time
+from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings, running_time
 from lemanchot.loss.core import BaseLoss, load_loss
 from lemanchot.models.core import BaseModule, load_model
 
@@ -20,6 +23,7 @@ def load_optimizer(model : BaseModule, experiment_config : DotMap) -> Optimizer:
     params = model.parameters()
     optim_name = experiment_config.optimizer.name
     optim_config = experiment_config.optimizer.config
+
     return {
         'SGD' : lambda ps, config: optim.SGD(ps, **config),
         'Adam' : lambda ps, config: optim.Adam(ps, **config)
@@ -62,32 +66,35 @@ def load_pipeline(pipeline_name : str) -> Callable:
 
 @exception_logger
 def load_segmentation(
-    database_name : str,
-    categories : List[str],
-    experiment_config : DotMap
-) -> Engine:
-    
+    profile_name : str,
+    database_name : str
+) -> Dict:
+    # Load experiment configuration
+    experiment_name = get_profile(profile_name).experiment_config_name
+    experiment_config = get_config(experiment_name)
     # Check if model configuration is available!
-    if 'model' in experiment_config:
+    if not 'model' in experiment_config:
         raise ValueError('Model must be defined in the experiment configuration!')
     # Create model instance
     model = load_model(experiment_config)
     # Check if loss configuration is available!
-    if 'loss' in experiment_config:
+    if not 'loss' in experiment_config:
         raise ValueError('Loss must be defined in the experiment configuration!')
     # Create loss instance
     loss = load_loss(experiment_config)
     # Check if optimizer configuration is available!
-    if 'optimizer' in experiment_config:
+    if not 'optimizer' in experiment_config:
         raise ValueError('Optimizer must be defined in the experiment configuration!')
     # Create optimizer instance
     optimizer = load_optimizer(model, experiment_config)
     # Create the experiment instance
-    experiment = get_experiment(dataset=database_name)
+    experiment = get_experiment(profile_name=profile_name, dataset=database_name)
     # Logging the model
     experiment.set_model_graph(str(model), overwrite=True)
+    # Load profile
+    profile = get_profile(profile_name)
     # Load the pipeline
-    pipeline_name = get_profile().pipeline
+    pipeline_name = profile.pipeline
     if not pipeline_name in experiment_config.pipeline:
         raise ValueError('Pipeline is not supported!')
 
@@ -101,6 +108,36 @@ def load_segmentation(
     )
 
     engine = Engine(seg_func)
+
+    # Save Checkpoint 
+    run_record = {
+        'engine' : engine,
+        'model' : model,
+        'optimizer' : optimizer,
+        'loss' : loss
+    }
+    enable_checkpoint_save = profile.checkpoint_save if 'checkpoint_save' in profile else False
+    if enable_checkpoint_save:
+        checkpoint_dir = load_settings().checkpoint_dir
+        checkpoint_file = os.path.join(checkpoint_dir, '%s.pt' % pipeline_name)
+        checkpoint_saver = ModelCheckpoint(
+            checkpoint_dir,
+            checkpoint_file,
+            require_empty=False, 
+            create_dir=True,
+            n_saved=1, 
+            global_step_transform=global_step_from_engine(engine)
+        )
+        engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
+    
+    # Load Checkpoint
+    enable_checkpoint_load = profile.checkpoint_load if 'checkpoint_load' in profile else False
+    if enable_checkpoint_load:
+        checkpoint_dir = load_settings().checkpoint_dir
+        checkpoint_file = os.path.join(checkpoint_dir, '%s.pt' % pipeline_name)
+        if os.path.isfile(checkpoint_file):
+            checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
+            ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj) 
 
     @engine.on(Events.ITERATION_COMPLETED(every=100))
     def log_training(engine):
@@ -126,9 +163,9 @@ def load_segmentation(
         step_time = engine.state.step_time if hasattr(engine.state,'step_time') else 0
         logging.info(f'[ {step_time} ] {engine.state.iteration} / {engine.state.iteration_max} : {engine.state.class_count} , {engine.state.last_loss}')
 
-    return engine
+    return run_record
 
-@pipeline_register("simple_trainer")
+@pipeline_register("simple_train")
 def simple_train_step__(
     engine : Engine, 
     batch,

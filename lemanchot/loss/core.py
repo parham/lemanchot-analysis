@@ -95,10 +95,11 @@ def load_loss(experiment_config : DotMap):
         BaseModule: the instance of the given model
     """
 
+    loss_config = experiment_config.loss
     # Get model name
-    loss_name = experiment_config.name
+    loss_name = loss_config.name
     # Get the experiment configuration
-    loss_config = experiment_config.config
+    loss_config = loss_config.config
 
     if not loss_name in list_losses():
         msg = f'{loss_name} model is not supported!'

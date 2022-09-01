@@ -1,5 +1,6 @@
 {
     "device" : "cuda:0",
+    "checkpoint_dir" : "./checkpoints",
     "profiles" : {
         "parham" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
@@ -9,9 +10,12 @@
             "log_env_gpu" : true,
             "log_env_cpu" : true,
             "log_env_host" : true,
-            "enable_logging" : true,
+            "enable_logging" : false,
             "enable_image_logging" : true,
-            "pipeline" : "simple_train"
+            "pipeline" : "simple_train",
+            "checkpoint_save" : true,
+            "checkpoint_load" : true,
+            "experiment_config_name" : "test"
         }
     }
 }

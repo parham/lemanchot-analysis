@@ -125,7 +125,7 @@ def get_config(config_name : str) -> DotMap:
     """
     cdir = os.environ.get(__LEMANCHOT_VT_CONFIG_DIR__) if __LEMANCHOT_VT_CONFIG_DIR__ in os.environ else './configs'
     cfile = os.path.join(cdir,config_name + '.json')
-    if os.path.isfile(cfile):
+    if not os.path.isfile(cfile):
         raise ValueError(f'{cfile} does not exist!')
     return read_config(cfile)
 
@@ -135,6 +135,7 @@ __LEMANCHOT_VT_SETTING_PATH__ = 'LEMANCHOT_VT_SETTING_PATH'
 __setting_instance = None
 
 @exception_logger
+@functools.lru_cache(maxsize=2)
 def load_settings() -> DotMap:
     """Load the configuration (*.json)
 
@@ -164,21 +165,7 @@ def get_device() -> str:
 __LEMANCHOT_VT_PROFILE__ = 'LEMANCHOT_VT_PROFILE'
 
 @functools.lru_cache(maxsize=1)
-def get_profile_name() -> str:
-    """Extracting profile name
-
-    Raises:
-        ValueError: if the environment variable does not exist
-
-    Returns:
-        str: profile name
-    """
-    if not __LEMANCHOT_VT_SETTING_PATH__ in os.environ:
-        raise ValueError('LEMANCHOT_VT_PROFILE is not defined!')
-    return os.environ.get(__LEMANCHOT_VT_SETTING_PATH__)
-
-@functools.lru_cache(maxsize=1)
-def get_profile() -> DotMap:
+def get_profile(profile_name : str) -> DotMap:
     """Get the selected profile
 
     Raises:
@@ -187,7 +174,7 @@ def get_profile() -> DotMap:
     Returns:
         DotMap: given profile
     """
-    profile_name = get_profile_name()
+
     settings = load_settings()
     if not profile_name in settings.profiles:
         raise ValueError(f'{profile_name} is not defined!')
@@ -196,9 +183,9 @@ def get_profile() -> DotMap:
     return profile
 
 # The instance of the experiment
-__experiment_instance = {}
+__experiment_instance = None
 
-def get_experiment(dataset : str = None) -> Experiment:
+def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
     """Get the experiment
 
     Args:
@@ -210,10 +197,10 @@ def get_experiment(dataset : str = None) -> Experiment:
     global __experiment_instance
 
     @synchronized
-    def __create_experiment():
+    def __create_experiment(profile_name : str):
         tnow = datetime.now()
-        profile = get_profile()
-        __experiment_instance = Experiment(
+        profile = get_profile(profile_name)
+        exp_obj = Experiment(
             api_key=profile.api_key,
             project_name=profile.project_name,
             workspace=profile.workspace,
@@ -223,11 +210,12 @@ def get_experiment(dataset : str = None) -> Experiment:
             log_env_host=profile.log_env_host,
             disabled=profile.enable_loggings
         )
-        __experiment_instance.set_name('%s_%s_%s' % (profile['name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
-        __experiment_instance.add_tag(dataset)
+        exp_obj.set_name('%s_%s_%s' % (profile['name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
+        exp_obj.add_tag(dataset)
+        return exp_obj
 
     if __experiment_instance is None:
-        __experiment_instance = __create_experiment()
+        __experiment_instance = __create_experiment(profile_name)
 
     return __experiment_instance
 

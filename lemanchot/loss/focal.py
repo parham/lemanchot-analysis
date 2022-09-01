@@ -28,8 +28,8 @@ class FocalLoss(BaseLoss):
     adopted from https://github.com/AdeelH/pytorch-multi-class-focal-loss/
     """
     
-    def __init__(self, config) -> None:
-        super().__init__(config=config)
+    def __init__(self, name : str, config) -> None:
+        super().__init__(name=name, config=config)
 
         #              alpha: Optional[torch.Tensor] = None,
         #              gamma: float = 0.,
@@ -46,13 +46,17 @@ class FocalLoss(BaseLoss):
             ignore_index (int, optional): class label to ignore.
                 Defaults to -100.
         """
+        self.reduction = self.reduction if hasattr(self, 'reduction') else 'none'
         if self.reduction not in ('mean', 'sum', 'none'):
             raise ValueError(
                 'Reduction must be one of: "mean", "sum", "none".')
 
+        self.ignore_index = self.ignore_index if hasattr(self, 'ignore_index') else -100
         self.nll_loss = nn.NLLLoss(
-            weight=self.alpha, reduction='none', 
-                ignore_index=self.ignore_index)
+            weight=self.alpha, 
+            reduction=self.reduction, 
+            ignore_index=self.ignore_index
+        )
 
     def __repr__(self):
         arg_keys = ['alpha', 'gamma', 'ignore_index', 'reduction']

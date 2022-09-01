@@ -1,9 +1,9 @@
 {
     "model" : {
-        "name" : "test",
+        "name" : "unet_resnet18",
         "config" : {
-            "num_channels" : 100,
-            "num_conv_layers" : 3
+            "channels" : 100,
+            "num_classes" : 5
         }
     },
     "metrics" : {
@@ -17,8 +17,9 @@
     "loss" : {
         "name" : "focal_loss",
         "config" : {
-            "gamma" : 0,
-            "reduction" : "mean"
+            "alpha" : null,
+            "reduction" : "mean",
+            "ignore_index" : -100
         }
     },
     "optimizer" : {
@@ -29,7 +30,7 @@
         }
     },
     "pipeline" : {
-        "train" : {
+        "simple_train" : {
             "max_epoch" : 10
         }
     }

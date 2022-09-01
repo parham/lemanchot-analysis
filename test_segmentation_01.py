@@ -1,4 +1,6 @@
 
+import logging
+import sys
 from torch.utils.data import DataLoader
 
 from ignite.utils import setup_logger
@@ -20,9 +22,19 @@ def main():
     )
     data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
     # Load segmentation
-    engine = load_segmentation()
+    run_record = load_segmentation(profile_name='parham', database_name='Laval_Road_9h52')
+    engine = run_record['engine']
     engine.logger = setup_logger('trainer')
 
+    # Run the pipeline
+    state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
+    print(state)
+    return 0
+
 if __name__ == '__main__':
-    print('Test Segmentation 01 : ')
-    main()
+    print('The experiment is started ...')
+    try:
+        sys.exit(main())
+    except Exception as ex:
+        logging.exception(ex)
+    print('The experiment is finished ...')
