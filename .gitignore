@@ -1,1 +1,4 @@
 .vscode/*
+lemanchot/__pycache__/*
+lemanchot/loss/__pycache__/*
+lemanchot/models/__pycache__/*

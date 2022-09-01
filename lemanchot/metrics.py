@@ -75,7 +75,10 @@ class CMRecord:
     cm_metrics : Dict[str, float]
 
 class Function_Metric(BaseMetric):
-
+    """
+        Function_Metric is a metric class that allows you to wrap a metric function inside.
+        It lets a metric function to be integrated into the prepared platform.
+    """
     def __init__(self, 
         func : Callable, 
         config

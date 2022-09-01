@@ -36,9 +36,6 @@ def pipeline_register(name : Union[str, List[str]]):
     def __embed_func(func):
         global __model_handler
         hname = name if isinstance(name, list) else [name]
-        if not issubclass(func, BaseModule):
-            raise NotImplementedError('The specified pipeline is not correctly implemented!')
-
         for n in hname:
             __pipeline_handler[n] = func
 
@@ -113,6 +110,21 @@ def load_segmentation(
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         print(f"Epoch {epoch}/{max_epochs} : {iteration} - batch loss: {batch_loss}, lr: {lr}")
+
+    @engine.on(Events.STARTED)
+    def __train_process_started(engine):
+        experiment.train()
+        logging.info('Training is started ...')
+
+    @engine.on(Events.COMPLETED)
+    def __train_process_ended(engine):
+        logging.info('Training is ended ...')
+        experiment.end()
+
+    @engine.on(Events.ITERATION_STARTED)
+    def __train_iteration_started(engine):
+        step_time = engine.state.step_time if hasattr(engine.state,'step_time') else 0
+        logging.info(f'[ {step_time} ] {engine.state.iteration} / {engine.state.iteration_max} : {engine.state.class_count} , {engine.state.last_loss}')
 
     return engine
 
