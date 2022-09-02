@@ -2,6 +2,7 @@
 import functools
 import logging
 import os
+import time
 
 from typing import Callable, Dict, List, Union
 from dotmap import DotMap
@@ -100,15 +101,54 @@ def load_segmentation(
 
     step_func = load_pipeline(pipeline_name)
 
-    seg_func = functools.partial(step_func,
+    def __run_pipeline(
+        engine : Engine, 
+        batch,
+        step_func : Callable,
+        model : BaseModule,
+        loss : BaseLoss,
+        optimizer : Optimizer,
+        experiment : Experiment
+    ) -> Dict:
+        t = time.time()
+        res = step_func(
+            engine=engine,
+            batch=batch,
+            model=model,
+            loss=loss,
+            optimizer=optimizer,
+            experiment=experiment
+        )
+
+        engine.state.last_loss = res['loss'] if 'loss' in res else 0
+        engine.state.step_time = time.time() - t
+
+        experiment.log_metrics({
+                'loss' : engine.state.last_loss,
+                'step_time' : engine.state.step_time
+            }, prefix='iteration_',
+            step=engine.state.iteration,
+            epoch=engine.state.epoch
+        )
+        return res
+
+    # Initialize the pipeline function
+    seg_func = functools.partial(__run_pipeline,
+        step_func=step_func,
         model=model,
         loss=loss,
         optimizer=optimizer,
         experiment=experiment
     )
-
+    # Instantiate the engine
     engine = Engine(seg_func)
-
+    # Get Pipeline Configuration
+    pipeline_config = experiment_config.pipeline[pipeline_name]
+    # Add configurations to the engine state
+    engine.state.last_loss = 0
+    for key, value in pipeline_config.items():
+        engine.state_dict_user_keys.append(key)
+        setattr(engine.state, key, value)
     # Save Checkpoint 
     run_record = {
         'engine' : engine,
@@ -161,7 +201,7 @@ def load_segmentation(
     @engine.on(Events.ITERATION_STARTED)
     def __train_iteration_started(engine):
         step_time = engine.state.step_time if hasattr(engine.state,'step_time') else 0
-        logging.info(f'[ {step_time} ] {engine.state.iteration} / {engine.state.iteration_max} : {engine.state.class_count} , {engine.state.last_loss}')
+        logging.info(f'[ {step_time} ] {engine.state.iteration} / {engine.state.max_epoch} : {engine.state.last_loss}')
 
     return run_record
 
@@ -173,8 +213,12 @@ def simple_train_step__(
     loss : BaseLoss,
     optimizer : Optimizer,
     experiment : Experiment
-):
+) -> Dict:
     inputs, targets = batch
+
+    inputs = inputs.to(dtype=torch.float32)
+    targets = targets.to(dtype=torch.float32)
+
     loss.prepare_loss(ref=batch[0])
     model.train()
     optimizer.zero_grad()
@@ -182,4 +226,7 @@ def simple_train_step__(
     loss_value = loss(outputs, targets)
     loss_value.backward()
     optimizer.step()
-    return loss_value.item()
+
+    return {
+        'loss' : loss_value.item()
+    }

@@ -39,8 +39,6 @@ class FocalLoss(BaseLoss):
         """Constructor.
         Args:
             alpha (Tensor, optional): Weights for each class. Defaults to None.
-            gamma (float, optional): A constant, as described in the paper.
-                Defaults to 0.
             reduction (str, optional): 'mean', 'sum' or 'none'.
                 Defaults to 'mean'.
             ignore_index (int, optional): class label to ignore.
@@ -59,7 +57,7 @@ class FocalLoss(BaseLoss):
         )
 
     def __repr__(self):
-        arg_keys = ['alpha', 'gamma', 'ignore_index', 'reduction']
+        arg_keys = ['alpha', 'ignore_index', 'reduction']
         arg_vals = [self.__dict__[k] for k in arg_keys]
         arg_strs = [f'{k}={v}' for k, v in zip(arg_keys, arg_vals)]
         arg_str = ', '.join(arg_strs)

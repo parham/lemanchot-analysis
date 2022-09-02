@@ -1,15 +1,24 @@
 
-import logging
 import sys
+import logging
+
+import torch
 from torch.utils.data import DataLoader
 
 from ignite.utils import setup_logger
 
 from gimp_labeling_converter import XCFDataset
 from lemanchot.pipeline import load_segmentation
+from lemanchot.transform import GrayToRGB, ImageResizeByCoefficient, NumpyImageToTensor
 
 
 def main():
+    # Initialize Transformation
+    transform = torch.nn.Sequential(
+        GrayToRGB(),
+        ImageResizeByCoefficient(32),
+        NumpyImageToTensor()
+    )
     dataset = XCFDataset(
         root_dir='/home/phm/Datasets/Laval_Road_9h52',
         category={
@@ -18,7 +27,8 @@ def main():
             'Pavement' : 5,
             'Wood' : 7,
             'Water' : 9
-        }
+        },
+        transform=transform
     )
     data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
     # Load segmentation

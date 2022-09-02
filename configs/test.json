@@ -2,7 +2,7 @@
     "model" : {
         "name" : "unet_resnet18",
         "config" : {
-            "channels" : 100,
+            "channels" : 3,
             "num_classes" : 5
         }
     },
