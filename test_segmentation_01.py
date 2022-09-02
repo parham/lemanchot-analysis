@@ -30,7 +30,7 @@ def main():
         },
         transform=transform
     )
-    data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
+    data_loader = DataLoader(dataset, batch_size=2, shuffle=True)
     # Load segmentation
     run_record = load_segmentation(profile_name='parham', database_name='Laval_Road_9h52')
     engine = run_record['engine']
