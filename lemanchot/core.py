@@ -16,6 +16,7 @@ import logging
 import logging.config
 
 from time import time
+from typing import List
 from dotmap import DotMap
 from datetime import datetime
 
@@ -181,6 +182,11 @@ def get_profile(profile_name : str) -> DotMap:
     profile = settings.profiles[profile_name]
     profile['name'] = profile_name
     return profile
+
+@functools.lru_cache(maxsize=1)
+def get_profile_names() -> List[str]:
+    settings = load_settings()
+    return list(settings.profiles.keys())
 
 # The instance of the experiment
 __experiment_instance = None

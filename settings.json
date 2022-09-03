@@ -15,7 +15,15 @@
             "pipeline" : "simple_train",
             "checkpoint_save" : true,
             "checkpoint_load" : true,
-            "experiment_config_name" : "test"
+            "experiment_config_name" : "test",
+            "dataset_path" : "/home/phm/Datasets/Laval_Road_9h52",
+            "categories" : {
+                "Metal" : 2,
+                "Vegetation" : 4,
+                "Pavement" : 5,
+                "Wood" : 7,
+                "Water" : 9
+            }
         }
     }
 }
