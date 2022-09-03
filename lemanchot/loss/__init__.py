@@ -7,3 +7,4 @@
 
 from .core import *
 from .focal import *
+from .cross_entropy import *

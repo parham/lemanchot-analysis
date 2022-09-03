@@ -11,7 +11,7 @@ from ignite.utils import setup_logger
 from gimp_labeling_converter import XCFDataset
 from lemanchot.core import get_profile, get_profile_names
 from lemanchot.pipeline import load_segmentation
-from lemanchot.transform import FilterOutAlphaChannel, GrayToRGB, ImageResizeByCoefficient, NumpyImageToTensor
+from lemanchot.transform import FilterOutAlphaChannel, ImageResize, ImageResizeByCoefficient, NumpyImageToTensor
 
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
 parser.add_argument('--profile', required=True, choices=get_profile_names(), help="Select the name of profiles.")
@@ -27,7 +27,13 @@ def main():
     categories = profile.categories
     # Initialize Transformation
     transform = torch.nn.Sequential(
-        GrayToRGB(),
+        ImageResize(600),
+        ImageResizeByCoefficient(32),
+        NumpyImageToTensor(),
+        FilterOutAlphaChannel()
+    )
+    target_transform = torch.nn.Sequential(
+        ImageResize(600),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel()
@@ -35,7 +41,8 @@ def main():
     dataset = XCFDataset(
         root_dir=dataset_path,
         category=categories,
-        transform=transform
+        transform=transform,
+        target_transform=target_transform
     )
     data_loader = DataLoader(dataset, batch_size=2, shuffle=True)
     # Load segmentation
