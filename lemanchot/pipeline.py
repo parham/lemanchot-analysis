@@ -186,7 +186,8 @@ def load_segmentation(
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
-        print(f"Epoch {epoch}/{max_epochs} : {iteration} - batch loss: {batch_loss}, lr: {lr}")
+        step_time = engine.state.step_time if hasattr(engine.state,'step_time') else 0
+        print(f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.last_loss}, lr: {lr}")
 
     @engine.on(Events.STARTED)
     def __train_process_started(engine):
@@ -197,11 +198,6 @@ def load_segmentation(
     def __train_process_ended(engine):
         logging.info('Training is ended ...')
         experiment.end()
-
-    @engine.on(Events.ITERATION_STARTED)
-    def __train_iteration_started(engine):
-        step_time = engine.state.step_time if hasattr(engine.state,'step_time') else 0
-        logging.info(f'[ {step_time} ] {engine.state.iteration} / {engine.state.max_epoch} : {engine.state.last_loss}')
 
     return run_record
 

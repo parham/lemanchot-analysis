@@ -9,7 +9,7 @@ from ignite.utils import setup_logger
 
 from gimp_labeling_converter import XCFDataset
 from lemanchot.pipeline import load_segmentation
-from lemanchot.transform import GrayToRGB, ImageResizeByCoefficient, NumpyImageToTensor
+from lemanchot.transform import FilterOutAlphaChannel, GrayToRGB, ImageResizeByCoefficient, NumpyImageToTensor
 
 
 def main():
@@ -17,7 +17,8 @@ def main():
     transform = torch.nn.Sequential(
         GrayToRGB(),
         ImageResizeByCoefficient(32),
-        NumpyImageToTensor()
+        NumpyImageToTensor(),
+        FilterOutAlphaChannel()
     )
     dataset = XCFDataset(
         root_dir='/home/phm/Datasets/Laval_Road_9h52',

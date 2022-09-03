@@ -17,6 +17,12 @@ class GrayToRGB(torch.nn.Module):
             res = np.concatenate((res,res,res), axis=2)
         return res
 
+class FilterOutAlphaChannel(torch.nn.Module):
+    def forward(self, img) -> Any:
+        channel = img.shape[1]
+        res = img[:-1,:,:] if channel > 3 else img
+        return res
+
 class ImageResize(torch.nn.Module):
     def __init__(self, size, interpolation=InterpolationMode.BILINEAR, max_size=None, antialias=None):
         super().__init__()
