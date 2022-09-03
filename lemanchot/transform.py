@@ -2,7 +2,7 @@
 import torch
 import numpy as np
 
-from typing import Any, Dict, List
+from typing import Any, List
 from PIL import Image
 from skimage import color
 
@@ -19,7 +19,7 @@ class GrayToRGB(torch.nn.Module):
 
 class FilterOutAlphaChannel(torch.nn.Module):
     def forward(self, img) -> Any:
-        channel = img.shape[1]
+        channel = img.shape[0]
         res = img[:-1,:,:] if channel > 3 else img
         return res
 

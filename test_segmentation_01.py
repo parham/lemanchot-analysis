@@ -9,13 +9,19 @@ from ignite.utils import setup_logger
 
 from gimp_labeling_converter import XCFDataset
 from lemanchot.pipeline import load_segmentation
-from lemanchot.transform import FilterOutAlphaChannel, GrayToRGB, ImageResizeByCoefficient, NumpyImageToTensor
+from lemanchot.transform import FilterOutAlphaChannel, ImageResize, ImageResizeByCoefficient, NumpyImageToTensor
 
 
 def main():
     # Initialize Transformation
     transform = torch.nn.Sequential(
-        GrayToRGB(),
+        ImageResize(600),
+        ImageResizeByCoefficient(32),
+        NumpyImageToTensor(),
+        FilterOutAlphaChannel()
+    )
+    target_transform = torch.nn.Sequential(
+        ImageResize(600),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel()
@@ -29,7 +35,8 @@ def main():
             'Wood' : 7,
             'Water' : 9
         },
-        transform=transform
+        transform=transform,
+        target_transform=target_transform
     )
     data_loader = DataLoader(dataset, batch_size=2, shuffle=True)
     # Load segmentation

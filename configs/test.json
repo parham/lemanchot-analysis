@@ -15,11 +15,9 @@
         }
     },
     "loss" : {
-        "name" : "focal_loss",
+        "name" : "cross_entropy",
         "config" : {
-            "alpha" : null,
-            "reduction" : "mean",
-            "ignore_index" : -100
+            "reduction" : "mean"
         }
     },
     "optimizer" : {
