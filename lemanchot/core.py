@@ -162,9 +162,6 @@ def get_device() -> str:
     settings = load_settings()
     return settings.device
 
-# The selected profile
-__LEMANCHOT_VT_PROFILE__ = 'LEMANCHOT_VT_PROFILE'
-
 @functools.lru_cache(maxsize=1)
 def get_profile(profile_name : str) -> DotMap:
     """Get the selected profile

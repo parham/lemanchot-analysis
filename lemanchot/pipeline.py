@@ -212,8 +212,8 @@ def simple_train_step__(
 ) -> Dict:
     inputs, targets = batch
 
-    inputs = inputs.to(dtype=torch.float32)
-    targets = targets.to(dtype=torch.float32)
+    # inputs = inputs.to(dtype=torch.float32)
+    # targets = targets.to(dtype=torch.float32)
 
     loss.prepare_loss(ref=batch[0])
     model.train()

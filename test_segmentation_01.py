@@ -23,6 +23,7 @@ def main():
     profile_name = args.profile
     # Load Settings
     profile = get_profile(profile_name)
+    dataset_name = profile.dataset_name
     dataset_path = profile.dataset_path
     categories = profile.categories
     # Initialize Transformation
@@ -46,7 +47,10 @@ def main():
     )
     data_loader = DataLoader(dataset, batch_size=2, shuffle=True)
     # Load segmentation
-    run_record = load_segmentation(profile_name='parham', database_name='Laval_Road_9h52')
+    run_record = load_segmentation(
+        profile_name=profile_name, 
+        database_name=dataset_name
+    )
     engine = run_record['engine']
     engine.logger = setup_logger('trainer')
     # Run the pipeline

@@ -17,7 +17,8 @@
     "loss" : {
         "name" : "cross_entropy",
         "config" : {
-            "reduction" : "mean"
+            "reduction" : "mean",
+            "ignore_index" : 255
         }
     },
     "optimizer" : {

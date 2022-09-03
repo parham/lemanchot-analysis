@@ -16,7 +16,32 @@
             "checkpoint_save" : true,
             "checkpoint_load" : true,
             "experiment_config_name" : "test",
+            "dataset_name" : "Laval_Road_9h52",
             "dataset_path" : "/home/phm/Datasets/Laval_Road_9h52",
+            "categories" : {
+                "Metal" : 2,
+                "Vegetation" : 4,
+                "Pavement" : 5,
+                "Wood" : 7,
+                "Water" : 9
+            }
+        },
+        "parham-bia" : {
+            "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+            "project_name" : "texture-analysis",
+            "workspace" : "parham",
+            "log_git_metadata" : true,
+            "log_env_gpu" : true,
+            "log_env_cpu" : true,
+            "log_env_host" : true,
+            "enable_logging" : false,
+            "enable_image_logging" : true,
+            "pipeline" : "simple_train",
+            "checkpoint_save" : true,
+            "checkpoint_load" : true,
+            "experiment_config_name" : "test",
+            "dataset_name" : "Laval_Road_9h52",
+            "dataset_path" : "/home/paperspace/Dataset/texture-analysis/Laval_Road_9h52/",
             "categories" : {
                 "Metal" : 2,
                 "Vegetation" : 4,
