@@ -17,10 +17,19 @@ from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 
 from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings, running_time
-from lemanchot.loss.core import BaseLoss, load_loss
+from lemanchot.loss.core import load_loss
 from lemanchot.models.core import BaseModule, load_model
 
 def load_optimizer(model : BaseModule, experiment_config : DotMap) -> optim.Optimizer:
+    """Load the optimizer based on given configuration
+
+    Args:
+        model (BaseModule): the model
+        experiment_config (DotMap): configuration for optimizer
+
+    Returns:
+        optim.Optimizer: the instantiated optimizer
+    """
     params = model.parameters()
     optim_name = experiment_config.optimizer.name
     optim_config = experiment_config.optimizer.config
@@ -217,6 +226,7 @@ def simple_train_step__(
 ) -> Dict:
 
     inputs, targets = batch
+    profile = get_profile(engine.state.profile_name)
 
     inputs = inputs.to(dtype=torch.float32, device=device)
     targets = targets.to(dtype=torch.float32, device=device)
@@ -233,6 +243,10 @@ def simple_train_step__(
     loss = criterion(outputs, targets)
     loss.backward()
     optimizer.step()
+
+    # Log metrics
+    if profile.enable_logging:
+        pass
 
     return {
         'loss' : loss.item()
