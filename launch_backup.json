@@ -13,7 +13,6 @@
             "justMyCode": false,
             "env": {
                 "LEMANCHOT_VT_SETTING_PATH": "settings.json",
-                "LEMANCHOT_VT_PROFILE" : "parham",
                 "LEMANCHOT_VT_CONFIG_DIR" : "configs"
             },
             "args" : [

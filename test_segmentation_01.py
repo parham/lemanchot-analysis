@@ -45,7 +45,7 @@ def main():
         transform=transform,
         target_transform=target_transform
     )
-    data_loader = DataLoader(dataset, batch_size=2, shuffle=True)
+    data_loader = DataLoader(dataset, batch_size=5, shuffle=True)
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, 
