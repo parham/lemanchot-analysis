@@ -5,6 +5,7 @@ comet_ml
 pytorch-ignite
 scikit-image
 opencv-python
+pyyaml
 wheel
 cython
 git+https://github.com/waspinator/coco.git@2.1.0
