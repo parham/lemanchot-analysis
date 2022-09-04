@@ -11,7 +11,7 @@ from ignite.engine import Engine
 
 import torch
 import torch.optim as optim
-from torch.optim import Optimizer
+from torch.autograd import Variable
 
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
@@ -20,7 +20,7 @@ from lemanchot.core import exception_logger, get_config, get_device, get_experim
 from lemanchot.loss.core import BaseLoss, load_loss
 from lemanchot.models.core import BaseModule, load_model
 
-def load_optimizer(model : BaseModule, experiment_config : DotMap) -> Optimizer:
+def load_optimizer(model : BaseModule, experiment_config : DotMap) -> optim.Optimizer:
     params = model.parameters()
     optim_name = experiment_config.optimizer.name
     optim_config = experiment_config.optimizer.config
@@ -110,7 +110,7 @@ def load_segmentation(
         device,
         model : BaseModule,
         loss,
-        optimizer : Optimizer,
+        optimizer : optim.Optimizer,
         experiment : Experiment
     ) -> Dict:
         t = time.time()
@@ -119,7 +119,7 @@ def load_segmentation(
             batch=batch,
             device=device,
             model=model,
-            loss=loss,
+            criterion=loss,
             optimizer=optimizer,
             experiment=experiment
         )
@@ -164,10 +164,10 @@ def load_segmentation(
     enable_checkpoint_save = profile.checkpoint_save if 'checkpoint_save' in profile else False
     if enable_checkpoint_save:
         checkpoint_dir = load_settings().checkpoint_dir
-        checkpoint_file = os.path.join(checkpoint_dir, '%s.pt' % pipeline_name)
+        checkpoint_file = f'{pipeline_name}.pt'
         checkpoint_saver = ModelCheckpoint(
-            checkpoint_dir,
-            checkpoint_file,
+            dirname=checkpoint_dir,
+            filename_pattern=checkpoint_file,
             require_empty=False, 
             create_dir=True,
             n_saved=1, 
@@ -179,14 +179,13 @@ def load_segmentation(
     enable_checkpoint_load = profile.checkpoint_load if 'checkpoint_load' in profile else False
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
-        checkpoint_file = os.path.join(checkpoint_dir, '%s.pt' % pipeline_name)
+        checkpoint_file = os.path.join(checkpoint_dir, f'{pipeline_name}.pt')
         if os.path.isfile(checkpoint_file):
             checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
             ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj) 
 
-    @engine.on(Events.ITERATION_COMPLETED(every=100))
+    @engine.on(Events.ITERATION_COMPLETED(every=1))
     def log_training(engine):
-        batch_loss = engine.state.output
         lr = optimizer.param_groups[0]['lr']
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
@@ -212,8 +211,8 @@ def simple_train_step__(
     batch,
     device,
     model : BaseModule,
-    loss,
-    optimizer : Optimizer,
+    criterion,
+    optimizer : optim.Optimizer,
     experiment : Experiment
 ) -> Dict:
 
@@ -222,17 +221,19 @@ def simple_train_step__(
     inputs = inputs.to(dtype=torch.float32, device=device)
     targets = targets.to(dtype=torch.float32, device=device)
 
-    loss.prepare_loss(ref=batch[0])
+    criterion.prepare_loss(ref=batch[0])
 
     model.train()
-    outputs = model(inputs)
-    outputs = torch.tensor(outputs, requires_grad=False)
-    loss_value = loss(outputs, targets)
-    
     optimizer.zero_grad()
-    loss_value.backward()
+
+    outputs = model(inputs)
+    outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype, requires_grad=True)
+    targets = targets.squeeze(1)
+
+    loss = criterion(outputs, targets)
+    loss.backward()
     optimizer.step()
 
     return {
-        'loss' : loss_value.item()
+        'loss' : loss.item()
     }

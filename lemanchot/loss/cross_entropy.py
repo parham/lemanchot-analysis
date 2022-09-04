@@ -14,4 +14,4 @@ class CrossEntropyLoss(BaseLoss):
         return
     
     def forward(self, output, target, **kwargs):
-        return self.criteria(torch.argmax(output, dim=1).to(dtype=target.dtype), target.squeeze(1))
+        return self.criteria(output, target)

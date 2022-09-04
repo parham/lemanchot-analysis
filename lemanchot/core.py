@@ -211,7 +211,7 @@ def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
             log_env_gpu=profile.log_env_gpu,
             log_env_cpu=profile.log_env_cpu,
             log_env_host=profile.log_env_host,
-            disabled=profile.enable_logging
+            disabled=not profile.enable_logging
         )
         exp_obj.set_name('%s_%s_%s' % (profile['name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
         exp_obj.add_tag(dataset)
