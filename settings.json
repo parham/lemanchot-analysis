@@ -1,5 +1,5 @@
 {
-    "device" : "cuda:0",
+    "device" : "cuda",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
         "parham" : {

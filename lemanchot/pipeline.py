@@ -73,11 +73,13 @@ def load_segmentation(
     # Load experiment configuration
     experiment_name = get_profile(profile_name).experiment_config_name
     experiment_config = get_config(experiment_name)
+    device = get_device()
     # Check if model configuration is available!
     if not 'model' in experiment_config:
         raise ValueError('Model must be defined in the experiment configuration!')
     # Create model instance
     model = load_model(experiment_config)
+    model.to(device)
     # Check if loss configuration is available!
     if not 'loss' in experiment_config:
         raise ValueError('Loss must be defined in the experiment configuration!')
@@ -105,8 +107,9 @@ def load_segmentation(
         engine : Engine, 
         batch,
         step_func : Callable,
+        device,
         model : BaseModule,
-        loss : BaseLoss,
+        loss,
         optimizer : Optimizer,
         experiment : Experiment
     ) -> Dict:
@@ -114,6 +117,7 @@ def load_segmentation(
         res = step_func(
             engine=engine,
             batch=batch,
+            device=device,
             model=model,
             loss=loss,
             optimizer=optimizer,
@@ -135,6 +139,7 @@ def load_segmentation(
     # Initialize the pipeline function
     seg_func = functools.partial(__run_pipeline,
         step_func=step_func,
+        device=device,
         model=model,
         loss=loss,
         optimizer=optimizer,
@@ -205,21 +210,26 @@ def load_segmentation(
 def simple_train_step__(
     engine : Engine, 
     batch,
+    device,
     model : BaseModule,
-    loss : BaseLoss,
+    loss,
     optimizer : Optimizer,
     experiment : Experiment
 ) -> Dict:
+
     inputs, targets = batch
 
-    # inputs = inputs.to(dtype=torch.float32)
-    # targets = targets.to(dtype=torch.float32)
+    inputs = inputs.to(dtype=torch.float32, device=device)
+    targets = targets.to(dtype=torch.float32, device=device)
 
     loss.prepare_loss(ref=batch[0])
+
     model.train()
-    optimizer.zero_grad()
     outputs = model(inputs)
+    outputs = torch.tensor(outputs, requires_grad=False)
     loss_value = loss(outputs, targets)
+    
+    optimizer.zero_grad()
     loss_value.backward()
     optimizer.step()
 
