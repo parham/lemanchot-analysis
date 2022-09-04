@@ -1,0 +1,12 @@
+
+torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+dotmap
+comet_ml
+pytorch-ignite
+scikit-image
+opencv-python
+wheel
+cython
+git+https://github.com/waspinator/coco.git@2.1.0
+git+https://github.com/waspinator/pycococreator.git@0.2.0
+gimp-labeling-converter
