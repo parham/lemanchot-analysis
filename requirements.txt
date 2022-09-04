@@ -6,6 +6,7 @@ pytorch-ignite
 scikit-image
 opencv-python
 pyyaml
+segmentation_models_pytorch
 wheel
 cython
 git+https://github.com/waspinator/coco.git@2.1.0
