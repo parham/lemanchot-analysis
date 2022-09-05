@@ -19,12 +19,12 @@
             "dataset_name" : "Laval_Road_9h52",
             "dataset_path" : "/home/phm/Datasets/Laval_Road_9h52",
             "categories" : {
-                "Metal" : 2,
-                "Vegetation" : 4,
-                "Pavement" : 5,
-                "Wood" : 7,
-                "Water" : 9,
-                "Plastic" : 11
+                "Metal" : 1,
+                "Vegetation" : 2,
+                "Pavement" : 3,
+                "Wood" : 4,
+                "Water" : 5,
+                "Plastic" : 6
             }
         },
         "parham-bia" : {
@@ -44,12 +44,12 @@
             "dataset_name" : "Laval_Road_9h52",
             "dataset_path" : "/home/paperspace/Dataset/texture-analysis/Laval_Road_9h52/",
             "categories" : {
-                "Metal" : 2,
-                "Vegetation" : 4,
-                "Pavement" : 5,
-                "Wood" : 7,
-                "Water" : 9,
-                "Plastic" : 11
+                "Metal" : 1,
+                "Vegetation" : 2,
+                "Pavement" : 3,
+                "Wood" : 4,
+                "Water" : 5,
+                "Plastic" : 6
             }
         },
         "parham-bia-a5000" : {
@@ -69,12 +69,12 @@
             "dataset_name" : "Laval_Road_9h52",
             "dataset_path" : "/home/paperspace/Datasets/texture-analysis/Laval_Road_9h52",
             "categories" : {
-                "Metal" : 2,
-                "Vegetation" : 4,
-                "Pavement" : 5,
-                "Wood" : 7,
-                "Water" : 9,
-                "Plastic" : 11
+                "Metal" : 1,
+                "Vegetation" : 2,
+                "Pavement" : 3,
+                "Wood" : 4,
+                "Water" : 5,
+                "Plastic" : 6
             }
         }
     }

@@ -1,4 +1,5 @@
 
+import logging
 import cv2
 import numpy as np
 
@@ -6,26 +7,27 @@ from dataclasses import dataclass
 from typing import Callable, Dict, List
 from skimage.metrics import structural_similarity
 from scipy.spatial.distance import directed_hausdorff
+from comet_ml import Experiment
+from dotmap import DotMap
 
+from ignite.engine import Engine
 from ignite.exceptions import NotComputableError
 
 from lemanchot.core import get_experiment
 
+__metric_handler = {}
+
 def metric_register(name : str):
     """ register metrics to be used """
-    def __embed_clss(clss):
-        if not issubclass(clss,BaseMetric):
-            raise ValueError(f'{name} must be a subclass of BaseMetric')
-        clss._name = name
-        
-        def get_name(self):
-            return self._name
-        
-        clss.get_name = get_name
+    def __embed_func(clss):
+        global __metric_handler
+        if not issubclass(clss, BaseMetric):
+            raise NotImplementedError('The specified metric is not correctly implemented!')
 
-        return clss
-    
-    return __embed_clss
+        clss.get_name = lambda _: name
+        __metric_handler[name] = clss
+
+    return __embed_func
 
 def list_metrics() -> List[str]:
     """List of registered models
@@ -33,8 +35,8 @@ def list_metrics() -> List[str]:
     Returns:
         List[str]: list of registered models
     """
-    global __model_handler
-    return list(__model_handler.keys())
+    global __metric_handler
+    return list(__metric_handler.keys())
 
 class BaseMetric(object):
     """ Base class for metrics """
@@ -42,20 +44,23 @@ class BaseMetric(object):
         # Initialize the configuration
         for key, value in config.items():
             setattr(self, key, value)
-        self.experiment = get_experiment()
 
     def reset(self):
         """ reset the internal states """
         return
 
-    def update(self, output):
-        """ update the internal states with given output """
+    def update(self, batch):
+        """ update the internal states with given output
+
+        Args:
+            batch (Tuple): the variable containing data
+        """
         pass
 
-    def compute(self, 
-        prefix : str = '',
-        step : int = 1, 
-        epoch : int = 1
+    def compute(self,
+        engine : Engine,
+        experiment : Experiment,
+        prefix : str = ''
     ):
         """ Compute the metrics
 
@@ -65,6 +70,23 @@ class BaseMetric(object):
             epoch (int, optional): the given epoch. Defaults to 1.
         """
         pass
+
+def load_metric(name, config) -> BaseMetric:
+    if not name in list_metrics():
+        msg = f'{name} metric is not supported!'
+        logging.error(msg)
+        raise ValueError(msg)
+    
+    return __metric_handler[name](config)
+
+def load_metrics(experiment_config : DotMap, categories):
+    metrics_configs = experiment_config.metrics
+
+    metrics_obj = []
+    for metric_name, config in metrics_configs.items():
+        config.categories = categories
+        metrics_obj.append(load_metric(metric_name, config))
+    return metrics_obj
 
 @dataclass
 class CMRecord:
@@ -88,15 +110,15 @@ class Function_Metric(BaseMetric):
         self.__last_ret = None
         self.__args = config
 
-    def update(self, output):
-        """ update the internal states with given output """
-        output, target = output[-2], output[-1]
+    def update(self, batch):
+        """ update the internal states with given batch """
+        output, target = batch[-2], batch[-1]
         self.__last_ret = self.__func(output, target, **self.__args)
 
-    def compute(self,  
-        prefix : str = '',
-        step : int = 1, 
-        epoch : int = 1
+    def compute(self,
+        engine : Engine,
+        experiment : Experiment,
+        prefix : str = ''
     ):
         """Compute the metrics
 
@@ -107,7 +129,12 @@ class Function_Metric(BaseMetric):
         """
         
         if self.__last_ret is not None:
-            self.experiment.log_metrics(self.__last_ret, prefix=prefix, step=step, epoch=epoch)
+            experiment.log_metrics(
+                self.__last_ret, 
+                prefix=prefix, 
+                step=engine.state.iteration, 
+                epoch=engine.state.epoch
+            )
         
         return self.__last_ret
 
@@ -149,24 +176,17 @@ def measure_accuracy_cm__(
 
 @metric_register('confusion_matrix')
 class ConfusionMatrix(BaseMetric):
-    def __init__(self, 
-        category : Dict[str, int],
-        cm_based_metrics : List[Callable] = None,
-        log_steps : bool = False
-    ) -> None:
-        self.category = category
-        lbl = list(self.category.values())
+    def __init__(self, config) -> None:
+        super().__init__(config)
+        lbl = list(self.categories.values())
         lbl.sort()
-        self.labels = {}
         self.class_ids = lbl
-        self.class_labels = [list(self.category.keys())[self.class_ids.index(v)] for v in self.class_ids]
+        self.class_labels = [list(self.categories.keys())[self.class_ids.index(v)] for v in self.class_ids]
         self.reset()
-        self.log_steps = log_steps
-        self.cm_metrics = cm_based_metrics
 
     def reset(self):
         """ Reset the internal metrics """
-        lcount = len(self.category.keys())
+        lcount = len(self.categories.keys())
         self.confusion_matrix = np.zeros((lcount, lcount), np.uint)
         self.step_confusion_matrix = np.zeros((lcount, lcount), np.uint)
 
@@ -209,26 +229,30 @@ class ConfusionMatrix(BaseMetric):
         self.confusion_matrix += cmatrix
     
     def compute(self,  
-        prefix : str = '',
-        step : int = 1, 
-        epoch : int = 1
-    ) -> Dict:
-        experiment = get_experiment()
+        engine : Engine,
+        experiment : Experiment,
+        prefix : str = ''
+    ):
         experiment.log_confusion_matrix(
             matrix=self.confusion_matrix, 
             labels=self.class_labels, 
             title=f'{prefix}Confusion Matrix',
             file_name=f'{prefix}confusion-matrix.json', 
-            step=step, epoch=epoch)
+            step=engine.state.iteration, 
+            epoch=engine.state.epoch
+        )
         
         # Calculate confusion matrix based metrics
         stats = {}
-        if self.cm_metrics is not None and self.cm_metrics:
-            for __cx in self.cm_metrics:
-                sts = __cx(self.confusion_matrix, self.class_labels)
-                stats = {**stats, **sts}
-            
-            experiment.log_metrics(stats, prefix=prefix, step=step, epoch=epoch)
+
+        sts = measure_accuracy_cm__(self.confusion_matrix)
+        stats = {**stats, **sts}
+        
+        self.experiment.log_metrics(stats, 
+            prefix=prefix, 
+            step=engine.state.iteration, 
+            epoch=engine.state.epoch
+        )
 
         return CMRecord(
             self.confusion_matrix,
@@ -239,12 +263,15 @@ class ConfusionMatrix(BaseMetric):
 
 @metric_register('mIoU')
 class mIoU(BaseMetric):
-    def __init__(self, ignored_class, 
-        iou_thresh : float = 0.1
-    ) -> None:
-        super().__init__()
-        self.ignore_class = ignored_class
-        self.iou_thresh = iou_thresh
+    def __init__(self, config) -> None:
+        """measure mIoU metric 
+
+        Args:
+            config (_type_): _description_
+            *    ignored_class (_type_): _description_
+            *    iou_thresh (float, optional): _description_. Defaults to 0.1.
+        """
+        super().__init__(config)
         self._mIoU = 0.0
         self._mIoU_count = 0
         self._iou_map = None
@@ -261,17 +288,23 @@ class mIoU(BaseMetric):
         self._mIoU_count += 1
         self._iou_map = iou_map
     
-    def compute(self, 
-        prefix : str = '',
-        step : int = 1, epoch : int = 1):
+    def compute(self,
+        engine : Engine,
+        experiment : Experiment,
+        prefix : str = ''
+    ):
         if self._mIoU_count == 0:
             raise NotComputableError()
+
         metric = float(self._mIoU) / float(self._mIoU_count)
 
-        experiment = get_experiment()
         experiment.log_table('iou.csv', self._iou_map)
-        experiment.log_metric(name=f'{prefix}{self.get_name()}', value=metric, step=step, epoch=epoch)
-
+        experiment.log_metric(
+            name=f'{prefix}{self.get_name()}', 
+            value=metric, 
+            step=engine.state.iteration, 
+            epoch=engine.state.epoch
+        )
         return metric
 
 def iou_binary(
@@ -410,7 +443,7 @@ def rmse(org: np.ndarray, pred: np.ndarray, max_p: int = 255) :
     return {'rmse' : np.mean(rmse_bands)}
 
 @metric_register('rmse')
-class RMSE(BaseMetric):
+class RMSE(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=rmse,
@@ -438,7 +471,7 @@ def psnr(org_img: np.ndarray, pred_img: np.ndarray, max_p: int = 255) -> float:
     return {'psnr' : 20 * np.log10(max_p) - 10.0 * np.log10(np.mean(mse_bands))}
 
 @metric_register('psnr')
-class PSNR(BaseMetric):
+class PSNR(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=psnr,
@@ -472,11 +505,11 @@ def directed_hausdorff_distance(img: np.ndarray, target: np.ndarray):
     return {'directed_hausdorff' : hdvalue}
 
 @metric_register('hausdorff_distance')
-class Hausdorff_Distance(BaseMetric):
+class Hausdorff_Distance(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=directed_hausdorff_distance,
-            config={}
+            config=config
         )
 
 def fsim(
@@ -542,7 +575,7 @@ def fsim(
     return {'fsim' : np.mean(fsim_list)}
 
 @metric_register('fsim')
-class FSIM(BaseMetric):
+class FSIM(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=fsim,
@@ -574,7 +607,7 @@ def _edge_c(x: np.ndarray, y: np.ndarray):
     return numerator / denominator
 
 @metric_register('ssim')
-class SSIM(BaseMetric):
+class SSIM(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=ssim,
@@ -592,7 +625,7 @@ def ssim(org_img: np.ndarray, pred_img: np.ndarray, max_p: int = 255) -> float:
     return {'ssim' : res}
 
 @metric_register('issm')
-class ISSM(BaseMetric):
+class ISSM(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=issm,
@@ -634,7 +667,7 @@ def sliding_window(image: np.ndarray, stepSize: int, windowSize: int):
             yield (x, y, image[y : y + windowSize[1], x : x + windowSize[0]])
 
 @metric_register('uiq')
-class UIQ(BaseMetric):
+class UIQ(Function_Metric):
     def __init__(self, config):
         super().__init__(
             func=uiq,
@@ -695,11 +728,11 @@ def uiq (org: np.ndarray, pred: np.ndarray,
 
     return {'uiq' : np.mean(q_all)}
 
-@metric_register('uiq')
-class UIQ(BaseMetric):
+@metric_register('sam')
+class SAM(Function_Metric):
     def __init__(self, config):
         super().__init__(
-            func=uiq,
+            func=sam,
             config=config
         )
 
@@ -725,11 +758,11 @@ def sam(org: np.ndarray, pred: np.ndarray, convert_to_degree: bool = True):
     # et al. (2018) use degrees. We therefore made this configurable, with degree the default
     return {'sam' : np.mean(np.nan_to_num(sam_angles))}
 
-@metric_register('sam')
-class SAM(BaseMetric):
+@metric_register('sre')
+class SRE(Function_Metric):
     def __init__(self, config):
         super().__init__(
-            func=sam,
+            func=sre,
             config=config
         )
 
@@ -753,11 +786,3 @@ def sre(org: np.ndarray, pred: np.ndarray):
         sre_final.append(numerator / denominator)
 
     return {'sre' : 10 * np.log10(np.mean(sre_final))}
-
-@metric_register('sre')
-class SRE(BaseMetric):
-    def __init__(self, config):
-        super().__init__(
-            func=sre,
-            config=config
-        )

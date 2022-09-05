@@ -3,6 +3,7 @@ import functools
 import logging
 import os
 import time
+import numpy as np
 
 from typing import Callable, Dict, List, Union
 from dotmap import DotMap
@@ -11,6 +12,7 @@ from ignite.engine import Engine
 
 import torch
 import torch.optim as optim
+import torchvision.transforms as T
 from torch.autograd import Variable
 
 from ignite.engine.events import Events
@@ -18,6 +20,7 @@ from ignite.handlers import ModelCheckpoint, global_step_from_engine
 
 from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings, running_time
 from lemanchot.loss.core import load_loss
+from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models.core import BaseModule, load_model
 
 def load_optimizer(model : BaseModule, experiment_config : DotMap) -> optim.Optimizer:
@@ -111,6 +114,8 @@ def load_segmentation(
         raise ValueError('Pipeline is not supported!')
 
     step_func = load_pipeline(pipeline_name)
+    # Create metric instances
+    metrics = load_metrics(experiment_config, profile.categories)
 
     def __run_pipeline(
         engine : Engine, 
@@ -120,8 +125,10 @@ def load_segmentation(
         model : BaseModule,
         loss,
         optimizer : optim.Optimizer,
+        metrics : List[BaseMetric],
         experiment : Experiment
     ) -> Dict:
+        profile = get_profile(engine.state.profile_name)
         t = time.time()
         res = step_func(
             engine=engine,
@@ -135,14 +142,29 @@ def load_segmentation(
 
         engine.state.last_loss = res['loss'] if 'loss' in res else 0
         engine.state.step_time = time.time() - t
+        # Logging metrics
+        if profile.enable_logging:
+            transform = T.ToPILImage()
+            experiment.log_metrics({
+                    'loss' : engine.state.last_loss,
+                    'step_time' : engine.state.step_time
+                }, prefix='iteration_',
+                step=engine.state.iteration,
+                epoch=engine.state.epoch
+            )
+            # Calculate metrics
+            target = res['y']
+            output = res['y_pred']
+            num_samples = res['y'].shape[0]
+            for i in range(num_samples):
+                out = np.asarray(transform(np.squeeze(output[i,:,:])))
+                trg = np.asarray(transform(np.squeeze(target[i,:,:])))
+                if profile.enable_image_logging:
+                    experiment.log_image(out, 'result', step=engine.state.iteration)
+                for m in metrics:
+                    m.update((out, trg))
+                    m.compute(engine, experiment)
 
-        experiment.log_metrics({
-                'loss' : engine.state.last_loss,
-                'step_time' : engine.state.step_time
-            }, prefix='iteration_',
-            step=engine.state.iteration,
-            epoch=engine.state.epoch
-        )
         return res
 
     # Initialize the pipeline function
@@ -151,6 +173,7 @@ def load_segmentation(
         device=device,
         model=model,
         loss=loss,
+        metrics=metrics,
         optimizer=optimizer,
         experiment=experiment
     )
@@ -163,6 +186,7 @@ def load_segmentation(
     for key, value in pipeline_config.items():
         engine.state_dict_user_keys.append(key)
         setattr(engine.state, key, value)
+    engine.state.profile_name = profile_name
     # Save Checkpoint 
     run_record = {
         'engine' : engine,
@@ -226,8 +250,7 @@ def simple_train_step__(
 ) -> Dict:
 
     inputs, targets = batch
-    profile = get_profile(engine.state.profile_name)
-
+    
     inputs = inputs.to(dtype=torch.float32, device=device)
     targets = targets.to(dtype=torch.float32, device=device)
 
@@ -237,17 +260,16 @@ def simple_train_step__(
     optimizer.zero_grad()
 
     outputs = model(inputs)
+
     outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype, requires_grad=True)
     targets = targets.squeeze(1)
-
     loss = criterion(outputs, targets)
+
     loss.backward()
     optimizer.step()
 
-    # Log metrics
-    if profile.enable_logging:
-        pass
-
     return {
+        'y' : targets,
+        'y_pred' : outputs,
         'loss' : loss.item()
     }

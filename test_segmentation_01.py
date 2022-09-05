@@ -55,15 +55,10 @@ def main():
     )
     engine = run_record['engine']
     engine.logger = setup_logger('trainer')
-    
-    metric = ConfusionMatrix(num_classes=len(categories.keys()))
-    metric.attach(engine, 'cm')
 
     # Run the pipeline
     state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
     print(state)
-
-    print(state.metrics['cm'])
 
     return 0
 
