@@ -16,7 +16,7 @@
                 "LEMANCHOT_VT_CONFIG_DIR" : "configs"
             },
             "args" : [
-                "--profile", "parham"
+                "--profile", "parham-bia-a5000"
             ]
         }
     ]
