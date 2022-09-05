@@ -30,7 +30,7 @@
     },
     "pipeline" : {
         "simple_train" : {
-            "max_epoch" : 10
+            "max_epoch" : 1
         }
     }
 }
