@@ -1,6 +1,8 @@
 
 torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 dotmap
+matplotlib
+Pillow
 comet_ml
 pytorch-ignite
 scikit-image
