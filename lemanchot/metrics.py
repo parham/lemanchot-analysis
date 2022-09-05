@@ -10,6 +10,8 @@ from scipy.spatial.distance import directed_hausdorff
 from comet_ml import Experiment
 from dotmap import DotMap
 
+import phasepack.phasecong as pc
+
 from ignite.engine import Engine
 from ignite.exceptions import NotComputableError
 
@@ -49,7 +51,7 @@ class BaseMetric(object):
         """ reset the internal states """
         return
 
-    def update(self, batch):
+    def update(self, batch, **kwargs):
         """ update the internal states with given output
 
         Args:
@@ -60,7 +62,8 @@ class BaseMetric(object):
     def compute(self,
         engine : Engine,
         experiment : Experiment,
-        prefix : str = ''
+        prefix : str = '',
+        **kwargs
     ):
         """ Compute the metrics
 
@@ -110,7 +113,7 @@ class Function_Metric(BaseMetric):
         self.__last_ret = None
         self.__args = config
 
-    def update(self, batch):
+    def update(self, batch, **kwargs):
         """ update the internal states with given batch """
         output, target = batch[-2], batch[-1]
         self.__last_ret = self.__func(output, target, **self.__args)
@@ -118,7 +121,8 @@ class Function_Metric(BaseMetric):
     def compute(self,
         engine : Engine,
         experiment : Experiment,
-        prefix : str = ''
+        prefix : str = '',
+        **kwargs
     ):
         """Compute the metrics
 
@@ -203,7 +207,7 @@ class ConfusionMatrix(BaseMetric):
         self.confusion_matrix = newc
         self.step_confusion_matrix = newc_step
 
-    def update(self, data):
+    def update(self, data, **kwargs):
         output, target = data[-2], data[-1]
         # Flattening the output and target
         out = output.flatten()
@@ -231,7 +235,8 @@ class ConfusionMatrix(BaseMetric):
     def compute(self,  
         engine : Engine,
         experiment : Experiment,
-        prefix : str = ''
+        prefix : str = '',
+        **kwargs
     ):
         experiment.log_confusion_matrix(
             matrix=self.confusion_matrix, 
@@ -248,7 +253,7 @@ class ConfusionMatrix(BaseMetric):
         sts = measure_accuracy_cm__(self.confusion_matrix)
         stats = {**stats, **sts}
         
-        self.experiment.log_metrics(stats, 
+        experiment.log_metrics(stats, 
             prefix=prefix, 
             step=engine.state.iteration, 
             epoch=engine.state.epoch
@@ -281,7 +286,7 @@ class mIoU(BaseMetric):
         self._mIoU_count = 0
         super(mIoU, self).reset()
     
-    def update(self, data):
+    def update(self, data, **kwargs):
         output, target = data[-2], data[-1]
         iou, iou_map, maxv, maxind, _, _ = mIoU_func(output, target, iou_thresh=self.iou_thresh)
         self._mIoU += iou
@@ -291,7 +296,8 @@ class mIoU(BaseMetric):
     def compute(self,
         engine : Engine,
         experiment : Experiment,
-        prefix : str = ''
+        prefix : str = '',
+        **kwargs
     ):
         if self._mIoU_count == 0:
             raise NotComputableError()
@@ -364,7 +370,8 @@ def extract_regions(
 def mIoU_func(
     output : np.ndarray, 
     target : np.ndarray, 
-    iou_thresh : float = 0):
+    iou_thresh : float = 0,
+    **kwargs):
     """ Measuring mean IoU
 
     Args:
@@ -416,7 +423,7 @@ def _assert_image_shapes_equal(org: np.ndarray, pred: np.ndarray, metric: str):
 
     assert org.shape == pred.shape, msg
 
-def rmse(org: np.ndarray, pred: np.ndarray, max_p: int = 255) :
+def rmse(org: np.ndarray, pred: np.ndarray, max_p: int = 255, **kwargs) :
     """rmse : Root Mean Squared Error Calculated individually for all bands, then averaged
     Based on: https://github.com/up42/image-similarity-measures
 
@@ -450,7 +457,7 @@ class RMSE(Function_Metric):
             config=config
         )
 
-def psnr(org_img: np.ndarray, pred_img: np.ndarray, max_p: int = 255) -> float:
+def psnr(org_img: np.ndarray, pred_img: np.ndarray, max_p: int = 255, **kwargs) -> float:
     """
     Peek Signal to Noise Ratio, implemented as mean squared error converted to dB.
     Based on: https://github.com/up42/image-similarity-measures
@@ -500,7 +507,7 @@ def _gradient_magnitude(img: np.ndarray, img_depth: int):
         res = 0
     return res
 
-def directed_hausdorff_distance(img: np.ndarray, target: np.ndarray):
+def directed_hausdorff_distance(img: np.ndarray, target: np.ndarray, **kwargs):
     hdvalue = max(directed_hausdorff(img, target)[0], directed_hausdorff(target, img)[0])
     return {'directed_hausdorff' : hdvalue}
 
@@ -515,7 +522,8 @@ class Hausdorff_Distance(Function_Metric):
 def fsim(
     org: np.ndarray, 
     pred: np.ndarray, 
-    T1: float = 0.85, T2: float = 160
+    T1: float = 0.85, T2: float = 160,
+    **kwargs
 ) -> float:
     """
     Based on: https://github.com/up42/image-similarity-measures
@@ -614,7 +622,7 @@ class SSIM(Function_Metric):
             config=config
         )
 
-def ssim(org_img: np.ndarray, pred_img: np.ndarray, max_p: int = 255) -> float:
+def ssim(org_img: np.ndarray, pred_img: np.ndarray, max_p: int = 255, **kwargs) -> float:
     """
     Structural Simularity Index
     Based on: https://github.com/up42/image-similarity-measures
@@ -632,7 +640,7 @@ class ISSM(Function_Metric):
             config=config
         )
 
-def issm(org: np.ndarray, pred: np.ndarray) -> float:
+def issm(org: np.ndarray, pred: np.ndarray, **kwargs) -> float:
     """
     Information theoretic-based Statistic Similarity Measure
     Note that the term e which is added to both the numerator as well as the denominator is not properly
@@ -674,9 +682,11 @@ class UIQ(Function_Metric):
             config=config
         )
 
-def uiq (org: np.ndarray, pred: np.ndarray, 
+def uiq (org: np.ndarray, 
+    pred: np.ndarray, 
     step_size: int = 1, 
-    window_size: int = 8
+    window_size: int = 8,
+    **kwargs
 ):
     """
     Universal Image Quality index
@@ -736,7 +746,7 @@ class SAM(Function_Metric):
             config=config
         )
 
-def sam(org: np.ndarray, pred: np.ndarray, convert_to_degree: bool = True):
+def sam(org: np.ndarray, pred: np.ndarray, convert_to_degree: bool = True, **kwargs):
     """
     Spectral Angle Mapper which defines the spectral similarity between two spectra
     Based on: https://github.com/up42/image-similarity-measures
@@ -766,7 +776,7 @@ class SRE(Function_Metric):
             config=config
         )
 
-def sre(org: np.ndarray, pred: np.ndarray):
+def sre(org: np.ndarray, pred: np.ndarray, **kwargs):
     """
     Signal to Reconstruction Error Ratio
     Based on: https://github.com/up42/image-similarity-measures

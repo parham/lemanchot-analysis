@@ -157,10 +157,12 @@ def load_segmentation(
             output = res['y_pred']
             num_samples = res['y'].shape[0]
             for i in range(num_samples):
-                out = np.asarray(transform(np.squeeze(output[i,:,:])))
-                trg = np.asarray(transform(np.squeeze(target[i,:,:])))
+                out = output[i,:,:].cpu().detach().numpy()
+                trg = target[i,:,:].cpu().detach().numpy()
+
                 if profile.enable_image_logging:
                     experiment.log_image(out, 'result', step=engine.state.iteration)
+                    
                 for m in metrics:
                     m.update((out, trg))
                     m.compute(engine, experiment)

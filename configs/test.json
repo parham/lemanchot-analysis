@@ -7,9 +7,6 @@
         }
     },
     "metrics" : {
-        "mIoU" : {
-            "iou_thresh" : 0.1
-        },
         "confusion_matrix" : {
             "just_test" : "test"
         },
@@ -19,6 +16,9 @@
         "fsim" : {
             "T1" : 0.85,
             "T2" : 160
+        },
+        "ssim" : {
+            "max_p" : 255
         }
     },
     "loss" : {
