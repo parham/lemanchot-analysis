@@ -13,8 +13,6 @@ from lemanchot.core import get_profile, get_profile_names
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import FilterOutAlphaChannel, ImageResize, ImageResizeByCoefficient, NumpyImageToTensor
 
-from ignite.metrics.confusion_matrix import ConfusionMatrix
-
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
 parser.add_argument('--profile', required=True, choices=get_profile_names(), help="Select the name of profiles.")
 # parser.add_argument('--profile', '-p', type=str, required=True, help="The name of the profile")
