@@ -48,7 +48,6 @@ class FileRepeaterDataset(Dataset):
             target = self.target_transform(self.target)
         return img, target
 
-
 class RepetitiveDatasetWrapper(XCFDataset):
     def __init__(self, 
         root_dir: str, 
