@@ -29,13 +29,6 @@ class FocalLoss(BaseLoss):
     """
     
     def __init__(self, name : str, config) -> None:
-        super().__init__(name=name, config=config)
-
-        #              alpha: Optional[torch.Tensor] = None,
-        #              gamma: float = 0.,
-        #              reduction: str = 'mean',
-        #              ignore_index: int = -100):
-
         """Constructor.
         Args:
             alpha (Tensor, optional): Weights for each class. Defaults to None.
@@ -44,6 +37,8 @@ class FocalLoss(BaseLoss):
             ignore_index (int, optional): class label to ignore.
                 Defaults to -100.
         """
+        
+        super().__init__(name=name, config=config)
         self.reduction = self.reduction if hasattr(self, 'reduction') else 'none'
         if self.reduction not in ('mean', 'sum', 'none'):
             raise ValueError(
