@@ -10,7 +10,7 @@ import logging
 from dotmap import DotMap
 from typing import List, Union
 
-from lemanchot.core import BaseCore, get_device
+from lemanchot.core import BaseCore
 
 class BaseLoss(BaseCore):
     def __init__(self, name : str, config) -> None:
