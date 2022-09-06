@@ -23,11 +23,12 @@ def main():
     args = parser.parse_args()
     parser.print_help()
     profile_name = args.profile
-    # Load Settings
+    ######### Settings ##########
     profile = get_profile(profile_name)
     dataset_name = profile.dataset_name
     dataset_path = profile.dataset_path
     categories = profile.categories
+    ######### Transformation ##########
     # Initialize Transformation
     transform = torch.nn.Sequential(
         ImageResize(600),
@@ -41,13 +42,6 @@ def main():
         NumpyImageToTensor(),
         FilterOutAlphaChannel()
     )
-    dataset = XCFDataset(
-        root_dir=dataset_path,
-        category=categories,
-        transform=transform,
-        target_transform=target_transform
-    )
-    data_loader = DataLoader(dataset, batch_size=5, shuffle=True)
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, 
@@ -55,9 +49,24 @@ def main():
     )
     engine = run_record['engine']
     engine.logger = setup_logger('trainer')
+    ######### Dataset & Dataloader ##########
+    dataset = XCFDataset(
+        root_dir=dataset_path,
+        category=categories,
+        transform=transform,
+        target_transform=target_transform
+    )
+    data_loader = DataLoader(
+        dataset, 
+        batch_size=engine.state.batch_size, 
+        shuffle=True
+    )
 
     # Run the pipeline
-    state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
+    state = engine.run(
+        data_loader, 
+        max_epochs=engine.state.max_epoch
+    )
     print(state)
 
     return 0

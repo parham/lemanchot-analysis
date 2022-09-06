@@ -1,27 +1,34 @@
 
-import functools
-import logging
+""" 
+    @organization Laval University
+    @professor  Professor Xavier Maldague
+    @author     Parham Nooralishahi
+    @email      parham.nooralishahi@gmail.com
+"""
+
 import os
 import time
+import logging
+import functools
 import numpy as np
 
-from typing import Callable, Dict, List, Union
 from dotmap import DotMap
 from comet_ml import Experiment
-from ignite.engine import Engine
+from typing import Callable, Dict, List, Union
 
 import torch
 import torch.optim as optim
 import torchvision.transforms as T
 from torch.autograd import Variable
 
+from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 
 from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings, running_time
-from lemanchot.loss.core import load_loss
+from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
-from lemanchot.models.core import BaseModule, load_model
+from lemanchot.models import BaseModule, load_model
 
 def load_optimizer(model : BaseModule, experiment_config : DotMap) -> optim.Optimizer:
     """Load the optimizer based on given configuration
@@ -96,22 +103,26 @@ def load_segmentation(
     experiment_name = get_profile(profile_name).experiment_config_name
     experiment_config = get_config(experiment_name)
     device = get_device()
+    ############ Deep Model ##############
     # Check if model configuration is available!
     if not 'model' in experiment_config:
         raise ValueError('Model must be defined in the experiment configuration!')
     # Create model instance
     model = load_model(experiment_config)
     model.to(device)
+    ############ Loss function ##############
     # Check if loss configuration is available!
     if not 'loss' in experiment_config:
         raise ValueError('Loss must be defined in the experiment configuration!')
     # Create loss instance
     loss = load_loss(experiment_config)
+    ############ Optimizer ##############
     # Check if optimizer configuration is available!
     if not 'optimizer' in experiment_config:
         raise ValueError('Optimizer must be defined in the experiment configuration!')
     # Create optimizer instance
     optimizer = load_optimizer(model, experiment_config)
+    ############ Comet.ml Experiment ##############
     # Create the experiment instance
     experiment = get_experiment(profile_name=profile_name, dataset=database_name)
     # Logging the model
@@ -122,8 +133,9 @@ def load_segmentation(
     pipeline_name = profile.pipeline
     if not pipeline_name in experiment_config.pipeline:
         raise ValueError('Pipeline is not supported!')
-
+    ############ Pipeline ##############
     step_func = load_pipeline(pipeline_name)
+    ############ Metrics ##############
     # Create metric instances
     metrics = load_metrics(experiment_config, profile.categories)
 
@@ -163,12 +175,17 @@ def load_segmentation(
             )
             # Calculate metrics
             target = res['y']
+            if len(target) == 2:
+                target = torch.unsqueeze(target, dim=0)
             output = res['y_pred']
+            if len(output) == 2:
+                output = torch.unsqueeze(output, dim=0)
+
             num_samples = res['y'].shape[0]
             for i in range(num_samples):
-                out = output[i,:,:].cpu().detach().numpy()
-                trg = target[i,:,:].cpu().detach().numpy()
-
+                out = output[i,:,:].cpu().detach().numpy() if isinstance(output, torch.Tensor) else output[i,:,:]
+                trg = target[i,:,:].cpu().detach().numpy() if isinstance(target, torch.Tensor) else target[i,:,:]
+                
                 if profile.enable_image_logging:
                     experiment.log_image(out, 'result', step=engine.state.iteration)
                     
@@ -212,6 +229,7 @@ def load_segmentation(
         checkpoint_saver = ModelCheckpoint(
             dirname=checkpoint_dir,
             filename_pattern=checkpoint_file,
+            filename_prefix='',
             require_empty=False, 
             create_dir=True,
             n_saved=1, 
@@ -248,39 +266,3 @@ def load_segmentation(
         experiment.end()
 
     return run_record
-
-@pipeline_register("simple_train")
-def simple_train_step__(
-    engine : Engine, 
-    batch,
-    device,
-    model : BaseModule,
-    criterion,
-    optimizer : optim.Optimizer,
-    experiment : Experiment
-) -> Dict:
-
-    inputs, targets = batch
-    
-    inputs = inputs.to(dtype=torch.float32, device=device)
-    targets = targets.to(dtype=torch.float32, device=device)
-
-    criterion.prepare_loss(ref=batch[0])
-
-    model.train()
-    optimizer.zero_grad()
-
-    outputs = model(inputs)
-
-    outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype, requires_grad=True)
-    targets = targets.squeeze(1)
-    loss = criterion(outputs, targets)
-
-    loss.backward()
-    optimizer.step()
-
-    return {
-        'y' : targets,
-        'y_pred' : outputs,
-        'loss' : loss.item()
-    }
