@@ -6,10 +6,10 @@
     <img src="https://ssc.ca/sites/default/files/logo-ulaval-reseaux-sociaux.jpg" alt="Logo" width="200" height="100">
   </a>
 
-  <h3 align="center">LeManchot-VT-Smart</h3>
+  <h3 align="center">LeManchot-Analysis</h3>
 
   <p align="center">
-	The VT Smart subsystem of the LeManchot platform provides the required tools for fusion of thermal and visivle modalities. Also it provides the required features to detect the defects and abnormalities using both modalities.
+	The Analysis subsystem of the LeManchot platform provides the required tools for fusion of thermal and visivle modalities. Also it provides the required features to detect the defects and abnormalities using both modalities.
     <br/>
     <br/>
   </p>
