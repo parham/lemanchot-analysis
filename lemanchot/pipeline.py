@@ -69,7 +69,17 @@ def list_pipelines() -> List[str]:
 
 @exception_logger
 def load_pipeline(pipeline_name : str) -> Callable:
+    """ Load pipeline based on the given name
 
+    Args:
+        pipeline_name (str): pipeline's name
+
+    Raises:
+        ValueError: if pipeline's name is not supported
+
+    Returns:
+        Callable: the pipeline handler function
+    """
     if not pipeline_name in list_pipelines():
         msg = f'{pipeline_name} model is not supported!'
         logging.error(msg)
@@ -144,7 +154,6 @@ def load_segmentation(
         engine.state.step_time = time.time() - t
         # Logging metrics
         if profile.enable_logging:
-            transform = T.ToPILImage()
             experiment.log_metrics({
                     'loss' : engine.state.last_loss,
                     'step_time' : engine.state.step_time
