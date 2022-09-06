@@ -1,16 +1,16 @@
 
 """ 
+    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
     @organization Laval University
-    @professor  Professor Xavier Maldague
-    @author     Parham Nooralishahi
-    @email      parham.nooralishahi@gmail.com
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
 """
 
 import os
 import time
 import logging
 import functools
-import numpy as np
 
 from dotmap import DotMap
 from comet_ml import Experiment
@@ -18,14 +18,12 @@ from typing import Callable, Dict, List, Union
 
 import torch
 import torch.optim as optim
-import torchvision.transforms as T
-from torch.autograd import Variable
 
 from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 
-from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings, running_time
+from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model

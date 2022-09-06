@@ -1,8 +1,10 @@
 
 """ 
-    @title        Multi-modal texture analysis to enhance drone-based thermographic inspection of structures 
+    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
     @organization Laval University
-    @partner      TORNGATS
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
 """
 
 import json

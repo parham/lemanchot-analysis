@@ -1,5 +1,12 @@
 
-import torch
+""" 
+    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
+    @organization Laval University
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
+"""
+
 from torch import nn
 
 from lemanchot.loss.core import BaseLoss, loss_register

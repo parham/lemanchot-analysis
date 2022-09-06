@@ -1,10 +1,10 @@
 
 """ 
-    @title A Deep Semi-supervised Segmentation Approach for Thermographic Analysis of Industrial Components
+    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
     @organization Laval University
-    @professor  Professor Xavier Maldague
-    @author     Parham Nooralishahi
-    @email      parham.nooralishahi@gmail.com
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
 """
 
 import cv2

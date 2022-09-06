@@ -1,17 +1,19 @@
 
 """ 
-    @title        Multi-modal texture analysis to enhance drone-based thermographic inspection of structures 
+    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
     @organization Laval University
-    @partner      TORNGATS
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
 """
 
-from typing import Any, Dict, Optional, Sequence
+from typing import Optional, Sequence
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from lemanchot.loss.core import BaseLoss, loss_register
-
 
 @loss_register('focal_loss')
 class FocalLoss(BaseLoss):

@@ -1,9 +1,10 @@
 
 """ 
+    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
     @organization Laval University
-    @professor  Professor Xavier Maldague
-    @author     Parham Nooralishahi
-    @email      parham.nooralishahi@gmail.com
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
 """
 
 from comet_ml import Experiment
