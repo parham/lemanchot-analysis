@@ -15,8 +15,6 @@ import phasepack.phasecong as pc
 from ignite.engine import Engine
 from ignite.exceptions import NotComputableError
 
-from lemanchot.core import get_experiment
-
 __metric_handler = {}
 
 def metric_register(name : str):
