@@ -32,10 +32,8 @@ class TestDataset(unittest.TestCase):
         )
         batch_size = 2
         data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        # data = next(iter(data_loader))
         for img, target in data_loader:
             assert len(torch.unique(target)) <= batch_size
-    
 
 if __name__ == '__main__':
     unittest.main()
