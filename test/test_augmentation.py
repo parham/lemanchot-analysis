@@ -1,4 +1,12 @@
 
+""" 
+    @project LeManchot-Analysis : Multi-Modal Texture Analysis to Enhance Drone-based Thermographic Inspection of Structures
+    @organization Laval University
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
+"""
+
 import os
 import random
 import sys
