@@ -1,0 +1,45 @@
+{
+    "model" : {
+        "name" : "dbscan",
+        "config" : {
+            "eps" : 1.2,
+            "min_samples" : 70,
+            "leaf_size" : 30
+        }
+    },
+    "metrics" : {
+        "confusion_matrix" : {
+            "just_test" : "test"
+        },
+        "rmse" : {
+            "max_p" : 255
+        },
+        "fsim" : {
+            "T1" : 0.85,
+            "T2" : 160
+        },
+        "ssim" : {
+            "max_p" : 255
+        }
+    },
+    "loss" : {
+        "name" : "cross_entropy",
+        "config" : {
+            "reduction" : "mean",
+            "ignore_index" : 0
+        }
+    },
+    "optimizer" : {
+        "name" : "SGD",
+        "config" : {
+            "lr" : 0.1,
+            "momentum": 0.9
+        }
+    },
+    "pipeline" : {
+        "simple_train" : {
+            "max_epoch" : 1,
+            "batch_size" : 2
+        }
+    }
+}
