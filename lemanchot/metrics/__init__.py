@@ -9,8 +9,8 @@
 
 from .core import *
 from .confusion_matrix import *
-from .fsim import *
 from .hausdorff_distance import *
+from .fsim import *
 from .miou import *
 from .psnr import *
 from .rmse import *
