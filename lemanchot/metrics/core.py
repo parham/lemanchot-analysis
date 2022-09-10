@@ -73,6 +73,7 @@ class BaseMetric(object):
         pass
 
 def load_metric(name, config) -> BaseMetric:
+    global __metric_handler
     if not name in list_metrics():
         msg = f'{name} metric is not supported!'
         logging.error(msg)
