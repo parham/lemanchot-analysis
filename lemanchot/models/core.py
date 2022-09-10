@@ -63,12 +63,12 @@ def load_model(experiment_config : DotMap) -> BaseModule:
         BaseModule: the instance of the given model
     """
 
-    # Get model name
     if not 'model' in experiment_config:
         return None
 
+    # Get model name
     model_name = experiment_config.model.name
-    # Get the experiment configuration
+    # Get the model configuration
     model_config = experiment_config.model.config if 'config' in experiment_config.model else {}
 
     if not model_name in list_models():
