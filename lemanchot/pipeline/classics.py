@@ -24,7 +24,7 @@ from lemanchot.pipeline.core import pipeline_register
 from lemanchot.models import BaseModule
 from lemanchot.processing import adapt_output
 
-@pipeline_register("dbscan")
+@pipeline_register("classics")
 def dbscan_train_step__(
     engine : Engine, 
     batch,
