@@ -4,7 +4,7 @@
     "profiles" : {
         "parham" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
-            "project_name" : "texture-analysis",
+            "project_name" : "thermal-segmentor",
             "workspace" : "parham",
             "log_git_metadata" : true,
             "log_env_gpu" : true,
@@ -12,19 +12,15 @@
             "log_env_host" : true,
             "enable_logging" : false,
             "enable_image_logging" : true,
-            "pipeline" : "simple_train",
+            "pipeline" : "dbscan",
             "checkpoint_save" : true,
             "checkpoint_load" : true,
-            "experiment_config_name" : "test",
-            "dataset_name" : "Laval_Road_9h52",
-            "dataset_path" : "/home/phm/Datasets/Laval_Road_9h52",
+            "experiment_config_name" : "dbscan",
+            "dataset_name" : "Sample",
+            "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
             "categories" : {
-                "Metal" : 1,
-                "Vegetation" : 2,
-                "Pavement" : 3,
-                "Wood" : 4,
-                "Water" : 5,
-                "Plastic" : 6
+                "defect" : 2,
+                "surface_defect" : 3
             }
         },
         "parham-bia" : {

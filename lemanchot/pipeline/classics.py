@@ -22,7 +22,7 @@ from comet_ml import Experiment
 from lemanchot.pipeline.core import pipeline_register
 from lemanchot.models import BaseModule
 
-@pipeline_register("dbscan_train")
+@pipeline_register("dbscan")
 def dbscan_train_step__(
     engine : Engine, 
     batch,

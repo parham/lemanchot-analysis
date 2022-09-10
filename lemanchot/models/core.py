@@ -47,6 +47,7 @@ def list_models() -> List[str]:
     Returns:
         List[str]: list of registered models
     """
+
     global __model_handler
     return list(__model_handler.keys())
 
@@ -62,7 +63,6 @@ def load_model(experiment_config : DotMap) -> BaseModule:
     Returns:
         BaseModule: the instance of the given model
     """
-
     if not 'model' in experiment_config:
         return None
 

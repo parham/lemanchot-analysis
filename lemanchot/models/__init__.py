@@ -8,5 +8,5 @@
 """
 
 from .core import *
+from .classics import *
 from .smp import *
-

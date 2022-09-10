@@ -9,3 +9,4 @@
 
 from .core import *
 from .simple_train import *
+from .classics import *

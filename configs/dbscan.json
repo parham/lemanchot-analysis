@@ -30,7 +30,7 @@
         }
     },
     "pipeline" : {
-        "dbscan_train" : {
+        "dbscan" : {
             "max_epoch" : 1,
             "batch_size" : 2
         }

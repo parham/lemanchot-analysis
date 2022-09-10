@@ -111,21 +111,15 @@ def load_segmentation(
     device = get_device()
     ############ Deep Model ##############
     # Check if model configuration is available!
-    if not 'model' in experiment_config:
-        raise ValueError('Model must be defined in the experiment configuration!')
     # Create model instance
     model = load_model(experiment_config)
     model.to(device)
     ############ Loss function ##############
     # Check if loss configuration is available!
-    if not 'loss' in experiment_config:
-        raise ValueError('Loss must be defined in the experiment configuration!')
     # Create loss instance
     loss = load_loss(experiment_config)
     ############ Optimizer ##############
     # Check if optimizer configuration is available!
-    if not 'optimizer' in experiment_config:
-        raise ValueError('Optimizer must be defined in the experiment configuration!')
     # Create optimizer instance
     optimizer = load_optimizer(model, experiment_config)
     ############ Comet.ml Experiment ##############
