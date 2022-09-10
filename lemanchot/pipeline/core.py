@@ -64,7 +64,7 @@ def pipeline_register(name : Union[str, List[str]]):
         name (Union[str, List[str]]): the pipeline's or list of pipeline's name(s)
     """
     def __embed_func(func):
-        global __model_handler
+        global __pipeline_handler
         hname = name if isinstance(name, list) else [name]
         for n in hname:
             __pipeline_handler[n] = func

@@ -63,6 +63,8 @@ def load_model(experiment_config : DotMap) -> BaseModule:
     Returns:
         BaseModule: the instance of the given model
     """
+
+    global __model_handler
     if not 'model' in experiment_config:
         return None
 

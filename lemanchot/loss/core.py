@@ -69,6 +69,7 @@ def load_loss(experiment_config : DotMap):
         _type_: _description_
     """
 
+    global __loss_handler
     # Get loss name
     loss_name = experiment_config.loss.name
     # Get the experiment configuration
@@ -97,6 +98,7 @@ def load_loss(experiment_config : DotMap):
         BaseModule: the instance of the given loss
     """
 
+    global __loss_handler
     if not 'loss' in experiment_config:
         return None
 
