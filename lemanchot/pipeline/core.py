@@ -185,9 +185,9 @@ def load_segmentation(
 
             num_samples = res['y'].shape[0]
             for i in range(num_samples):
-                out = outputs[i,:,:,:].squeeze(0)
-                trg = targets[i,:,:,:].squeeze(0)
-                prc = processed[i,:,:,:].squeeze(0) if processed is not None else None
+                out = outputs[i,:,:,:]
+                trg = targets[i,:,:,:]
+                prc = processed[i,:,:,:] if processed is not None else None
                 
                 if profile.enable_image_logging:
                     experiment.log_image(out, f'output-{i}', step=engine.state.iteration, image_channels='first')
