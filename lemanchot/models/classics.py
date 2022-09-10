@@ -15,7 +15,7 @@ from lemanchot.models.core import model_register, BaseModule
 
 
 @model_register('dbscan')
-class UnetPlusPlus_Resnet18(BaseModule):
+class DBSCANModule(BaseModule):
     def __init__(self, name : str, config : DotMap) -> None:
         super().__init__(
             name='dbscan',
