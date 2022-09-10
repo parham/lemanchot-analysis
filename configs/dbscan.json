@@ -29,15 +29,8 @@
             "ignore_index" : 0
         }
     },
-    "optimizer" : {
-        "name" : "SGD",
-        "config" : {
-            "lr" : 0.1,
-            "momentum": 0.9
-        }
-    },
     "pipeline" : {
-        "simple_train" : {
+        "dbscan_train" : {
             "max_epoch" : 1,
             "batch_size" : 2
         }
