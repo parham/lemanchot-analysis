@@ -2,7 +2,7 @@
     "device" : "cuda",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
-        "parham" : {
+        "parham-dbscan" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
             "project_name" : "thermal-segmentor",
             "workspace" : "parham",
@@ -10,11 +10,11 @@
             "log_env_gpu" : true,
             "log_env_cpu" : true,
             "log_env_host" : true,
-            "enable_logging" : false,
+            "enable_logging" : true,
             "enable_image_logging" : true,
             "pipeline" : "dbscan",
-            "checkpoint_save" : true,
-            "checkpoint_load" : true,
+            "checkpoint_save" : false,
+            "checkpoint_load" : false,
             "experiment_config_name" : "dbscan",
             "dataset_name" : "Sample",
             "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",

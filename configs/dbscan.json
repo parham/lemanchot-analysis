@@ -22,13 +22,6 @@
             "max_p" : 255
         }
     },
-    "loss" : {
-        "name" : "cross_entropy",
-        "config" : {
-            "reduction" : "mean",
-            "ignore_index" : 0
-        }
-    },
     "pipeline" : {
         "dbscan" : {
             "max_epoch" : 1,

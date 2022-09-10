@@ -13,7 +13,7 @@ from ignite.engine import Engine
 
 import torch
 import torch.optim as optim
-from torchvision.transforms import ToPILImage, Grayscale
+from torchvision.transforms import ToPILImage, Grayscale, ToTensor
 
 import numpy as np
 from sklearn.cluster import DBSCAN, KMeans, MeanShift, estimate_bandwidth
@@ -36,25 +36,22 @@ def dbscan_train_step__(
 ) -> Dict:
     inputs, targets = batch
 
-    t = time.time()
-
-    to_gray = Grayscale()
     to_pil = ToPILImage()
+    to_tensor = ToTensor()
 
-    
     inputs = np.asarray((to_pil(inputs.squeeze(0))))
     targets = np.asarray((to_pil(targets.squeeze(0))))
-
-    criterion.prepare_loss(ref=inputs)
-
+    # Pass data to the model
     outputs = model(inputs)
-
     postprocessed = adapt_output(outputs, targets, iou_thresh=engine.state.iou_thresh)
 
+    outputs = to_tensor(outputs).unsqueeze(0)
+    postprocessed = to_tensor(postprocessed[0]).unsqueeze(0)
+
     return {
-        'y' : targets,
+        'y' : batch[1],
         'y_pred' : outputs,
-        'y_processed' : postprocessed[0],
+        'y_processed' : postprocessed,
         'loss' : 0.001
     }
 
