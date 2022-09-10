@@ -32,7 +32,8 @@
     "pipeline" : {
         "dbscan" : {
             "max_epoch" : 1,
-            "batch_size" : 1
+            "batch_size" : 1,
+            "iou_thresh" : 0.1
         }
     }
 }

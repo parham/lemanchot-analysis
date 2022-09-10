@@ -249,7 +249,7 @@ def load_segmentation(
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def log_training(engine):
-        lr = optimizer.param_groups[0]['lr']
+        lr = optimizer.param_groups[0]['lr'] if optimizer is not None else 0.0
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration

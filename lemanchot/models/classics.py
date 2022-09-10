@@ -21,20 +21,11 @@ class DBSCANModule(BaseModule):
             name='dbscan',
             config=config
         )
-        self.clss = DBSCAN(
-            eps = self.eps,
-            min_samples = self.min_samples,
-            leaf_size = self.leaf_size
-        )
+        self.clss = DBSCAN(**config)
     
-    def forward(self, inputs):
-        batch_size = inputs.shape[0]
-        outputs = []
-        for bindex in range(batch_size):
-            input = inputs.take(indices=bindex, axis=0)
-            input_size = input.shape
-            db = self.clss.fit(inputs)
-            output = np.uint8(db.labels_.reshape(input_size[:2]))
-            outputs.append(output)
-        outputs = np.dstack(outputs)
-        return outputs
+    def forward(self, input):
+        input_size = input.shape
+        data = np.float32(input.reshape((-1, 3)))
+        db = self.clss.fit(data)
+        output = np.uint8(db.labels_.reshape(input_size[:2]))
+        return output

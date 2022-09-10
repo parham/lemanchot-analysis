@@ -7,12 +7,13 @@
     @email      parham.nooralishahi@gmail.com
 """
 
-from time import time
+import time
 from typing import Dict
 from ignite.engine import Engine
 
 import torch
 import torch.optim as optim
+from torchvision.transforms import ToPILImage, Grayscale
 
 import numpy as np
 from sklearn.cluster import DBSCAN, KMeans, MeanShift, estimate_bandwidth
@@ -21,6 +22,7 @@ from comet_ml import Experiment
 
 from lemanchot.pipeline.core import pipeline_register
 from lemanchot.models import BaseModule
+from lemanchot.processing import adapt_output
 
 @pipeline_register("dbscan")
 def dbscan_train_step__(
@@ -36,21 +38,23 @@ def dbscan_train_step__(
 
     t = time.time()
 
-    inputs = inputs.cpu().detach().numpy()
-    targets = targets.cpu().detach().numpy()
-    batch_size = inputs.shape[0]
+    to_gray = Grayscale()
+    to_pil = ToPILImage()
 
-    criterion.prepare_loss(ref=batch[0])
+    
+    inputs = np.asarray((to_pil(inputs.squeeze(0))))
+    targets = np.asarray((to_pil(targets.squeeze(0))))
+
+    criterion.prepare_loss(ref=inputs)
 
     outputs = model(inputs)
 
-    outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype, requires_grad=True)
-    targets = targets.squeeze(1)
-    loss = criterion(outputs, targets)
+    postprocessed = adapt_output(outputs, targets, iou_thresh=engine.state.iou_thresh)
 
     return {
         'y' : targets,
         'y_pred' : outputs,
-        'loss' : loss.item()
+        'y_processed' : postprocessed[0],
+        'loss' : 0.001
     }
 
