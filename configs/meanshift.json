@@ -1,0 +1,29 @@
+{
+    "model" : {
+        "name" : "meanshift",
+        "config" : {
+            "quantile" : 0.3,
+            "n_samples" : 3
+        }
+    },
+    "metrics" : {
+        "confusion_matrix" : {
+            "just_test" : "test"
+        },
+        "rmse" : {
+            "max_p" : 255
+        },
+        "fsim" : {
+            "T1" : 0.85,
+            "T2" : 160
+        },
+        "ssim" : {
+            "max_p" : 255
+        }
+    },
+    "pipeline" : {
+        "classics" : {
+            "n_clusters" : 1
+        }
+    }
+}
