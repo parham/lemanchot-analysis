@@ -85,26 +85,28 @@ def load_loss(experiment_config : DotMap):
     )
 
 def load_loss(experiment_config : DotMap):
-    """Load an instance of a registered model based on the given name
+    """Load an instance of a registered loss based on the given name
 
     Args:
         experiment_config (DotMap): configuration
 
     Raises:
-        ValueError: model is not supported
+        ValueError: loss is not supported
 
     Returns:
-        BaseModule: the instance of the given model
+        BaseModule: the instance of the given loss
     """
 
-    loss_config = experiment_config.loss
-    # Get model name
-    loss_name = loss_config.name
-    # Get the experiment configuration
-    loss_config = loss_config.config
+    if not 'loss' in experiment_config:
+        return None
+
+    # Get loss name
+    loss_name = experiment_config.loss.name
+    # Get the loss configuration
+    loss_config = experiment_config.loss.config if 'config' in experiment_config.loss else {}
 
     if not loss_name in list_losses():
-        msg = f'{loss_name} model is not supported!'
+        msg = f'{loss_name} loss is not supported!'
         logging.error(msg)
         raise ValueError(msg)
     
