@@ -7,15 +7,13 @@
     @email      parham.nooralishahi@gmail.com
 """
 
-from dotmap import DotMap
-
 import torch.nn as nn
 import torch.nn.functional as F
 
-from lemanchot.models.core import model_register
+from lemanchot.models.core import BaseModule, model_register
 
 @model_register('wonjik2020')
-class Wonjik2020Module (nn.Module):
+class Wonjik2020Module (BaseModule):
     """ 
     Implementation of the model presented in:
     @name           Unsupervised Learning of Image Segmentation Based on Differentiable Feature Clustering   

@@ -9,6 +9,7 @@
 
 import torch
 from torch.autograd import Variable
+from torchvision.transforms import ToPILImage
 
 import numpy as np
 from skimage import segmentation
@@ -38,6 +39,7 @@ class UnsupervisedLoss_SuperResolusion(BaseLoss):
 
         self.l_inds = None
         self.loss_fn = torch.nn.CrossEntropyLoss()
+        self.to_pil = ToPILImage()
 
     def prepare_loss(self, **kwargs):
         """Set the reference image for SLIC algorithm duing initialization.
@@ -45,10 +47,10 @@ class UnsupervisedLoss_SuperResolusion(BaseLoss):
         Args:
             ref (Image): Reference image
         """
-        ref = kwargs['ref']
+        ref = np.asarray(self.to_pil(kwargs['ref'].squeeze(0)))
         self._ref = ref
-        img_w = ref.shape[0]
-        img_h = ref.shape[1]
+        img_h = ref.shape[0]
+        img_w = ref.shape[1]
         # SLIC : segment the image using SLIC algorithm
         labels = segmentation.slic(ref,
             compactness=self.compactness,
@@ -64,7 +66,7 @@ class UnsupervisedLoss_SuperResolusion(BaseLoss):
 
     def forward(self, output, target, **kwargs):
         # Superpixel Refinement
-        im_target = target.data.cpu().detach().numpy()
+        im_target = target.cpu().detach().numpy()
         for i in range(len(self.l_inds)):
             labels_per_sp = im_target[self.l_inds[i]]
             u_labels_per_sp = np.unique(labels_per_sp)
