@@ -37,13 +37,13 @@ def main():
     ######### Transformation ##########
     # Initialize Transformation
     transform = torch.nn.Sequential(
-        ImageResize(600),
+        ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel()
     )
     target_transform = torch.nn.Sequential(
-        ImageResize(600),
+        ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel()
