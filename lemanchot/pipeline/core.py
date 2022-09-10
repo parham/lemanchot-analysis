@@ -38,9 +38,17 @@ def load_optimizer(model : BaseModule, experiment_config : DotMap) -> optim.Opti
     Returns:
         optim.Optimizer: the instantiated optimizer
     """
+    
+    if model is None:
+        return None
+    
     params = model.parameters()
+
+    if not 'optimizer' in experiment_config:
+        return None
+    
     optim_name = experiment_config.optimizer.name
-    optim_config = experiment_config.optimizer.config
+    optim_config = experiment_config.optimizer.config if 'config' in experiment_config.optimizer else {}
 
     return {
         'SGD' : lambda ps, config: optim.SGD(ps, **config),

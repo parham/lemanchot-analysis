@@ -63,10 +63,13 @@ def load_model(experiment_config : DotMap) -> BaseModule:
         BaseModule: the instance of the given model
     """
 
+    if not 'model' in experiment_config:
+        return None
+
     # Get model name
     model_name = experiment_config.model.name
-    # Get the experiment configuration
-    model_config = experiment_config.model.config
+    # Get the model configuration
+    model_config = experiment_config.model.config if 'config' in experiment_config.model else {}
 
     if not model_name in list_models():
         msg = f'{model_name} model is not supported!'
