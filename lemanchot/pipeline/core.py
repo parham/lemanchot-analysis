@@ -217,9 +217,10 @@ def load_segmentation(
     pipeline_config = experiment_config.pipeline[pipeline_name]
     # Add configurations to the engine state
     engine.state.last_loss = 0
-    for key, value in pipeline_config.items():
-        engine.state_dict_user_keys.append(key)
-        setattr(engine.state, key, value)
+    if experiment_config.pipeline:
+        for key, value in pipeline_config.items():
+            engine.state_dict_user_keys.append(key)
+            setattr(engine.state, key, value)
     engine.state.profile_name = profile_name
     # Save Checkpoint 
     run_record = {
