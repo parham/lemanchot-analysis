@@ -16,8 +16,10 @@ from dotmap import DotMap
 from comet_ml import Experiment
 from typing import Callable, Dict, List, Union
 
+import numpy as np
 import torch
 import torch.optim as optim
+from torchvision.transforms import ToPILImage
 
 from ignite.engine import Engine
 from ignite.engine.events import Events
@@ -145,6 +147,8 @@ def load_segmentation(
     # Create metric instances
     metrics = load_metrics(experiment_config, profile.categories)
 
+    to_pil = ToPILImage()
+
     def __run_pipeline(
         engine : Engine, 
         batch,
@@ -180,23 +184,27 @@ def load_segmentation(
                 epoch=engine.state.epoch
             )
             # Calculate metrics
-            target = res['y']
-            if len(target) == 2:
-                target = torch.unsqueeze(target, dim=0)
-            output = res['y_pred']
-            if len(output) == 2:
-                output = torch.unsqueeze(output, dim=0)
+            # Assume Tensor B x C x W x H
+            targets = res['y']
+            outputs = res['y_pred']
+            processed = res['y_processed'] if 'y_processed' in res else None
 
             num_samples = res['y'].shape[0]
             for i in range(num_samples):
-                out = output[i,:,:].cpu().detach().numpy() if isinstance(output, torch.Tensor) else output[i,:,:]
-                trg = target[i,:,:].cpu().detach().numpy() if isinstance(target, torch.Tensor) else target[i,:,:]
+                out = outputs[i,:,:,:].squeeze(0)
+                trg = targets[i,:,:,:].squeeze(0)
+                prc = processed[i,:,:,:].squeeze(0) if processed is not None else None
                 
                 if profile.enable_image_logging:
-                    experiment.log_image(out, 'result', step=engine.state.iteration)
+                    experiment.log_image(out, f'output-{i}', step=engine.state.iteration, image_channels='first')
+                    experiment.log_image(trg, f'target-{i}', step=engine.state.iteration, image_channels='first')
+                    if processed is not None:
+                        experiment.log_image(prc, f'processed-{i}', step=engine.state.iteration, image_channels='first')
                     
                 for m in metrics:
-                    m.update((out, trg))
+                    m_out = np.asarray(to_pil(out if prc is None else prc))
+                    m_trg = np.asarray(to_pil(trg))
+                    m.update((m_out, m_trg))
                     m.compute(engine, experiment)
 
         return res
