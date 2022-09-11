@@ -226,12 +226,9 @@ def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
 
 def make_tensor_for_comet(img : torch.Tensor):
     # B x C x W x H
-    if len(img.shape) != 4:
-        raise ValueError('The tensor should have B x C x W x H format')
-    bsize = img.shape[0]
-    if bsize > 1:
-        raise ValueError('The batch size must be one!')
-    tmp = img.squeeze(0)
+    if len(img.shape) != 3:
+        raise ValueError('The tensor should have C x W x H format')
+
     channel = tmp.shape[0]
     if channel == 1:
         tmp = tmp.squeeze(0)
