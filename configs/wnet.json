@@ -1,0 +1,49 @@
+{
+    "model" : {
+        "name" : "wnet",
+        "config" : {
+            "num_channels" : 3,
+            "num_classes" : 5
+        }
+    },
+    "metrics" : {
+        "confusion_matrix" : {
+            "just_test" : "test"
+        },
+        "rmse" : {
+            "max_p" : 255
+        },
+        "fsim" : {
+            "T1" : 0.85,
+            "T2" : 160
+        },
+        "ssim" : {
+            "max_p" : 255
+        }
+    },
+    "loss" : {
+        "name" : "wnet_loss",
+        "config" : {
+            "alpha" : 1e-3, 
+            "beta" : 1, 
+            "gamma" : 1e-1, 
+            "ncut_radius" : 4, 
+            "sigma_1" : 5, 
+            "sigma_2" : 1,
+            "open_radius" : 2
+        }
+    },
+    "optimizer" : {
+        "name" : "SGD",
+        "config" : {
+            "lr" : 0.1,
+            "momentum": 0.9
+        }
+    },
+    "pipeline" : {
+        "wnet" : {
+            "max_epoch" : 10,
+            "batch_size" : 1
+        }
+    }
+}

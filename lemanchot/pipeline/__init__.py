@@ -11,3 +11,4 @@ from .core import *
 from .simple_train import *
 from .classics import *
 from .iterative_train import *
+from .wnet import *

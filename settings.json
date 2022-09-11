@@ -2,6 +2,27 @@
     "device" : "cuda",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
+        "parham-wnet" : {
+            "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+            "project_name" : "thermal-segmentor",
+            "workspace" : "parham",
+            "log_git_metadata" : true,
+            "log_env_gpu" : true,
+            "log_env_cpu" : true,
+            "log_env_host" : true,
+            "enable_logging" : false,
+            "enable_image_logging" : true,
+            "pipeline" : "wnet",
+            "checkpoint_save" : false,
+            "checkpoint_load" : false,
+            "experiment_config_name" : "wnet",
+            "dataset_name" : "Sample",
+            "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
+            "categories" : {
+                "defect" : 2,
+                "surface_defect" : 3
+            }
+        },
         "parham-unet_resnet18" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
             "project_name" : "thermal-segmentor",

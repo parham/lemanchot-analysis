@@ -255,4 +255,4 @@ class WNet(BaseModule):
         reconstructed = self.forward_reconstruct_(mask)
 
         # return mask, reconstructed
-        return reconstructed
+        return mask, reconstructed

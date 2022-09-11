@@ -11,11 +11,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+import numpy as np
+
 from typing import Any, Dict
 from scipy.ndimage import grey_opening
 
 from lemanchot.filter import gaussian_kernel
-from lemanchot.loss.core import BaseLoss, loss_register
+from lemanchot.loss.core import BaseLoss, load_loss, load_loss_inline__, loss_register
 
 @loss_register('wnet_loss')
 class WNetLoss(BaseLoss):
@@ -30,13 +32,15 @@ class WNetLoss(BaseLoss):
             gamma = 1e-1
         """
         super().__init__(name=name, config=config)
+        self.ncut_loss = load_loss_inline__(name='ncut2d_loss', config=config)
+        self.opening_loss = load_loss_inline__(name='opening2d_loss', config=config)
+        self.mse_loss = nn.MSELoss()
 
-    def forward(self, output, target, input, mask): # labels > target
-        input, label, output = input.contiguous(), target.contiguous(), output.contiguous()
+    def forward(self, output, target, input, mask): 
         # Weights for NCutLoss2D, MSELoss, and OpeningLoss2D, respectively
-        ncut_loss = self.alpha * NCutLoss2D()(mask, input)
-        mse_loss = self.beta * nn.MSELoss()(output, input.detach())
-        smooth_loss = self.gamma * OpeningLoss2D()(mask)
+        ncut_loss = self.alpha * self.ncut_loss(mask, input)
+        mse_loss = self.beta * self.mse_loss(output, input.detach())
+        smooth_loss = self.gamma * self.opening_loss(mask)
         loss = ncut_loss + mse_loss + smooth_loss
         return loss
 
@@ -54,6 +58,7 @@ class NCutLoss2D(BaseLoss):
         :param sigma_2: Standard deviation of the pixel value Gaussian interaction
         """
         super().__init__(name=name, config=config)
+        self.radius = self.ncut_radius
 
     def forward(self, inputs: torch.Tensor, labels: torch.Tensor, **kwargs) -> torch.Tensor:
         """
@@ -102,12 +107,9 @@ class OpeningLoss2D(BaseLoss):
         adopted from https://github.com/fkodom/wnet-unsupervised-image-segmentation
     """
 
-    def __init__(self, device : str, config : Dict[str,Any]) -> None:
-        super().__init__(
-            device=device, 
-            config=config
-        )
-        #       radius: int = 2
+    def __init__(self, name : str, config : Dict[str,Any]) -> None:
+        super().__init__(name=name, config=config)
+        self.radius = self.open_radius
 
     def forward(self, labels: torch.Tensor, **kwargs) -> torch.Tensor:
         """
