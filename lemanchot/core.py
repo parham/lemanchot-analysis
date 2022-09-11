@@ -237,4 +237,5 @@ def make_tensor_for_comet(img : torch.Tensor):
         tmp = tmp.permute((1,2,0))
     else:
         raise ValueError('the image format is not supported for comet.ml')
-    return tmp
+    
+    return tmp.cpu().detach().numpy()
