@@ -215,7 +215,7 @@ def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
             log_env_host=profile.log_env_host,
             disabled=not profile.enable_logging
         )
-        exp_obj.set_name('%s_%s_%s' % (profile['pipeline'], tnow.strftime('%Y%m%d-%H%M'), dataset))
+        exp_obj.set_name('%s::%s_%s_%s' % (profile['pipeline'], profile['experiment_config_name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
         exp_obj.add_tag(dataset)
         return exp_obj
 
