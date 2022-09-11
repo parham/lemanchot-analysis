@@ -8,6 +8,10 @@
 """
 
 import torch
+from torch.autograd import Variable
+from torchvision.transforms import ToPILImage
+
+import numpy as np
 
 from lemanchot.loss.core import BaseLoss, loss_register
 
@@ -39,12 +43,13 @@ class UnsupervisedLoss_TwoFactors(BaseLoss):
         self.loss_hpz = torch.nn.L1Loss(reduction='mean')
         self.HPy_target = None
         self.HPz_target = None
+        self.to_pil = ToPILImage()
 
     def prepare_loss(self, **kwargs):
-        ref = kwargs['ref']
+        ref = np.asarray(self.to_pil(kwargs['ref'].squeeze(0)))
         self._ref = ref
-        img_w = ref.shape[-1]
-        img_h = ref.shape[-2]
+        img_h = ref.shape[0]
+        img_w = ref.shape[1]
         self.HPy_target = torch.zeros(
             self.num_channel, img_h - 1, img_w).to(self.device)
         self.HPz_target = torch.zeros(
