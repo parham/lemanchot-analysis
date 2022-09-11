@@ -25,8 +25,9 @@
     "loss" : {
         "name" : "unsupervised_twofactor_loss",
         "config" : {
-            "superpixel_regions" : 30,
-            "compactness" : 10
+            "num_channels" : 100,
+            "similarity_loss" : 1,
+            "continuity_loss" : 0.5
         }
     },
     "optimizer" : {
@@ -37,7 +38,7 @@
         }
     },
     "pipeline" : {
-        "iterative_train" : {
+        "wonjik2020" : {
             "max_epoch" : 10,
             "batch_size" : 1
         }
