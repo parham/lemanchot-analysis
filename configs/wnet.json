@@ -3,7 +3,7 @@
         "name" : "wnet",
         "config" : {
             "num_channels" : 3,
-            "num_classes" : 5
+            "num_classes" : 3
         }
     },
     "metrics" : {
@@ -42,7 +42,7 @@
     },
     "pipeline" : {
         "wnet" : {
-            "max_epoch" : 10,
+            "max_epoch" : 100,
             "batch_size" : 1
         }
     }

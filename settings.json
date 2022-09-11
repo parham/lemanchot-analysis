@@ -10,7 +10,7 @@
             "log_env_gpu" : true,
             "log_env_cpu" : true,
             "log_env_host" : true,
-            "enable_logging" : false,
+            "enable_logging" : true,
             "enable_image_logging" : true,
             "pipeline" : "wnet",
             "checkpoint_save" : false,
