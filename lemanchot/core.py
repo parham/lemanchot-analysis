@@ -229,6 +229,7 @@ def make_tensor_for_comet(img : torch.Tensor):
     if len(img.shape) != 3:
         raise ValueError('The tensor should have C x W x H format')
 
+    tmp = torch.clone(img)
     channel = tmp.shape[0]
     if channel == 1:
         tmp = tmp.squeeze(0)
