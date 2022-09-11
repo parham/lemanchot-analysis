@@ -41,7 +41,7 @@ def simple_train_step__(
 
     outputs = model(inputs)
 
-    loss = criterion(outputs, targets.squeeze(0).to(dtype=torch.long))
+    loss = criterion(outputs, targets.squeeze(1).to(dtype=torch.long))
     outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype).unsqueeze(0)
 
     loss.backward()
