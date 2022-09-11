@@ -41,15 +41,15 @@ def simple_train_step__(
 
     outputs = model(inputs)
 
-    outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype, requires_grad=True)
-    targets = targets.squeeze(1)
-    loss = criterion(outputs, targets)
+    loss = criterion(outputs, targets.squeeze(0).to(dtype=torch.long))
+    outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype).unsqueeze(0)
 
     loss.backward()
     optimizer.step()
 
+
     return {
-        'y' : targets,
+        'y' : batch[1],
         'y_pred' : outputs,
         'loss' : loss.item()
     }
