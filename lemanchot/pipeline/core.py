@@ -25,7 +25,7 @@ from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 
-from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings
+from lemanchot.core import exception_logger, get_config, get_device, get_experiment, get_profile, load_settings, make_tensor_for_comet
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
@@ -196,10 +196,10 @@ def load_segmentation(
                 prc = processed[i,:,:,:] if processed is not None else None
                 
                 if profile.enable_image_logging:
-                    experiment.log_image(out, f'output-{i}', step=engine.state.iteration, image_channels='first')
-                    experiment.log_image(trg, f'target-{i}', step=engine.state.iteration, image_channels='first')
+                    experiment.log_image(make_tensor_for_comet(out), f'output-{i}', step=engine.state.iteration)
+                    experiment.log_image(make_tensor_for_comet(trg), f'target-{i}', step=engine.state.iteration)
                     if processed is not None:
-                        experiment.log_image(prc, f'processed-{i}', step=engine.state.iteration, image_channels='first')
+                        experiment.log_image(make_tensor_for_comet(prc), f'processed-{i}', step=engine.state.iteration)
                     
                 for m in metrics:
                     m_out = np.asarray(to_pil(out if prc is None else prc))
