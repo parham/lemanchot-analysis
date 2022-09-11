@@ -54,6 +54,18 @@ def list_losses() -> List[str]:
     global __loss_handler
     return list(__loss_handler.keys())
 
+def load_loss_inline__(name : str, config):
+    global __loss_handler
+    if not name in list_losses():
+        msg = f'{name} model is not supported!'
+        logging.error(msg)
+        raise ValueError(msg)
+    
+    return __loss_handler[name](
+        name=name,
+        config=config
+    )
+
 def load_loss(experiment_config : DotMap):
     """_summary_
 
