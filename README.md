@@ -17,19 +17,25 @@
 
 ## Experiments
 
-### Case Study 1 : ULAVAL Road Inspection:
-- We are going to use coupled thermal and visible images for inspection of pavement roads.
-- Since the drone's altitude is static for each data session, we will use the GCP placed at begining of each session to determine the parameters for modality registration.
-**OBJECTIVES**: We will use the visible image to segment vegetation and pavement in visible images, then use these blobs to segment thermal images.
+### Use Case #1 [Fusion of Thermal and Visible Images to Enhance the Visibility of Defects]
+	--> ULAVAL Road [handheld camera]
+	1. Label Images
+	2. Add different contrast, shape contrast, and different brightness
+	3. Use DeepCrack to compare the fused image and normal image
 
-### Case Study 2 : Piping Inspection
-- We are going to use coupled thermal and visible images for piping inspection.
-**OBJECTIVE**: (a) Fusion of thermal and visible images, (b) Distinguish normal and abnormal defects for industrial inspection.
+### Use Case #2 [Use the texture to extract pavement and fusion of thermal image to enhance defect visibility]
+	--> ULAVAL Road [drone]
+	1. Label Images
+	2. Train a model to extract pavement textures
+	3. Apply image registration
+	4. Fusion of thermal and visible images to enhance defect detection.
 
-### Case Study 3 : Bridge Inspection
-- We are going to use coupled thermal and visible images for bridge inspection.
-**OBJECTIVE**: (a) Registration of thermal and visible images, (b) Extract concrete areas from thermal images using segmentation of visible images.
-
+### Use Case #3 [Use the texture to extract defects]
+	--> Pipe inspection
+	1. Label Images
+	2. Use the iterative segmentation to segment thermal images
+	3. Use the texture segmentation to segment the textures.
+	4. Use both results to determine the surface and subsurface defects.
 
 # LeManchot-VT-Smart
 
