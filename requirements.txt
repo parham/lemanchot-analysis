@@ -1,6 +1,6 @@
 phasepack
 wheel
-cython
+Cython
 dotmap
 matplotlib
 Pillow
@@ -8,11 +8,14 @@ scikit-image
 opencv-python
 pyyaml
 # Extra index for torch and torchvision.
--i https://download.pytorch.org/whl/cu116
-torch 
-torchvision 
+--extra-index-url https://download.pytorch.org/whl/cu116
+torch
+torchvision
 comet_ml
 pytorch-ignite
+
+# Must be installed separetely.
+# or with `cat requirements.txt | xargs -n 1 -L 1 pip install`
 git+https://github.com/qubvel/segmentation_models.pytorch
 git+https://github.com/waspinator/coco.git@2.1.0
 git+https://github.com/waspinator/pycococreator.git@0.2.0
