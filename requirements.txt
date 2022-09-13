@@ -7,7 +7,10 @@ Pillow
 scikit-image
 opencv-python
 pyyaml
-torch torchvision https://download.pytorch.org/whl/cu116
+# Extra index for torch and torchvision.
+-i https://download.pytorch.org/whl/cu116
+torch 
+torchvision 
 comet_ml
 pytorch-ignite
 git+https://github.com/qubvel/segmentation_models.pytorch
