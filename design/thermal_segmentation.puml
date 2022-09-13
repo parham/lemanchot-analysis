@@ -1,0 +1,43 @@
+
+@startuml thermal-segmentation
+
+!theme plain
+
+title LeManchot-Analysis : Thermal Image Segmentation
+
+group Thermal Image Dataset
+
+split
+   -[hidden]->
+   :Labeled Thermal Image;
+split again
+   -[hidden]->
+   :UnLabeled Thermal Image;
+end split
+
+end group
+
+:Preprocess the thermal images;
+:Pass the image to the model;
+
+group Loss Calculation
+split
+  :Apply Dice Loss for the labeled image;
+split again
+  :Clone the model
+  while (data available?)
+    :read data;
+    :generate diagrams;
+  endwhile
+  :Apply Three Factor Loss to the unlabeled image;
+  if (Number of extracted classes are greater than A or number of iteration is not reached to B) then (yes)
+    :hello;
+  endif
+end split
+end group
+
+:Use the visible image segmentation to enhance images;
+
+stop
+
+@enduml
