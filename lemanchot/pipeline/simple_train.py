@@ -47,7 +47,7 @@ def simple_train_step__(
 
     loss.backward()
     optimizer.step()
-    scheduler.step()
+    scheduler.step(loss.item())
 
     return {
         'y' : batch[1],
