@@ -41,6 +41,9 @@
         "wonjik2020" : {
             "max_epoch" : 10,
             "batch_size" : 1
+        },
+        "wonjik2020_iterative" : {
+            "max_iteration" : 50
         }
     }
 }

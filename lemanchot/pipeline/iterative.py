@@ -88,8 +88,6 @@ def wonjik2020_train_step__(
     outputs = model(inputs)
     outputs = outputs.squeeze(0)
 
-    # out = outputs.permute(1, 2, 0).contiguous()
-    # out = out.view(-1, out.shape[-1])
     _, trg = torch.max(outputs, 0)
 
     loss = criterion(outputs, trg)
