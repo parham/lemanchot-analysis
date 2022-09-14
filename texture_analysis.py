@@ -10,15 +10,23 @@ import argparse
 import sys
 import logging
 
-import torch
 from torch.utils.data import DataLoader
-
+from torchvision.transforms import (
+    Compose,
+    RandomRotation,
+    Resize,
+    Grayscale,
+    ColorJitter,
+    ToTensor,
+)
 from ignite.utils import setup_logger
 
 from gimp_labeling_converter import XCFDataset
 from lemanchot.core import get_profile, get_profile_names
+from lemanchot.dataset import SegmentationDataset
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
+    BothRandomRotate,
     FilterOutAlphaChannel,
     ImageResize,
     ImageResizeByCoefficient,
@@ -46,18 +54,21 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    transform = torch.nn.Sequential(
-        ImageResize(70),
-        ImageResizeByCoefficient(32),
-        NumpyImageToTensor(),
-        FilterOutAlphaChannel(),
-    )
-    target_transform = torch.nn.Sequential(
-        ImageResize(70),
-        ImageResizeByCoefficient(32),
-        NumpyImageToTensor(),
-        FilterOutAlphaChannel(),
-    )
+    input_transforms = Compose([ColorJitter(), Grayscale(), Resize(512), ToTensor()])
+    target_transform = Compose([Resize(512), ToTensor()])
+    both_transforms = BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90))
+    # transform = torch.nn.Sequential(
+    # ImageResize(70),
+    # ImageResizeByCoefficient(32),
+    # NumpyImageToTensor(),
+    # FilterOutAlphaChannel(),
+    # )
+    # target_transform = torch.nn.Sequential(
+    # ImageResize(70),
+    # ImageResizeByCoefficient(32),
+    # NumpyImageToTensor(),
+    # FilterOutAlphaChannel(),
+    # )
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, database_name=dataset_name
@@ -65,11 +76,18 @@ def main():
     engine = run_record["engine"]
     engine.logger = setup_logger("trainer")
     ######### Dataset & Dataloader ##########
-    dataset = XCFDataset(
-        root_dir=dataset_path,
-        category=categories,
-        transform=transform,
-        target_transform=target_transform,
+    # dataset = XCFDataset(
+    # root_dir=dataset_path,
+    # category=categories,
+    # transform=transform,
+    # target_transform=target_transform,
+    # )
+    dataset = SegmentationDataset(
+        root=dataset_path,
+        classes=categories,
+        input_transforms=input_transforms,
+        target_transforms=target_transform,
+        both_transforms=both_transforms,
     )
     data_loader = DataLoader(dataset, batch_size=engine.state.batch_size, shuffle=True)
 
@@ -87,4 +105,3 @@ if __name__ == "__main__":
     except Exception as ex:
         logging.exception(ex)
     print("The experiment is finished ...")
-
