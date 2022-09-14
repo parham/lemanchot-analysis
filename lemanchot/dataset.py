@@ -193,11 +193,9 @@ class JSONDataset(VisionDataset):
         height = input["height"]
         width = input["width"]
         layers = {}
-        for ann in input["annotations"]:
+        for cl, ann in input["annotations"].items():
             if ann.get("data", False):
-                layers[ann["class"]] = decode_rle(ann["data"]).reshape(
-                    width, height, 4
-                )[:, :, 3]
+                layers[cl] = decode_rle(ann["data"]).reshape(height, width, 4)[:, :, 3]
 
         return layers
 
