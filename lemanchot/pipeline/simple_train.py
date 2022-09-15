@@ -53,5 +53,5 @@ def simple_train_step__(
         'y' : batch[1],
         'y_pred' : outputs,
         'loss' : loss.item(),
-        'lr' : scheduler.get_lr()
+        'lr' : optimizer.param_groups[0]['lr']
     }

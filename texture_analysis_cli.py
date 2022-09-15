@@ -54,8 +54,8 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    input_transforms = Compose([Grayscale(), Resize(512), ToTensor()])
-    target_transform = Compose([Resize(512), ToTensor()])
+    input_transforms = Compose([Grayscale(), Resize((512, 512)), ToTensor()])
+    target_transform = Compose([Resize((512, 512))])
     both_transforms = BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90))
     # transform = torch.nn.Sequential(
     # ImageResize(70),

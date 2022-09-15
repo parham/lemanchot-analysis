@@ -92,7 +92,7 @@
       "checkpoint_load": true,
       "experiment_config_name": "test",
       "dataset_name": "lemanchot-cracks",
-      "dataset_path": "/data/lemanchot-cracks",
+      "dataset_path": "/data/lemanchot-cracks/train",
       "categories": {
         "cracks": 1
       }

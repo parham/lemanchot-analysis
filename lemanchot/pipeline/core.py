@@ -335,13 +335,13 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def log_training(engine):
-        lr = scheduler.get_lr()
+        lr = optimizer.param_groups[0]['lr']
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
         print(
-            f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.last_loss}, lr: {lr}"
+            f"Epoch {iteration}/{max_epochs} [{step_time:.3f}]:\t {iteration} - batch loss: {engine.state.last_loss:.4f}, lr: {lr}"
         )
 
     @engine.on(Events.STARTED)
