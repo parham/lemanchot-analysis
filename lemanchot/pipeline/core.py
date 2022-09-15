@@ -179,8 +179,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     # Create metric instances
     metrics = load_metrics(experiment_config, profile.categories)
 
-    to_pil = ToPILImage()
-
     def __run_pipeline(
         engine: Engine,
         batch,
@@ -213,42 +211,35 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             # Calculate metrics
             if 'metrics' in res:
                 engine.state.metrics.update(res['metrics'])
+
             # Assume Tensor B x C x W x H
-            targets = res["y"]
-            outputs = res["y_pred"]
-            processed = res["y_processed"] if "y_processed" in res else None
+            # Logging imagery results
+            for key, img in res.items():
+                if not key.startswith('y_'):
+                    continue
 
-            num_samples = res["y"].shape[0]
-            for i in range(num_samples):
-                out = outputs[i, :, :, :]
-                trg = targets[i, :, :, :]
-                prc = processed[i, :, :, :] if processed is not None else None
-
-                if profile.enable_image_logging:
-                    experiment.log_image(
-                        make_tensor_for_comet(out),
-                        f"output-{i}",
-                        step=engine.state.iteration,
-                    )
-                    experiment.log_image(
-                        make_tensor_for_comet(trg),
-                        f"target-{i}",
-                        step=engine.state.iteration,
-                    )
-                    if processed is not None:
+                num_samples = img.shape[0]
+                for i in range(num_samples):
+                    sample = img[i, :, :, :]
+                    if profile.enable_image_logging:
                         experiment.log_image(
-                            make_tensor_for_comet(prc),
-                            f"processed-{i}",
+                            make_tensor_for_comet(sample),
+                            f"output-{i}",
                             step=engine.state.iteration,
                         )
 
+            targets = res["y"]
+            outputs = res["y_pred"] if not "y_processed" in res else res["y_processed"]
+
+            num_samples = targets.shape[0]
+            for i in range(num_samples):
+                out = outputs[i, :, :, :]
+                trg = targets[i, :, :, :]
+
+                out = (out.squeeze(0) if out.shape[0] == 1 else out.permute(1,2,0)).cpu().detach().numpy()
+                trg = trg.squeeze(0).cpu().detach().numpy()
                 for m in metrics:
-                    m_out = out if prc is None else prc
-                    m_out = m_out.squeeze(0) if m_out.shape[0] == 1 else m_out.permute(1,2,0)
-                    m_trg = trg.squeeze(0)
-                    m_out = m_out.cpu().detach().numpy()
-                    m_trg = m_trg.cpu().detach().numpy()
-                    m.update((m_out, m_trg))
+                    m.update((out, trg))
                     m.compute(engine, experiment)
 
         return res
