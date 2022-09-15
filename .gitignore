@@ -1,8 +1,3 @@
-.vscode/*
-lemanchot/__pycache__/*
-lemanchot/loss/__pycache__/*
-lemanchot/models/__pycache__/*
 checkpoints/*
 lemanchot/metrics/__pycache__/*
 lemanchot/pipeline/__pycache__/*
-lemanchot/tools/__pycache__/*

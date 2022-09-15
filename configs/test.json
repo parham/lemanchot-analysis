@@ -35,6 +35,13 @@
             "momentum": 0.9
         }
     },
+    "scheduler" : {
+        "name" : "ReduceOnPlateau",
+        "config" : {
+            "factor" : 0.1,
+            "patience": 10
+        }
+    },
     "pipeline" : {
         "simple_train" : {
             "max_epoch" : 1,
