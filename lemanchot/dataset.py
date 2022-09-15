@@ -15,7 +15,7 @@ from pathlib import Path
 
 from PIL import Image
 from typing import Dict, Optional, Set, List, Callable, Tuple, Union
-from torch import Tensor
+from torch import Tensor, tensor, from_numpy
 from torch import stack as torch_stack
 from torch import zeros as torch_zeros
 from torch.utils.data import Dataset
@@ -188,14 +188,16 @@ class JSONDataset(VisionDataset):
                 Must take class set as input and return filtered class set as output.
 
         Returns:
-            Dict: Decoded array in one-hot format (W, H)
+            Dict: Decoded tensor in one-hot format class: tensor(W, H)
         """
         height = input["height"]
         width = input["width"]
         layers = {}
         for cl, ann in input["annotations"].items():
             if ann.get("data", False):
-                layers[cl] = decode_rle(ann["data"]).reshape(height, width, 4)[:, :, 3]
+                layers[cl] = from_numpy(
+                    decode_rle(ann["data"]).reshape(height, width, 4)[:, :, 3]
+                )
 
         return layers
 
@@ -211,7 +213,7 @@ class JSONDataset(VisionDataset):
         with open(path, "r") as f:
             data = json.load(f)
 
-        size = (data['height'], data['width'])
+        size = (data["height"], data["width"])
         target = self.JSON2ClassMap(data)
         target = torch_stack(
             [target.get(c, torch_zeros(size)) for c in self.classes], dim=0

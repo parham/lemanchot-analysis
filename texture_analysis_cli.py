@@ -87,7 +87,7 @@ def main():
         img_folder = "img",
         img_ext= ".jpg",
         gt_folder = "gt",
-        classes=categories,
+        classes=categories.keys(),
         input_transforms=input_transforms,
         target_transforms=target_transform,
         both_transforms=both_transforms,

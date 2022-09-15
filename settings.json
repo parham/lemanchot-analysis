@@ -94,7 +94,7 @@
       "dataset_name": "lemanchot-cracks",
       "dataset_path": "/data/lemanchot-cracks/train",
       "categories": {
-        "cracks": 1
+        "crack": 1
       }
     }
   }
