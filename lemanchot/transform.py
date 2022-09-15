@@ -25,13 +25,11 @@ class GrayToRGB(torch.nn.Module):
             res = np.concatenate((res, res, res), axis=2)
         return res
 
-
 class FilterOutAlphaChannel(torch.nn.Module):
     def forward(self, img) -> Any:
         channel = img.shape[0]
         res = img[:-1, :, :] if channel > 3 else img
         return res
-
 
 class BothRandomRotate(torch.nn.Module):
     def __init__(self, angles: Tuple[int], weights: Tuple[int] = None):
@@ -44,7 +42,6 @@ class BothRandomRotate(torch.nn.Module):
         img = rotate(img, ang)
         target = rotate(target, ang)
         return img, target
-
 
 class ImageResize(torch.nn.Module):
     def __init__(
@@ -66,7 +63,6 @@ class ImageResize(torch.nn.Module):
             img_pil, self.size, self.interpolation, self.max_size, self.antialias
         )
         return np.asarray(res)
-
 
 class ImageResizeByCoefficient(torch.nn.Module):
     def __init__(
@@ -93,7 +89,6 @@ class ImageResizeByCoefficient(torch.nn.Module):
         )
         return np.asarray(res)
 
-
 class NumpyImageToTensor(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
@@ -105,14 +100,12 @@ class NumpyImageToTensor(torch.nn.Module):
         img = self.to_tensor(img)
         return img
 
-
 class ToGrayscale(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
 
     def forward(self, img):
         return color.rgb2gray(img) if len(img.shape) > 2 else img
-
 
 class ClassMapToMDTarget(torch.nn.Module):
     def __init__(self, categories: List, background_classid: int = 0) -> None:
@@ -131,4 +124,3 @@ class ClassMapToMDTarget(torch.nn.Module):
             layers.append(tmp)
         layers = ((np.ones(img.shape) * self.background_classid), *layers)
         return np.stack(layers)
-

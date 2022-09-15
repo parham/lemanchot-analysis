@@ -1,5 +1,5 @@
 {
-    "device" : "cuda",
+    "device" : "cpu",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
         "parham" : {
@@ -10,7 +10,7 @@
             "log_env_gpu" : true,
             "log_env_cpu" : true,
             "log_env_host" : true,
-            "enable_logging" : true,
+            "enable_logging" : false,
             "enable_image_logging" : true,
             "pipeline" : "simple_train",
             "checkpoint_save" : true,

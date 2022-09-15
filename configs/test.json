@@ -3,7 +3,7 @@
         "name" : "unet_resnet18",
         "config" : {
             "channels" : 3,
-            "num_classes" : 5
+            "num_classes" : 6
         }
     },
     "metrics" : {

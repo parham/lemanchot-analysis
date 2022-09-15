@@ -6,6 +6,7 @@ matplotlib
 Pillow
 scikit-image
 opencv-python
+pyfftw
 pyyaml
 # Extra index for torch and torchvision.
 --extra-index-url https://download.pytorch.org/whl/cu116

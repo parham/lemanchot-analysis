@@ -37,7 +37,6 @@ from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
 
-
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
     """Load the optimizer based on given configuration
 
@@ -49,19 +48,16 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
         optim.Optimizer: the instantiated optimizer
     """
 
-    if model is None:
+    if model is None or \
+        not "optimizer" in experiment_config:
         return None
 
     params = model.parameters()
 
-    if not "optimizer" in experiment_config:
-        return None
-
     optim_name = experiment_config.optimizer.name
     optim_config = (
         experiment_config.optimizer.config
-        if "config" in experiment_config.optimizer
-        else {}
+        if "config" in experiment_config.optimizer else {}
     )
 
     return {
@@ -69,40 +65,38 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
         "Adam": lambda ps, config: optim.Adam(ps, **config),
     }[optim_name](params, optim_config)
 
+# def load_scheduler(
+#     optimizer: optim.Optimizer, experiment_config: DotMap
+# ) -> optim._LRScheduler:
+#     """Load the optimizer based on given configuration
 
-def load_scheduler(
-    optimizer: optim.Optimizer, experiment_config: DotMap
-) -> optim._LRScheduler:
-    """Load the optimizer based on given configuration
+#     Args:
+#         model (BaseModule): the model
+#         experiment_config (DotMap): configuration for optimizer
 
-    Args:
-        model (BaseModule): the model
-        experiment_config (DotMap): configuration for optimizer
+#     Returns:
+#         optim.Optimizer: the instantiated optimizer
+#     """
 
-    Returns:
-        optim.Optimizer: the instantiated optimizer
-    """
+#     if optimizer is None:
+#         return None
 
-    if optimizer is None:
-        return None
+#     if not "scheduler" in experiment_config:
+#         return None
 
-    if not "scheduler" in experiment_config:
-        return None
+#     sch_name = experiment_config.scheduler.name
+#     sch_config = (
+#         experiment_config.scheduler.config
+#         if "config" in experiment_config.scheduler
+#         else {}
+#     )
 
-    sch_name = experiment_config.scheduler.name
-    sch_config = (
-        experiment_config.scheduler.config
-        if "config" in experiment_config.scheduler
-        else {}
-    )
-
-    return {
-        "ReduceLROnPlateau": lambda ps, config: optim.SGD(ps, **config),
-        "CosineAnnealingLR": lambda ps, config: optim.Adam(ps, **config),
-    }[sch_name](optimizer, sch_config)
+#     return {
+#         "ReduceLROnPlateau": lambda ps, config: optim.SGD(ps, **config),
+#         "CosineAnnealingLR": lambda ps, config: optim.Adam(ps, **config),
+#     }[sch_name](optimizer, sch_config)
 
 __pipeline_handler = {}
-
 
 def pipeline_register(name: Union[str, List[str]]):
     """Register a pipeline into the pipeline repository
@@ -119,7 +113,6 @@ def pipeline_register(name: Union[str, List[str]]):
 
     return __embed_func
 
-
 def list_pipelines() -> List[str]:
     """List of registered pipeline
 
@@ -128,7 +121,6 @@ def list_pipelines() -> List[str]:
     """
     global __pipeline_handler
     return list(__pipeline_handler.keys())
-
 
 @exception_logger
 def load_pipeline(pipeline_name: str) -> Callable:
@@ -143,13 +135,14 @@ def load_pipeline(pipeline_name: str) -> Callable:
     Returns:
         Callable: the pipeline handler function
     """
+
+    global __pipeline_handler
     if not pipeline_name in list_pipelines():
         msg = f"{pipeline_name} model is not supported!"
         logging.error(msg)
         raise ValueError(msg)
 
     return __pipeline_handler[pipeline_name]
-
 
 @exception_logger
 def load_segmentation(profile_name: str, database_name: str) -> Dict:
@@ -168,7 +161,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     ############ Optimizer ##############
     # Create optimizer instance
     optimizer = load_optimizer(model, experiment_config)
-    scheduler = load_scheduler(optimizer, experiment_config)
+    # scheduler = load_scheduler(optimizer, experiment_config)
     ############ Comet.ml Experiment ##############
     # Create the experiment instance
     experiment = get_experiment(profile_name=profile_name, dataset=database_name)
@@ -196,7 +189,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         model: BaseModule,
         loss,
         optimizer: optim.Optimizer,
-        scheduler: optim._LRScheduler,
         metrics: List[BaseMetric],
         experiment: Experiment,
     ) -> Dict:
@@ -209,7 +201,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             model=model,
             criterion=loss,
             optimizer=optimizer,
-            scheduler=scheduler,
             experiment=experiment,
         )
 
@@ -270,7 +261,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         loss=loss,
         metrics=metrics,
         optimizer=optimizer,
-        scheduler=scheduler,
         experiment=experiment,
     )
     # Instantiate the engine
@@ -289,7 +279,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "engine": engine,
         "model": model,
         "optimizer": optimizer,
-        "scheduler": scheduler,
         "loss": loss,
     }
     enable_checkpoint_save = (
@@ -322,7 +311,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def log_training(engine):
-        lr = scheduler.get_lr()
+        lr = 0
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration

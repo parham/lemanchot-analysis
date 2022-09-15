@@ -26,7 +26,6 @@ def simple_train_step__(
     model : BaseModule,
     criterion,
     optimizer : optim.Optimizer,
-    scheduler: optim._LRScheduler,
     experiment : Experiment
 ) -> Dict:
 
@@ -47,11 +46,9 @@ def simple_train_step__(
 
     loss.backward()
     optimizer.step()
-    scheduler.step(loss.item())
 
     return {
         'y' : batch[1],
         'y_pred' : outputs,
-        'loss' : loss.item(),
-        'lr' : scheduler.get_lr()
+        'loss' : loss.item()
     }
