@@ -1,3 +1,8 @@
 checkpoints/*
 lemanchot/metrics/__pycache__/*
 lemanchot/pipeline/__pycache__/*
+lemanchot/__pycache__/*
+.gitignore
+lemanchot/loss/__pycache__/*
+lemanchot/models/__pycache__/*
+lemanchot/tools/__pycache__/*
