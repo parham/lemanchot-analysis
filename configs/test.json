@@ -31,15 +31,15 @@
     "optimizer" : {
         "name" : "SGD",
         "config" : {
-            "lr" : 0.1,
+            "lr" : 0.5,
             "momentum": 0.9
         }
     },
     "scheduler" : {
-        "name" : "ReduceOnPlateau",
+        "name" : "StepLR",
         "config" : {
-            "factor" : 0.1,
-            "patience": 10
+            "step_size" : 3,
+            "gamma" : 0.1
         }
     },
     "pipeline" : {

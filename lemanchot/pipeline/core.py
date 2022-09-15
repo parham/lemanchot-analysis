@@ -18,11 +18,16 @@ from typing import Callable, Dict, List, Union
 import numpy as np
 import torch
 import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, ExponentialLR
 from torchvision.transforms import ToPILImage
 
 from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
+from ignite.handlers.param_scheduler import (
+    LRScheduler, 
+    ReduceLROnPlateauScheduler
+)
 
 from lemanchot.core import (
     exception_logger,
@@ -49,7 +54,7 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
     """
 
     if model is None or \
-        not "optimizer" in experiment_config:
+        not 'optimizer' in experiment_config:
         return None
 
     params = model.parameters()
@@ -57,44 +62,151 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
     optim_name = experiment_config.optimizer.name
     optim_config = (
         experiment_config.optimizer.config
-        if "config" in experiment_config.optimizer else {}
+        if 'config' in experiment_config.optimizer else {}
     )
 
     return {
-        "SGD": lambda ps, config: optim.SGD(ps, **config),
-        "Adam": lambda ps, config: optim.Adam(ps, **config),
+        'SGD' : lambda ps, config: optim.SGD(ps, **config),
+        'Adam' : lambda ps, config: optim.Adam(ps, **config),
     }[optim_name](params, optim_config)
 
-# def load_scheduler(
-#     optimizer: optim.Optimizer, experiment_config: DotMap
-# ) -> optim._LRScheduler:
-#     """Load the optimizer based on given configuration
+def load_scheduler(
+    engine : Engine,
+    optimizer: optim.Optimizer, 
+    experiment_config: DotMap
+):
+    if optimizer is None or \
+        not 'scheduler' in experiment_config:
+        return None
 
-#     Args:
-#         model (BaseModule): the model
-#         experiment_config (DotMap): configuration for optimizer
+    scheduler_name = experiment_config.scheduler.name
+    scheduler_config = (
+        experiment_config.scheduler.config
+        if 'config' in experiment_config.scheduler else {}
+    )
 
-#     Returns:
-#         optim.Optimizer: the instantiated optimizer
-#     """
+    def __step_lr(
+        engine : Engine, 
+        optimizer: optim.Optimizer, 
+        scheduler_config: DotMap
+    ):
+        # Sample configuration sample
+        # "scheduler" : {
+        #     "name" : "StepLR",
+        #     "config" : {
+        #         "step_size" : 3,
+        #         "gamma": 0.1
+        #     }
+        # }
+        steplr = StepLR(optimizer, 
+            step_size=scheduler_config['step_size'], 
+            gamma=scheduler_config['gamma']
+        )
+        scheduler = LRScheduler(steplr)
+        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
 
-#     if optimizer is None:
-#         return None
+        @engine.on(Events.ITERATION_COMPLETED)
+        def loging_metrics_lr():
+            engine.state.metrics['lr'] = optimizer.param_groups[0]['lr']
+        
+        return scheduler
 
-#     if not "scheduler" in experiment_config:
-#         return None
+    def __reduce_lr_plateau(
+        engine : Engine, 
+        optimizer: optim.Optimizer, 
+        scheduler_config: DotMap
+    ):
+        # "scheduler" : {
+        #     "name" : "ReduceOnPlateau",
+        #     "config" : {
+        #         "metric_name" : "loss",
+        #         "save_history" : true,
+        #         "mode" : "min",
+        #         "factor" : 0.5,
+        #         "patience" : 3,
+        #         "threshold_mode" : "rel",
+        #         "threshold" : 0.1
+        #     }
+        # }
+        scheduler = ReduceLROnPlateauScheduler(
+            optimizer, 
+            metric_name=scheduler_config['metric'],
+            save_history=scheduler_config['save_history'], 
+            mode=scheduler_config['mode'], 
+            factor=scheduler_config['factor'], 
+            patience=scheduler_config['patience'],
+            threshold_mode=scheduler_config['threshold_mode'],
+            threshold=scheduler_config['threshold'],
+            trainer=engine
+        )
+        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
 
-#     sch_name = experiment_config.scheduler.name
-#     sch_config = (
-#         experiment_config.scheduler.config
-#         if "config" in experiment_config.scheduler
-#         else {}
-#     )
+        @engine.on(Events.ITERATION_COMPLETED)
+        def loging_metrics_lr():
+            engine.state.metrics['lr'] = engine.state.param_history["lr"]
 
-#     return {
-#         "ReduceLROnPlateau": lambda ps, config: optim.SGD(ps, **config),
-#         "CosineAnnealingLR": lambda ps, config: optim.Adam(ps, **config),
-#     }[sch_name](optimizer, sch_config)
+        return scheduler
+
+    def __consine_annealing_lr(
+        engine : Engine, 
+        optimizer: optim.Optimizer, 
+        scheduler_config: DotMap
+    ):
+        # "scheduler" : {
+        #     "name" : "CosineAnnealingLR",
+        #     "config" : {
+        #         "T_max" : 10,
+        #         "eta_min" : 0.01
+        #     }
+        # }
+        cosine_lr = CosineAnnealingLR(
+            optimizer=optimizer, 
+            T_max=scheduler_config['T_max'], 
+            eta_min=scheduler_config['eta_min']
+        )
+
+        scheduler = LRScheduler(cosine_lr)
+        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+
+        @engine.on(Events.ITERATION_COMPLETED)
+        def loging_metrics_lr():
+            engine.state.metrics['lr'] = optimizer.param_groups[0]['lr']
+        
+        return scheduler
+
+    def __exponential_lr(
+        engine : Engine, 
+        optimizer: optim.Optimizer, 
+        scheduler_config: DotMap
+    ):
+        # "scheduler" : {
+        #     "name" : "ExponentialLR",
+        #     "config" : {
+        #         "gamma" : 0.98
+        #     }
+        # }
+        exp_lr = ExponentialLR(
+            optimizer=optimizer, 
+            gamma=scheduler_config['gamma']
+        )
+
+        scheduler = LRScheduler(exp_lr)
+        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+
+        @engine.on(Events.ITERATION_COMPLETED)
+        def loging_metrics_lr():
+            engine.state.metrics['lr'] = optimizer.param_groups[0]['lr']
+        
+        return scheduler
+
+    scheduler = {
+        'StepLR' : __step_lr,
+        'ReduceLROnPlateau' : __reduce_lr_plateau,
+        'CosineAnnealingLR' : __consine_annealing_lr,
+        'ExponentialLR' : __exponential_lr
+    }[scheduler_name](engine, optimizer, scheduler_config)
+
+    return scheduler
 
 __pipeline_handler = {}
 
@@ -161,7 +273,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     ############ Optimizer ##############
     # Create optimizer instance
     optimizer = load_optimizer(model, experiment_config)
-    # scheduler = load_scheduler(optimizer, experiment_config)
     ############ Comet.ml Experiment ##############
     # Create the experiment instance
     experiment = get_experiment(profile_name=profile_name, dataset=database_name)
@@ -257,6 +368,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     )
     # Instantiate the engine
     engine = Engine(seg_func)
+    # Create scheduler instance
+    scheduler = load_scheduler(engine, optimizer, experiment_config)
     # Get Pipeline Configuration
     pipeline_config = experiment_config.pipeline[pipeline_name]
     # Add configurations to the engine state
@@ -271,6 +384,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "engine": engine,
         "model": model,
         "optimizer": optimizer,
+        "scheduler" : scheduler,
         "loss": loss,
     }
     enable_checkpoint_save = (
@@ -303,7 +417,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_training(engine):
-        lr = 0
+        lr = engine.state.metrics['lr'] if 'lr' in engine.state.metrics else 0
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
@@ -312,12 +426,14 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_metrics(engine):
-        metrics = engine.state.metrics
-        experiment.log_metrics(
-            metrics,
-            step=engine.state.iteration, 
-            epoch=engine.state.epoch
-        )
+        profile = get_profile(engine.state.profile_name)
+        if profile.enable_logging:
+            metrics = engine.state.metrics
+            experiment.log_metrics(
+                metrics,
+                step=engine.state.iteration, 
+                epoch=engine.state.epoch
+            )
 
     @engine.on(Events.STARTED)
     def __train_process_started(engine):
