@@ -11,14 +11,14 @@
             "just_test" : "test"
         },
         "rmse" : {
-            "max_p" : 255
+            "max_p" : 7
         },
         "fsim" : {
             "T1" : 0.85,
             "T2" : 160
         },
         "ssim" : {
-            "max_p" : 255
+            "max_p" : 7
         }
     },
     "loss" : {

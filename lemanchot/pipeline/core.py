@@ -204,17 +204,15 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             experiment=experiment,
         )
 
-        engine.state.last_loss = res["loss"] if "loss" in res else 0
-        engine.state.step_time = time.time() - t
-        # Logging metrics
+        step_time = time.time() - t
         if profile.enable_logging:
-            experiment.log_metrics(
-                {"loss": engine.state.last_loss, "step_time": engine.state.step_time},
-                prefix="iteration_",
-                step=engine.state.iteration,
-                epoch=engine.state.epoch,
-            )
+            # Logging loss & step time
+            if 'loss' in res:
+                engine.state.metrics['loss'] = res['loss']
+            engine.state.metrics['step_time'] = step_time
             # Calculate metrics
+            if 'metrics' in res:
+                engine.state.metrics.update(res['metrics'])
             # Assume Tensor B x C x W x H
             targets = res["y"]
             outputs = res["y_pred"]
@@ -245,8 +243,11 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                         )
 
                 for m in metrics:
-                    m_out = np.asarray(to_pil(out if prc is None else prc))
-                    m_trg = np.asarray(to_pil(trg))
+                    m_out = out if prc is None else prc
+                    m_out = m_out.squeeze(0) if m_out.shape[0] == 1 else m_out.permute(1,2,0)
+                    m_trg = trg.squeeze(0)
+                    m_out = m_out.cpu().detach().numpy()
+                    m_trg = m_trg.cpu().detach().numpy()
                     m.update((m_out, m_trg))
                     m.compute(engine, experiment)
 
@@ -310,14 +311,21 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj)
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
-    def log_training(engine):
+    def __log_training(engine):
         lr = 0
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
-        print(
-            f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.last_loss}, lr: {lr}"
+        print(f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.last_loss}, lr: {lr}")
+
+    @engine.on(Events.ITERATION_COMPLETED(every=1))
+    def __log_metrics(engine):
+        metrics = engine.state.metrics
+        experiment.log_metrics(
+            metrics,
+            step=engine.state.iteration, 
+            epoch=engine.state.epoch
         )
 
     @engine.on(Events.STARTED)
