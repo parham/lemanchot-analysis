@@ -1,51 +1,51 @@
 {
-    "model" : {
-        "name" : "unet_resnet18",
-        "config" : {
-            "channels" : 3,
-            "num_classes" : 5
-        }
-    },
-    "metrics" : {
-        "confusion_matrix" : {
-            "just_test" : "test"
-        },
-        "rmse" : {
-            "max_p" : 255
-        },
-        "fsim" : {
-            "T1" : 0.85,
-            "T2" : 160
-        },
-        "ssim" : {
-            "max_p" : 255
-        }
-    },
-    "loss" : {
-        "name" : "cross_entropy",
-        "config" : {
-            "reduction" : "mean",
-            "ignore_index" : 0
-        }
-    },
-    "optimizer" : {
-        "name" : "SGD",
-        "config" : {
-            "lr" : 0.1,
-            "momentum": 0.9
-        }
-    },
-    "scheduler" : {
-        "name" : "ReduceOnPlateau",
-        "config" : {
-            "factor" : 0.1,
-            "patience": 10
-        }
-    },
-    "pipeline" : {
-        "simple_train" : {
-            "max_epoch" : 1,
-            "batch_size" : 2
-        }
+  "model": {
+    "name": "unet_resnet18",
+    "config": {
+      "channels": 3,
+      "num_classes": 1
     }
+  },
+  "metrics": {
+    "confusion_matrix": {
+      "just_test": "test"
+    },
+    "rmse": {
+      "max_p": 255
+    },
+    "fsim": {
+      "T1": 0.85,
+      "T2": 160
+    },
+    "ssim": {
+      "max_p": 255
+    }
+  },
+  "loss": {
+    "name": "cross_entropy",
+    "config": {
+      "reduction": "mean",
+      "ignore_index": null
+    }
+  },
+  "optimizer": {
+    "name": "SGD",
+    "config": {
+      "lr": 0.01,
+      "momentum": 0.9
+    }
+  },
+  "scheduler": {
+    "name": "ReduceOnPlateau",
+    "config": {
+      "factor": 0.1,
+      "patience": 10
+    }
+  },
+  "pipeline": {
+    "simple_train": {
+      "max_epoch": 50,
+      "batch_size": 16
+    }
+  }
 }
