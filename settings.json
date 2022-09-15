@@ -80,7 +80,7 @@
     "zephyrus": {
       "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
       "project_name": "texture-analysis",
-      "workspace": "zephyrus",
+      "workspace": "parham",
       "log_git_metadata": true,
       "log_env_gpu": true,
       "log_env_cpu": true,
