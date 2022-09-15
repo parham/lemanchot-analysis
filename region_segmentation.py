@@ -12,10 +12,14 @@ import argparse
 import os
 import sys
 import logging
+from typing import List
+import numpy as np
 
+import cv2
 from PIL import Image
 from pathlib import Path
 from tqdm import trange
+from scipy.io import savemat, loadmat
 
 import torch
 import torchvision.transforms as transforms
@@ -25,6 +29,7 @@ from lemanchot.core import get_config
 from lemanchot.loss.core import load_loss
 from lemanchot.models.core import load_model
 from lemanchot.pipeline.core import load_optimizer
+from lemanchot.tools.control_point import cpselect
 from lemanchot.transform import FilterOutAlphaChannel, ImageResize, ImageResizeByCoefficient, NumpyImageToTensor
 
 logging.basicConfig(
@@ -35,26 +40,59 @@ logging.basicConfig(
 
 known_args = []
 parser = argparse.ArgumentParser(description="ROI Segmentation of Thermal Image")
-parser.add_argument('file', type=str, help="Image file path.")
+parser.add_argument('tfile', type=str, help="Thermal Image file path.")
+parser.add_argument('vfile', type=str, help="Visible Image file path.")
 parser.add_argument('--device', type=str, default='cuda', help="The selected device.")
 parser.add_argument('--iteration', type=int, default=60, help="The maximum number of iteration.")
 parser.add_argument('--nclass', type=int, default=4, help="The minimum number of classes.")
 parser.add_argument('--output', type=str, default='.', help="The result folder.")
 
+def cp_to_opencv(cps : List):
+    source = np.zeros((len(cps), 2))
+    dest = np.zeros((len(cps), 2))
+    for index in range(len(cps)):
+        p = cps[index]
+        source[index, 0] = p['img1_x']
+        source[index, 1] = p['img1_y']
+        dest[index, 0] = p['img2_x']
+        dest[index, 1] = p['img2_y']
+    return source, dest
+
+def save_homography(file : str, homography : np.ndarray):
+    mat = {
+        'homography' : homography
+    }
+    savemat(file, mat, do_compression=True)
+
 def region_segmentation():
     args = parser.parse_intermixed_args()
     parser.print_help()
 
-    if not os.path.isfile(args.file):
-        logging.error(f'{args.file} does not exist!')
+    if not os.path.isfile(args.tfile):
+        logging.error(f'{args.tfile} does not exist!')
         return
     
-    filename = Path('/root/dir/sub/file.ext').stem
-    img = Image.open(args.file)
-    if img is None:
-        logging.error('Failed to load the image!')
+    ir_filename = Path(args.tfile).stem
+    ir_img = np.asarray(Image.open(args.tfile))
+    if ir_img is None:
+        logging.error('Failed to load the thermal image!')
         return
-    
+
+    vis_filename = Path(args.vfile).stem
+    vis_img = np.asarray(Image.open(args.vfile))
+    if vis_img is None:
+        logging.error('Failed to load the visible image!')
+        return
+
+    cps = cpselect(ir_img, vis_img)
+    source, dest = cp_to_opencv(cps)
+    homography, _ = cv2.findHomography(source, dest)
+    corrected_ir = cv2.warpPerspective(ir_img, homography, (vis_img.shape[1], vis_img.shape[0]))
+
+    roi = cv2.selectROI('Select Region of Interest', corrected_ir, showCrosshair=True)
+    cropped_vis = vis_img[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
+    cropped_ir = corrected_ir[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
+
     experiment_config = get_config('wonjik2020')
     # Create model instance
     logging.info('Loading model ...')
@@ -70,12 +108,12 @@ def region_segmentation():
 
     logging.info('Creating and Applying transformations ...')
     transform = torch.nn.Sequential(
-        ImageResize(100),
-        ImageResizeByCoefficient(32),
+        # ImageResize(100),
+        # ImageResizeByCoefficient(32),
         NumpyImageToTensor()
     )
 
-    input = transform(img)
+    input = transform(cropped_ir)
     input = input.to(dtype=torch.float32, device=args.device)
 
     criterion.prepare_loss(ref=input)
@@ -105,8 +143,15 @@ def region_segmentation():
     
     logging.info('Saving the result ... ')
     result = to_pil(result.squeeze(0).squeeze(0))
-    result.save(os.path.join(args.output, f'{filename}.jpg'))
-    
+
+    mat = {
+        'homography' : homography,
+        'visible' : np.asarray(cropped_vis),
+        'thermal' : np.asarray(cropped_ir),
+        'thermal_segment' : np.asarray(result)
+    }
+    savemat(os.path.join(args.output, f'{ir_filename}.mat'), mat, do_compression=True)
+
 
 if __name__ == "__main__":
     region_segmentation()
