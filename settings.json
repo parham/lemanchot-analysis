@@ -10,7 +10,7 @@
             "log_env_gpu" : true,
             "log_env_cpu" : true,
             "log_env_host" : true,
-            "enable_logging" : false,
+            "enable_logging" : true,
             "enable_image_logging" : true,
             "pipeline" : "simple_train",
             "checkpoint_save" : true,
@@ -75,6 +75,26 @@
                 "Wood" : 4,
                 "Water" : 5,
                 "Plastic" : 6
+            }
+        },
+                "zephyrus" : {
+            "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+            "project_name" : "texture-analysis",
+            "workspace" : "zephyrus",
+            "log_git_metadata" : true,
+            "log_env_gpu" : true,
+            "log_env_cpu" : true,
+            "log_env_host" : true,
+            "enable_logging" : true,
+            "enable_image_logging" : true,
+            "pipeline" : "simple_train",
+            "checkpoint_save" : true,
+            "checkpoint_load" : true,
+            "experiment_config_name" : "test",
+            "dataset_name" : "lemanchot-cracks",
+            "dataset_path" : "/data/lemanchot-cracks",
+            "categories" : {
+                "cracks" : 1
             }
         }
     }
