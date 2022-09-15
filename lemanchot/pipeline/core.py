@@ -71,8 +71,8 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
 
 
 def load_scheduler(
-    optimizer: optim.optimizer, experiment_config: DotMap
-) -> optim._LRScheduler:
+    optimizer: optim.Optimizer, experiment_config: DotMap
+) -> optim.lr_scheduler._LRScheduler:
     """Load the optimizer based on given configuration
 
     Args:
@@ -97,9 +97,14 @@ def load_scheduler(
     )
 
     return {
-        "ReduceLROnPlateau": lambda ps, config: optim.SGD(ps, **config),
-        "CosineAnnealingLR": lambda ps, config: optim.Adam(ps, **config),
+        "ReduceLROnPlateau": lambda ps, config: optim.lr_scheduler.ReduceLROnPlateau(
+            ps, **config
+        ),
+        "CosineAnnealingLR": lambda ps, config: optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            ps, **config
+        ),
     }[sch_name](optimizer, sch_config)
+
 
 __pipeline_handler = {}
 
@@ -204,7 +209,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         model: BaseModule,
         loss,
         optimizer: optim.Optimizer,
-        scheduler: optim._LRScheduler,
+        scheduler: optim.lr_scheduler._LRScheduler,
         metrics: List[BaseMetric],
         experiment: Experiment,
     ) -> Dict:
@@ -350,4 +355,3 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment.end()
 
     return run_record
-

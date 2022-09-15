@@ -36,7 +36,7 @@
     }
   },
   "scheduler": {
-    "name": "ReduceOnPlateau",
+    "name": "ReduceLROnPlateau",
     "config": {
       "factor": 0.1,
       "patience": 10

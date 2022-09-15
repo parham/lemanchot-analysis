@@ -84,6 +84,9 @@ def main():
     # )
     dataset = SegmentationDataset(
         root=dataset_path,
+        img_folder = "img",
+        img_ext= ".jpg",
+        gt_folder = "gt",
         classes=categories,
         input_transforms=input_transforms,
         target_transforms=target_transform,

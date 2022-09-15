@@ -26,7 +26,7 @@ def simple_train_step__(
     model : BaseModule,
     criterion,
     optimizer : optim.Optimizer,
-    scheduler: optim._LRScheduler,
+    scheduler: optim.lr_scheduler._LRScheduler,
     experiment : Experiment
 ) -> Dict:
 

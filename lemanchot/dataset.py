@@ -17,10 +17,11 @@ from PIL import Image
 from typing import Dict, Optional, Set, List, Callable, Tuple, Union
 from torch import Tensor
 from torch import zeros as torch_zeros
-from torch.utils.data import Dataset, VisionDataset
+from torch.utils.data import Dataset
+from torchvision.datasets import VisionDataset
 from torchvision.io import read_image
 from gimp_labeling_converter import XCFDataset, generate_cmap, gimp_helper
-from rle import decode_rle
+from .rle import decode_rle
 
 
 class FileRepeaterDataset(Dataset):
@@ -147,7 +148,6 @@ class JSONDataset(VisionDataset):
         self,
         root: str,
         folder_name: str,
-        size: Tuple[int, int],
         classes: Set,
         transforms: Optional[Callable] = None,
     ):
@@ -164,7 +164,6 @@ class JSONDataset(VisionDataset):
         super().__init__(root, transforms)
         self.folder_name = folder_name
         self.classes = classes
-        self.size = size
 
         if not os.path.isdir(self.root):
             raise ValueError("The dataset directory does not exist or is not valid!")
@@ -211,9 +210,10 @@ class JSONDataset(VisionDataset):
         with open(path, "r") as f:
             data = json.load(f)
 
+        size = (data['height'], data['width'])
         target_dict = self.JSON2ClassMap(data)
         target = np.stack(
-            [target_dict.get(c, torch_zeros(self.size)) for c in self.classes], axis=0
+            [target_dict.get(c, torch_zeros(size)) for c in self.classes], axis=0
         )
 
         if self.transforms is not None:
@@ -268,7 +268,7 @@ class ImageDataset(VisionDataset):
     def __getitem__(self, index: int):
 
         path = self.paths[index]
-        img = read_image(path)
+        img = Image.open(path)
         if self.transforms is not None:
             img = self.transforms(img)
 
@@ -279,11 +279,10 @@ class SegmentationDataset(VisionDataset):
     def __init__(
         self,
         root: str,
-        size: Tuple[int, int],
         classes: List,
         img_folder: str = "img",
-        img_ext: str = ".png",
-        gt_folder: str = "multilabel",
+        img_ext: str = ".jpg",
+        gt_folder: str = "gt",
         input_transforms: Optional[Callable] = None,
         target_transforms: Optional[Callable] = None,
         both_transforms: Optional[Callable] = None,
@@ -304,7 +303,7 @@ class SegmentationDataset(VisionDataset):
         """
         super().__init__(root)
 
-        self.gt_dataset = JSONDataset(root, gt_folder, size, classes, target_transforms)
+        self.gt_dataset = JSONDataset(root, gt_folder, classes, target_transforms)
         img_paths = [
             p.replace(gt_folder, img_folder).replace(".json", img_ext)
             for p in self.gt_dataset.paths
