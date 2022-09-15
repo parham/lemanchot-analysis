@@ -71,7 +71,7 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
 
 
 def load_scheduler(
-    optimizer: optim.optimizer, experiment_config: DotMap
+    optimizer: optim.Optimizer, experiment_config: DotMap
 ) -> optim._LRScheduler:
     """Load the optimizer based on given configuration
 
@@ -158,22 +158,14 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     experiment_config = get_config(experiment_name)
     device = get_device()
     ############ Deep Model ##############
-    # Check if model configuration is available!
-    if not "model" in experiment_config:
-        raise ValueError("Model must be defined in the experiment configuration!")
     # Create model instance
     model = load_model(experiment_config)
-    model.to(device)
+    if model is not None:
+        model.to(device)
     ############ Loss function ##############
-    # Check if loss configuration is available!
-    if not "loss" in experiment_config:
-        raise ValueError("Loss must be defined in the experiment configuration!")
     # Create loss instance
     loss = load_loss(experiment_config)
     ############ Optimizer ##############
-    # Check if optimizer configuration is available!
-    if not "optimizer" in experiment_config:
-        raise ValueError("Optimizer must be defined in the experiment configuration!")
     # Create optimizer instance
     optimizer = load_optimizer(model, experiment_config)
     scheduler = load_scheduler(optimizer, experiment_config)
