@@ -1,17 +1,22 @@
-
-torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+phasepack
+wheel
+Cython
 dotmap
 matplotlib
 Pillow
-comet_ml
-pytorch-ignite
 scikit-image
 opencv-python
 pyyaml
-segmentation_models_pytorch
-phasepack
-wheel
-cython
-git+https://github.com/waspinator/coco.git@2.1.0
-git+https://github.com/waspinator/pycococreator.git@0.2.0
-gimp-labeling-converter
+# Extra index for torch and torchvision.
+--extra-index-url https://download.pytorch.org/whl/cu116
+torch
+torchvision
+comet_ml
+pytorch-ignite
+
+# Must be installed separetely.
+# or with `cat requirements.txt | xargs -n 1 -L 1 pip install`
+#git+https://github.com/qubvel/segmentation_models.pytorch
+#git+https://github.com/waspinator/coco.git@2.1.0
+#git+https://github.com/waspinator/pycococreator.git@0.2.0
+#gimp-labeling-converter
