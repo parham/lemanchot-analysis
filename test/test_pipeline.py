@@ -22,6 +22,8 @@ from torchvision.transforms import (
     ToTensor,
 )
 from ignite.utils import setup_logger
+from ignite.metrics import SSIM, Bleu, mIoU, ConfusionMatrix
+from ignite.metrics.metric import BatchWise
 
 from gimp_labeling_converter import XCFDataset
 
@@ -72,6 +74,13 @@ class TestDataset(unittest.TestCase):
         )
         engine = run_record["engine"]
         engine.logger = setup_logger("trainer")
+
+        metric = SSIM(data_range=1.0)
+        metric.attach(engine, "ssim_ignite", usage=BatchWise())
+
+        metric = Bleu(ngram=4, smooth="smooth1")
+        metric.attach(engine, "bleu_ignite", usage=BatchWise())
+
         ######### Dataset & Dataloader ##########
         dataset = XCFDataset(
             root_dir=dataset_path,

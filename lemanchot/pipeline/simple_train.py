@@ -48,7 +48,7 @@ def simple_train_step__(
     optimizer.step()
 
     return {
-        'y' : batch[1],
+        'y' : targets,
         'y_pred' : outputs,
         'loss' : loss.item()
     }
