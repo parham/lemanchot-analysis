@@ -1,5 +1,5 @@
 
-""" 
+"""
     @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
@@ -20,17 +20,18 @@ from lemanchot.models import BaseModule
 
 @pipeline_register("simple_train")
 def simple_train_step__(
-    engine : Engine, 
+    engine : Engine,
     batch,
     device,
     model : BaseModule,
     criterion,
     optimizer : optim.Optimizer,
+    scheduler: optim._LRScheduler,
     experiment : Experiment
 ) -> Dict:
 
     inputs, targets = batch
-    
+
     inputs = inputs.to(dtype=torch.float32, device=device)
     targets = targets.to(dtype=torch.float32, device=device)
 
@@ -46,10 +47,11 @@ def simple_train_step__(
 
     loss.backward()
     optimizer.step()
-
+    scheduler.step(loss.item())
 
     return {
         'y' : batch[1],
         'y_pred' : outputs,
-        'loss' : loss.item()
+        'loss' : loss.item(),
+        'lr' : scheduler.get_lr()
     }
