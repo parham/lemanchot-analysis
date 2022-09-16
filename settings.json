@@ -90,7 +90,7 @@
       "pipeline": "simple_train",
       "checkpoint_save": true,
       "checkpoint_load": true,
-      "experiment_config_name": "test",
+      "experiment_config_name": "unet50_cracks",
       "dataset_name": "lemanchot-cracks",
       "dataset_path": "/data/lemanchot-cracks/train",
       "categories": {

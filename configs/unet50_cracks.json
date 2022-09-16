@@ -38,7 +38,7 @@
   "pipeline": {
     "simple_train": {
       "max_epoch": 100,
-      "batch_size": 32
+      "batch_size": 8
     }
   }
 }

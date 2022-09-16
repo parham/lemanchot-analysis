@@ -43,7 +43,8 @@ def simple_train_step__(
     outputs = model(inputs)
 
     loss = criterion(outputs, targets)
-    outputs = torch.tensor(torch.argmax(outputs, dim=1), dtype=targets.dtype).unsqueeze(1)
+    # Threshold < thresh = value
+    outputs = torch.threshold(outputs.sigmoid(), 0.5, 0)
 
     loss.backward()
     optimizer.step()
