@@ -130,16 +130,8 @@ class ConfusionMatrix(BaseMetric):
         )
 
         # Calculate confusion matrix based metrics
-        stats = {}
-
-        sts = measure_accuracy_cm__(self.confusion_matrix)
-        stats = {**stats, **sts}
-
-        experiment.log_metrics(stats,
-            prefix=prefix,
-            step=engine.state.iteration,
-            epoch=engine.state.epoch
-        )
+        stats = measure_accuracy_cm__(self.confusion_matrix)
+        self.log_metrics(engine, experiment, stats, prefix=prefix)
 
         return CMRecord(
             self.confusion_matrix,

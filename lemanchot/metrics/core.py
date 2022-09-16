@@ -9,7 +9,7 @@
 
 import logging
 
-from typing import Callable, List
+from typing import Any, Callable, Dict, List
 from comet_ml import Experiment
 from dotmap import DotMap
 
@@ -56,6 +56,14 @@ class BaseMetric(object):
             batch (Tuple): the variable containing data
         """
         pass
+
+    def log_metrics(self, 
+        engine : Engine, 
+        experiment : Experiment,
+        metrics : Dict[str,Any],
+        prefix : str = '',
+    ):
+        engine.state.metrics.update(metrics)
 
     def compute(self,
         engine : Engine,
@@ -124,13 +132,14 @@ class Function_Metric(BaseMetric):
         """
 
         if self.__last_ret is not None:
-            experiment.log_metrics(
-                self.__last_ret,
-                prefix=prefix,
-                step=engine.state.iteration,
-                epoch=engine.state.epoch
-            )
-
+            self.log_metrics(engine, experiment, self.__last_ret, prefix=prefix)
+            # experiment.log_metrics(
+            #     self.__last_ret, 
+            #     prefix=prefix, 
+            #     step=engine.state.iteration, 
+            #     epoch=engine.state.epoch
+            # )
+        
         return self.__last_ret
 
 def assert_image_shapes_equal(org, pred, metric: str):

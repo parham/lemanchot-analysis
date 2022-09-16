@@ -21,7 +21,7 @@ from torch import zeros as torch_zeros
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
 from gimp_labeling_converter import XCFDataset, generate_cmap, gimp_helper
-from .rle import decode_rle
+from lemanchot.rle import decode_rle
 
 
 class FileRepeaterDataset(Dataset):

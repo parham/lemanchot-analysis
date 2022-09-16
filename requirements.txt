@@ -5,7 +5,9 @@ dotmap
 matplotlib
 Pillow
 scikit-image
+scikit-learn
 opencv-python
+pyfftw
 pyyaml
 # Extra index for torch and torchvision.
 --extra-index-url https://download.pytorch.org/whl/cu116

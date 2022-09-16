@@ -25,13 +25,11 @@ class GrayToRGB(torch.nn.Module):
             res = np.concatenate((res, res, res), axis=2)
         return res
 
-
 class FilterOutAlphaChannel(torch.nn.Module):
     def forward(self, img) -> Any:
         channel = img.shape[0]
         res = img[:-1, :, :] if channel > 3 else img
         return res
-
 
 class BothRandomRotate(torch.nn.Module):
     def __init__(self, angles: Tuple[int], weights: Tuple[int] = None):
@@ -52,6 +50,9 @@ class BothRandomCrop(torch.nn.Module):
         i, j, h, w = RandomCrop.get_params(args[0], self.size)
         return [crop(img, i, j, h, w) for img in args]
 
+    def forward(self, args):
+        i, j, h, w = RandomCrop.get_params(args[0], self.size)
+        return [crop(img, i, j, h, w) for img in args]
 
 class ImageResize(torch.nn.Module):
     def __init__(
@@ -73,7 +74,6 @@ class ImageResize(torch.nn.Module):
             img_pil, self.size, self.interpolation, self.max_size, self.antialias
         )
         return np.asarray(res)
-
 
 class ImageResizeByCoefficient(torch.nn.Module):
     def __init__(
@@ -100,7 +100,6 @@ class ImageResizeByCoefficient(torch.nn.Module):
         )
         return np.asarray(res)
 
-
 class NumpyImageToTensor(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
@@ -111,7 +110,6 @@ class NumpyImageToTensor(torch.nn.Module):
         img = self.to_pil(img)
         img = self.to_tensor(img)
         return img
-
 
 class ToGrayscale(torch.nn.Module):
     def __init__(self) -> None:
