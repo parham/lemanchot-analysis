@@ -1,5 +1,5 @@
 
-""" 
+"""
     @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
@@ -7,14 +7,12 @@
     @industrial-partner TORNGATS
 """
 
-import numpy as np
-
 from dataclasses import dataclass
 from typing import Dict, List
 
 from comet_ml import Experiment
-
 from ignite.engine import Engine
+import numpy as np
 
 from lemanchot.metrics import BaseMetric, metric_register
 
@@ -38,7 +36,7 @@ def measure_accuracy_cm__(
     Returns:
         Dict: _description_
     """
-    fp = cmatrix.sum(axis=0) - np.diag(cmatrix)  
+    fp = cmatrix.sum(axis=0) - np.diag(cmatrix)
     fn = cmatrix.sum(axis=1) - np.diag(cmatrix)
     tp = np.diag(cmatrix)
     tn = cmatrix.sum() - (fp + fn + tp)
@@ -115,22 +113,22 @@ class ConfusionMatrix(BaseMetric):
                 cmatrix[tind, oind] += 1
         self.step_confusion_matrix = cmatrix
         self.confusion_matrix += cmatrix
-    
-    def compute(self,  
+
+    def compute(self,
         engine : Engine,
         experiment : Experiment,
         prefix : str = '',
         **kwargs
     ):
         experiment.log_confusion_matrix(
-            matrix=self.confusion_matrix, 
-            labels=self.class_labels, 
+            matrix=self.confusion_matrix,
+            labels=self.class_labels,
             title=f'{prefix}Confusion Matrix',
-            file_name=f'{prefix}confusion-matrix.json', 
-            step=engine.state.iteration, 
+            file_name=f'{prefix}confusion-matrix.json',
+            step=engine.state.iteration,
             epoch=engine.state.epoch
         )
-        
+
         # Calculate confusion matrix based metrics
         stats = measure_accuracy_cm__(self.confusion_matrix)
         self.log_metrics(engine, experiment, stats, prefix=prefix)

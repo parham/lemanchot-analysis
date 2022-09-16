@@ -47,7 +47,7 @@ class TestDataset(unittest.TestCase):
     
     def test_pipeline(self):
 
-        profile_name = 'parham'
+        profile_name = 'zephyrus-ulaval'
 
         ######### Settings ##########
         profile = get_profile(profile_name)

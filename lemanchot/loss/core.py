@@ -1,5 +1,4 @@
 
-
 """ 
     @project LeManchot-Analysis : Core components
     @organization Laval University
@@ -97,4 +96,3 @@ def load_loss(experiment_config : DotMap):
         name=loss_name,
         config=loss_config
     )
-
