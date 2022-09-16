@@ -105,7 +105,6 @@ def load_scheduler(
         scheduler = LRScheduler(steplr)
 
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
-        pevery = scheduler_config['every'] if 'every' in scheduler_config else 1
         if period == 'iteration':
             engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
         elif period == 'epoch':
@@ -147,7 +146,13 @@ def load_scheduler(
             threshold=scheduler_config['threshold'],
             trainer=engine
         )
-        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+        period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
+        if period == 'iteration':
+            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+        elif period == 'epoch':
+            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+        else:
+            raise ValueError('The period for scheduler is not supported!')
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
@@ -174,7 +179,13 @@ def load_scheduler(
         )
 
         scheduler = LRScheduler(cosine_lr)
-        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+        period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
+        if period == 'iteration':
+            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+        elif period == 'epoch':
+            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+        else:
+            raise ValueError('The period for scheduler is not supported!')
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
@@ -199,7 +210,13 @@ def load_scheduler(
         )
 
         scheduler = LRScheduler(exp_lr)
-        engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+        period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
+        if period == 'iteration':
+            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+        elif period == 'epoch':
+            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+        else:
+            raise ValueError('The period for scheduler is not supported!')
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
