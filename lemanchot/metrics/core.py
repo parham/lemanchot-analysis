@@ -1,5 +1,5 @@
 
-""" 
+"""
     @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
@@ -78,7 +78,7 @@ def load_metric(name, config) -> BaseMetric:
         msg = f'{name} metric is not supported!'
         logging.error(msg)
         raise ValueError(msg)
-    
+
     return __metric_handler[name](config)
 
 def load_metrics(experiment_config : DotMap, categories):
@@ -95,8 +95,8 @@ class Function_Metric(BaseMetric):
         Function_Metric is a metric class that allows you to wrap a metric function inside.
         It lets a metric function to be integrated into the prepared platform.
     """
-    def __init__(self, 
-        func : Callable, 
+    def __init__(self,
+        func : Callable,
         config
     ):
         super().__init__(config)
@@ -122,15 +122,15 @@ class Function_Metric(BaseMetric):
             step (int, optional): the given step. Defaults to 1.
             epoch (int, optional): the given epoch. Defaults to 1.
         """
-        
+
         if self.__last_ret is not None:
             experiment.log_metrics(
-                self.__last_ret, 
-                prefix=prefix, 
-                step=engine.state.iteration, 
+                self.__last_ret,
+                prefix=prefix,
+                step=engine.state.iteration,
                 epoch=engine.state.epoch
             )
-        
+
         return self.__last_ret
 
 def assert_image_shapes_equal(org, pred, metric: str):
@@ -138,7 +138,7 @@ def assert_image_shapes_equal(org, pred, metric: str):
         Please note that: The interpretation of a 3-dimension array read from rasterio is: (bands, rows, columns) while
         image processing software like scikit-image, pillow and matplotlib are generally ordered: (rows, columns, bands)
         in order efficiently swap the axis order one can use reshape_as_raster, reshape_as_image from rasterio.plot
-    
+
     Based on: https://github.com/up42/image-similarity-measures
     Args:
         org_img (np.ndarray): original image

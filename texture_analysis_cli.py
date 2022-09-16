@@ -13,10 +13,8 @@ import logging
 from torch.utils.data import DataLoader
 from torchvision.transforms import (
     Compose,
-    RandomRotation,
     Resize,
     Grayscale,
-    ColorJitter,
     ToTensor,
 )
 from ignite.utils import setup_logger

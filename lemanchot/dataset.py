@@ -15,12 +15,11 @@ from pathlib import Path
 
 from PIL import Image
 from typing import Dict, Optional, Set, List, Callable, Tuple, Union
-from torch import Tensor, tensor, from_numpy
+from torch import Tensor, from_numpy
 from torch import stack as torch_stack
 from torch import zeros as torch_zeros
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
-from torchvision.io import read_image
 from gimp_labeling_converter import XCFDataset, generate_cmap, gimp_helper
 from .rle import decode_rle
 

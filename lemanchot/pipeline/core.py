@@ -240,7 +240,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             # Assume Tensor B x C x W x H
             targets = res["y"]
             outputs = res["y_pred"]
-            processed = res["y_processed"] if "y_processed" in res else None
+            processed = res.get("processed", None)
 
             num_samples = res["y"].shape[0]
             for i in range(num_samples):
@@ -248,7 +248,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                 trg = targets[i, :, :, :]
                 prc = processed[i, :, :, :] if processed is not None else None
 
-                if profile.enable_image_logging:
+                # Logging only one image, else way to slow
+                if profile.enable_image_logging and i==1:
                     experiment.log_image(
                         make_tensor_for_comet(out),
                         f"output-{i}",
@@ -341,7 +342,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
         print(
-            f"Epoch {iteration}/{max_epochs} [{step_time:.3f}]:\t {iteration} - batch loss: {engine.state.last_loss:.4f}, lr: {lr}"
+            f"Epoch {epoch}/{max_epochs} [{step_time:.3f}]:\t {iteration} - batch loss: {engine.state.last_loss:.4f}, lr: {lr}"
         )
 
     @engine.on(Events.STARTED)
