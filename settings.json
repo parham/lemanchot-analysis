@@ -86,7 +86,7 @@
       "log_env_cpu": true,
       "log_env_host": true,
       "enable_logging": true,
-      "enable_image_logging": true,
+      "enable_image_logging": false,
       "pipeline": "simple_train",
       "checkpoint_save": true,
       "checkpoint_load": true,

@@ -270,7 +270,7 @@ class ImageDataset(VisionDataset):
     def __getitem__(self, index: int):
 
         path = self.paths[index]
-        img = Image.open(path)
+        img = Image.open(path).convert("RGB")
         if self.transforms is not None:
             img = self.transforms(img)
 
