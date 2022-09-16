@@ -31,7 +31,7 @@ class Unet_Resnet18(BaseModule):
         return self.clss(x)
 
 @model_register('unet_resnet50')
-class Unet_Resnet18(BaseModule):
+class Unet_Resnet50(BaseModule):
     def __init__(self, name : str, config : DotMap) -> None:
         super().__init__(
             name='unet_resnet50',

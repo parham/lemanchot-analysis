@@ -39,22 +39,18 @@ class BothRandomRotate(torch.nn.Module):
         self.angles = angles
         self.weights = weights if not weights else [1] * len(angles)
 
-    def forward(self, img: Image, target: Image):
+    def forward(self, args):
         ang = choices(self.angles, weights=self.weights, k=1)[0]
-        img = rotate(img, ang)
-        target = rotate(target, ang)
-        return img, target
+        return [rotate(img, ang) for img in args]
 
 class BothRandomCrop(torch.nn.Module):
-    def __init__(self, size):
+    def __init__(self, crop_size):
         super().__init__()
-        self.size = size
+        self.size = crop_size
 
-    def forward(self, img: Image, target: Image):
-        i, j, h, w = RandomCrop.get_params(input, self.size)
-        input = crop(input, i, j, h, w)
-        target = crop(target, i, j, h, w)
-        return img, target
+    def forward(self, args):
+        i, j, h, w = RandomCrop.get_params(args[0], self.size)
+        return [crop(img, i, j, h, w) for img in args]
 
 
 class ImageResize(torch.nn.Module):
@@ -132,7 +128,7 @@ class TargetDilation(torch.nn.Module):
 
     def forward(self, img: Image):
         return torch.clamp(
-            torch.nn.functional.conv2d(img, self.kernel, padding="same"), 0, 1
+            torch.nn.functional.conv2d(img, self.kernel.to(img.dtype), padding="same"), 0, 1
         )
 
 

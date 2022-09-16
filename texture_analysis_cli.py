@@ -10,10 +10,10 @@ import argparse
 import sys
 import logging
 
+from torch.nn import Sequential
 from torch.utils.data import DataLoader
 from torchvision.transforms import (
     Compose,
-    Resize,
     Grayscale,
     ToTensor,
 )
@@ -54,14 +54,12 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    input_transforms = Compose([Grayscale(), ToTensor()])
-    target_transform = Compose([TargetDilation(3)])
-    both_transforms = Compose[
-        (
+    input_transforms = Compose([ToTensor()])
+    target_transform = None #Compose([TargetDilation(3)])
+    both_transforms = Sequential(
             BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90)),
             BothRandomCrop((512, 512)),
-        )
-    ]
+    )
     # transform = torch.nn.Sequential(
     # ImageResize(70),
     # ImageResizeByCoefficient(32),
@@ -90,7 +88,7 @@ def main():
     dataset = SegmentationDataset(
         root=dataset_path,
         img_folder="img",
-        img_ext=".jpg",
+        img_ext=".png",
         gt_folder="gt",
         classes=categories.keys(),
         input_transforms=input_transforms,

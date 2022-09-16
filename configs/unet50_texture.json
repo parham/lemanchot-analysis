@@ -2,8 +2,9 @@
   "model": {
     "name": "unet_resnet50",
     "config": {
-      "channels": 1,
-      "num_classes": 1
+      "channels": 3,
+      "weights": null,
+      "num_classes": 6
     }
   },
   "metrics": {
@@ -17,8 +18,7 @@
   "loss": {
     "name": "cross_entropy",
     "config": {
-      "reduction": "mean",
-      "weights": null
+      "reduction": "mean"
     }
   },
   "optimizer": {

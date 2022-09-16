@@ -90,11 +90,16 @@
       "pipeline": "simple_train",
       "checkpoint_save": true,
       "checkpoint_load": true,
-      "experiment_config_name": "unet50_cracks",
-      "dataset_name": "lemanchot-cracks",
-      "dataset_path": "/data/lemanchot-cracks/train",
+      "experiment_config_name": "unet50_texture",
+      "dataset_name": "lemanchot-analysis",
+      "dataset_path": "/data/lemanchot-analysis/952",
       "categories": {
-        "crack": 1
+        "metal": 1,
+        "vegetation": 2,
+        "pavement": 3,
+        "wood": 4,
+        "water": 5,
+        "plastic": 6
       }
     }
   }
