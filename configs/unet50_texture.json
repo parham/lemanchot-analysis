@@ -3,7 +3,7 @@
     "name": "unet_resnet50",
     "config": {
       "channels": 3,
-      "num_classes": 6,
+      "num_classes": 7,
       "weights": null
     }
   },

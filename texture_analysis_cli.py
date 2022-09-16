@@ -90,7 +90,7 @@ def main():
         img_folder="img",
         img_ext=".png",
         gt_folder="gt",
-        classes=categories.keys(),
+        classes=categories,
         input_transforms=input_transforms,
         target_transforms=target_transform,
         both_transforms=both_transforms,

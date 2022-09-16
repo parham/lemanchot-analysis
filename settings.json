@@ -114,12 +114,13 @@
       "dataset_name": "lemanchot-analysis",
       "dataset_path": "/data/lemanchot-analysis/952",
       "categories": {
-        "Metal": 1,
-        "Vegetation": 2,
-        "Pavement": 3,
-        "Wood": 4,
-        "Water": 5,
-        "Plastic": 6
+        "background" :0,
+        "metal": 1,
+        "vegetation": 2,
+        "pavement": 3,
+        "wood": 4,
+        "water": 5,
+        "plastic": 6
       }
     }
   }

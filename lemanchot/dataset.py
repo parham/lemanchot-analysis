@@ -15,7 +15,7 @@ from pathlib import Path
 
 from PIL import Image
 from typing import Dict, Optional, Set, List, Callable, Tuple, Union
-from torch import Tensor, from_numpy
+from torch import Tensor, from_numpy, logical_not
 from torch import stack as torch_stack
 from torch import zeros as torch_zeros
 from torch.utils.data import Dataset
@@ -194,7 +194,7 @@ class JSONDataset(VisionDataset):
         layers = {}
         for cl, ann in input["annotations"].items():
             if ann.get("data", False):
-                layers[cl] = from_numpy(
+                layers[cl.lower()] = from_numpy(
                     decode_rle(ann["data"]).reshape(height, width, 4)[:, :, 3]
                 )
 
@@ -215,8 +215,11 @@ class JSONDataset(VisionDataset):
         size = (data["height"], data["width"])
         target = self.JSON2ClassMap(data)
         target = torch_stack(
-            [target.get(c, torch_zeros(size)) for c in self.classes], dim=0
+            [target.get(c, torch_zeros(size)) for c in self.classes.keys()], dim=0
         )
+
+        if "background"in self.classes.keys():
+            target[self.classes.background, ...] = logical_not(target.sum(dim=0))
 
         if self.transforms is not None:
             target = self.transforms(target)
