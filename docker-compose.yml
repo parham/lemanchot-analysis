@@ -1,0 +1,17 @@
+services:
+  app:
+    image: lemanchotanalysis:latest
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 12G
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              device_ids: ['0']
+    volumes:
+      - /data:/data:ro
