@@ -30,11 +30,16 @@
       "nesterov": true
     }
   },
-  "scheduler": {
-    "name": "ReduceLROnPlateau",
-    "config": {
-      "factor": 0.1,
-      "patience": 5
+  "scheduler" : {
+    "name" : "ReduceLROnPlateau",
+    "config" : {
+        "metric_name" : "loss",
+        "save_history" : true,
+        "mode" : "min",
+        "factor" : 0.1,
+        "patience" : 5,
+        "threshold_mode" : "rel",
+        "threshold" : 0.01
     }
   },
   "pipeline": {

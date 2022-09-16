@@ -124,7 +124,7 @@ def load_scheduler(
         scheduler_config: DotMap
     ):
         # "scheduler" : {
-        #     "name" : "ReduceOnPlateau",
+        #     "name" : "ReduceLROnPlateau",
         #     "config" : {
         #         "metric_name" : "loss",
         #         "save_history" : true,
@@ -137,7 +137,7 @@ def load_scheduler(
         # }
         scheduler = ReduceLROnPlateauScheduler(
             optimizer, 
-            metric_name=scheduler_config['metric'],
+            metric_name=scheduler_config['metric_name'],
             save_history=scheduler_config['save_history'], 
             mode=scheduler_config['mode'], 
             factor=scheduler_config['factor'], 
@@ -148,9 +148,9 @@ def load_scheduler(
         )
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -455,7 +455,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         if profile.enable_logging:
             metrics = engine.state.metrics
             experiment.log_metrics(
-                metrics,
+                dict(metrics),
                 step=engine.state.iteration, 
                 epoch=engine.state.epoch
             )

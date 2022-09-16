@@ -63,7 +63,7 @@ class BaseMetric(object):
         metrics : Dict[str,Any],
         prefix : str = '',
     ):
-        engine.state.metrics.update(metrics)
+        engine.state.metrics.update(dict(metrics))
 
     def compute(self,
         engine : Engine,
