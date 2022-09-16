@@ -9,8 +9,8 @@
 
 import numpy as np
 from dotmap import DotMap
-from sklearn.cluster import DBSCAN, KMeans, MeanShift, estimate_bandwidth
 
+from sklearn.cluster import DBSCAN, KMeans, MeanShift, estimate_bandwidth
 from skimage import segmentation, color
 from skimage.future import graph
 

@@ -18,8 +18,8 @@
             "args" : [
                 "/home/phm/Datasets/Case Study 01: Pipe inspection/thermal/IR_43.jpg",
                 "/home/phm/Datasets/Case Study 01: Pipe inspection/visible/VIS_43.jpg",
-                "--output", "/home/phm/Datasets/Case Study 01: Pipe inspection/results"
-                // "--device", "cpu"
+                "--output", "/home/phm/Datasets/Case Study 01: Pipe inspection/results",
+                "--device", "cpu"
             ]
         },
         {

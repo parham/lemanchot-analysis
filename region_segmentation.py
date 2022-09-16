@@ -84,14 +84,14 @@ def region_segmentation():
         logging.error('Failed to load the visible image!')
         return
 
-    cps = cpselect(ir_img, vis_img)
-    source, dest = cp_to_opencv(cps)
-    homography, _ = cv2.findHomography(source, dest)
-    corrected_ir = cv2.warpPerspective(ir_img, homography, (vis_img.shape[1], vis_img.shape[0]))
+    # cps = cpselect(ir_img, vis_img)
+    # source, dest = cp_to_opencv(cps)
+    # homography, _ = cv2.findHomography(source, dest)
+    # corrected_ir = cv2.warpPerspective(ir_img, homography, (vis_img.shape[1], vis_img.shape[0]))
 
-    roi = cv2.selectROI('Select Region of Interest', corrected_ir, showCrosshair=True)
-    cropped_vis = vis_img[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
-    cropped_ir = corrected_ir[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
+    # roi = cv2.selectROI('Select Region of Interest', corrected_ir, showCrosshair=True)
+    # cropped_vis = vis_img[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
+    # cropped_ir = corrected_ir[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
 
     experiment_config = get_config('wonjik2020')
     # Create model instance
@@ -113,7 +113,7 @@ def region_segmentation():
         NumpyImageToTensor()
     )
 
-    input = transform(cropped_ir)
+    input = transform(ir_img)
     input = input.to(dtype=torch.float32, device=args.device)
 
     criterion.prepare_loss(ref=input)
@@ -144,13 +144,13 @@ def region_segmentation():
     logging.info('Saving the result ... ')
     result = to_pil(result.squeeze(0).squeeze(0))
 
-    mat = {
-        'homography' : homography,
-        'visible' : np.asarray(cropped_vis),
-        'thermal' : np.asarray(cropped_ir),
-        'thermal_segment' : np.asarray(result)
-    }
-    savemat(os.path.join(args.output, f'{ir_filename}.mat'), mat, do_compression=True)
+    # mat = {
+    #     'homography' : homography,
+    #     'visible' : np.asarray(cropped_vis),
+    #     'thermal' : np.asarray(cropped_ir),
+    #     'thermal_segment' : np.asarray(result)
+    # }
+    # savemat(os.path.join(args.output, f'{ir_filename}.mat'), mat, do_compression=True)
 
 
 if __name__ == "__main__":
