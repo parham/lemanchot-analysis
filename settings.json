@@ -19,6 +19,7 @@
             "dataset_name" : "Laval_Road_9h52",
             "dataset_path" : "/data/lemanchot-analysis/952",
             "categories" : {
+                "Background" : 0,
                 "Metal" : 1,
                 "Vegetation" : 2,
                 "Pavement" : 3,

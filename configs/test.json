@@ -3,7 +3,7 @@
         "name" : "unet_resnet18",
         "config" : {
             "channels" : 3,
-            "num_classes" : 6
+            "num_classes" : 7
         }
     },
     "metrics" : {
@@ -11,14 +11,14 @@
             "just_test" : "test"
         },
         "rmse" : {
-            "max_p" : 7
+            "max_p" : 8
         },
         "fsim" : {
             "T1" : 0.85,
             "T2" : 160
         },
         "ssim" : {
-            "max_p" : 7
+            "max_p" : 8
         }
     },
     "loss" : {
