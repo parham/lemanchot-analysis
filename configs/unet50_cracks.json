@@ -1,0 +1,44 @@
+{
+  "model": {
+    "name": "unet_resnet50",
+    "config": {
+      "channels": 1,
+      "num_classes": 1,
+      "weights": null
+    }
+  },
+  "metrics": {
+    "confusion_matrix": {
+      "just_test": "test"
+    },
+    "mIoU": {
+     "iou_thresh": 0.5
+    }
+  },
+  "loss": {
+    "name": "cross_entropy",
+    "config": {
+      "reduction": "mean"
+    }
+  },
+  "optimizer": {
+    "name": "SGD",
+    "config": {
+      "lr": 0.01,
+      "momentum": 0.9
+    }
+  },
+  "scheduler": {
+    "name": "ReduceLROnPlateau",
+    "config": {
+      "factor": 0.1,
+      "patience": 5
+    }
+  },
+  "pipeline": {
+    "simple_train": {
+      "max_epoch": 100,
+      "batch_size": 32
+    }
+  }
+}
