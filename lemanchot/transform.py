@@ -13,8 +13,8 @@ from typing import Any, List, Tuple
 from PIL import Image
 from skimage import color
 
-from torchvision.transforms import ToPILImage, PILToTensor
-from torchvision.transforms.functional import InterpolationMode, resize, rotate
+from torchvision.transforms import ToPILImage, PILToTensor, RandomCrop
+from torchvision.transforms.functional import InterpolationMode, resize, rotate, crop
 
 
 class GrayToRGB(torch.nn.Module):
@@ -37,12 +37,23 @@ class BothRandomRotate(torch.nn.Module):
     def __init__(self, angles: Tuple[int], weights: Tuple[int] = None):
         super().__init__()
         self.angles = angles
-        self.weights = weights if not weights else [1]*len(angles)
+        self.weights = weights if not weights else [1] * len(angles)
 
     def forward(self, img: Image, target: Image):
         ang = choices(self.angles, weights=self.weights, k=1)[0]
         img = rotate(img, ang)
         target = rotate(target, ang)
+        return img, target
+
+class BothRandomCrop(torch.nn.Module):
+    def __init__(self, size):
+        super().__init__()
+        self.size = size
+
+    def forward(self, img: Image, target: Image):
+        i, j, h, w = RandomCrop.get_params(input, self.size)
+        input = crop(input, i, j, h, w)
+        target = crop(target, i, j, h, w)
         return img, target
 
 
@@ -114,6 +125,17 @@ class ToGrayscale(torch.nn.Module):
         return color.rgb2gray(img) if len(img.shape) > 2 else img
 
 
+class TargetDilation(torch.nn.Module):
+    def __init__(self, factor) -> None:
+        super().__init__()
+        self.kernel = torch.ones((1, 1, factor, factor), requires_grad=False, dtype=torch.uint8)
+
+    def forward(self, img: Image):
+        return torch.clamp(
+            torch.nn.functional.conv2d(img, self.kernel, padding="same"), 0, 1
+        )
+
+
 class ClassMapToMDTarget(torch.nn.Module):
     def __init__(self, categories: List, background_classid: int = 0) -> None:
         super().__init__()
@@ -131,4 +153,3 @@ class ClassMapToMDTarget(torch.nn.Module):
             layers.append(tmp)
         layers = ((np.ones(img.shape) * self.background_classid), *layers)
         return np.stack(layers)
-

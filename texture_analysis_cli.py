@@ -24,6 +24,8 @@ from lemanchot.core import get_profile, get_profile_names
 from lemanchot.dataset import SegmentationDataset
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
+    TargetDilation,
+    BothRandomCrop,
     BothRandomRotate,
     FilterOutAlphaChannel,
     ImageResize,
@@ -52,9 +54,14 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    input_transforms = Compose([Grayscale(), Resize((512, 512)), ToTensor()])
-    target_transform = Compose([Resize((512, 512))])
-    both_transforms = BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90))
+    input_transforms = Compose([Grayscale(), ToTensor()])
+    target_transform = Compose([TargetDilation(3)])
+    both_transforms = Compose[
+        (
+            BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90)),
+            BothRandomCrop((512, 512)),
+        )
+    ]
     # transform = torch.nn.Sequential(
     # ImageResize(70),
     # ImageResizeByCoefficient(32),
@@ -82,9 +89,9 @@ def main():
     # )
     dataset = SegmentationDataset(
         root=dataset_path,
-        img_folder = "img",
-        img_ext= ".jpg",
-        gt_folder = "gt",
+        img_folder="img",
+        img_ext=".jpg",
+        gt_folder="gt",
         classes=categories.keys(),
         input_transforms=input_transforms,
         target_transforms=target_transform,

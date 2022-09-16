@@ -25,7 +25,7 @@
     "name": "SGD",
     "config": {
       "lr": 0.01,
-      "momentum": 0.9
+      "momentum": 0.7
     }
   },
   "scheduler": {
