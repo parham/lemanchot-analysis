@@ -18,10 +18,12 @@ from PIL import Image
 from typing import Dict, Optional, Set, List, Callable, Tuple, Union
 from torch import Tensor
 from torch import zeros as torch_zeros
-from torch.utils.data import Dataset, VisionDataset
+from torch.utils.data import Dataset
+from torchvision.datasets import VisionDataset
 from torchvision.io import read_image
+
 from gimp_labeling_converter import XCFDataset, generate_cmap, gimp_helper
-from rle import decode_rle
+from lemanchot.rle import decode_rle
 
 
 class FileRepeaterDataset(Dataset):

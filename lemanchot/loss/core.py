@@ -67,37 +67,6 @@ def load_loss_inline__(name : str, config):
     )
 
 def load_loss(experiment_config : DotMap):
-    """_summary_
-
-    Args:
-        loss_name (str): _description_
-        device (str): _description_
-        config (Dict[str,Any]): _description_
-
-    Raises:
-        ValueError: _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    global __loss_handler
-    # Get loss name
-    loss_name = experiment_config.loss.name
-    # Get the experiment configuration
-    loss_config = experiment_config.loss.config
-
-    if not loss_name in list_losses():
-        msg = f'{loss_name} model is not supported!'
-        logging.error(msg)
-        raise ValueError(msg)
-    
-    return __loss_handler[loss_name](
-        name=loss_name,
-        config=loss_config
-    )
-
-def load_loss(experiment_config : DotMap):
     """Load an instance of a registered loss based on the given name
 
     Args:

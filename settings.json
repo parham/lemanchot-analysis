@@ -1,5 +1,5 @@
 {
-    "device" : "cuda",
+    "device" : "cpu",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
         "parham-wnet" : {
