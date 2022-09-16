@@ -3,8 +3,8 @@
     "name": "unet_resnet50",
     "config": {
       "channels": 3,
-      "weights": null,
-      "num_classes": 6
+      "num_classes": 6,
+      "weights": null
     }
   },
   "metrics": {
