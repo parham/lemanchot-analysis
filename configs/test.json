@@ -7,9 +7,6 @@
         }
     },
     "metrics" : {
-        "confusion_matrix" : {
-            "just_test" : "test"
-        },
         "rmse" : {
             "max_p" : 8
         },

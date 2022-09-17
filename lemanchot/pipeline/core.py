@@ -408,7 +408,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "engine": engine,
         "model": model,
         "optimizer": optimizer,
-        "scheduler" : scheduler,
         "loss": loss,
     }
     enable_checkpoint_save = (
