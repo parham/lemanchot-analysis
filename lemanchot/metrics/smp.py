@@ -10,6 +10,21 @@ import segmentation_models_pytorch as smp
 
 from lemanchot.metrics.core import BaseMetric, metric_register
 
+@metric_register('smp_confusion_matrix')
+class SMP_Metrics(BaseMetric):
+    def __init__(self, config) -> None:
+        super().__init__(config)
+    
+    def update(self, batch, **kwargs):
+        pass
+
+    def compute(self,
+        engine : Engine,
+        experiment : Experiment,
+        prefix : str = '',
+        **kwargs
+    ):
+        pass
 
 @metric_register('smp')
 class SMP_Metrics(BaseMetric):
