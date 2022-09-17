@@ -19,6 +19,19 @@
         },
         "ssim" : {
             "max_p" : 8
+        },
+        "smp" : {
+            "mode" : "multiclass",
+            "ignore_index" : 0,
+            "threshold" : 0.1,
+            "num_classes" : 7,
+            "metrics" : {
+                "fbeta" : {
+                    "beta" : 1.0,
+                    "reduction" : "micro",
+                    "zero_division" : 1
+                }
+            }
         }
     },
     "loss" : {
