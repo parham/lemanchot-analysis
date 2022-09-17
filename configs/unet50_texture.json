@@ -8,12 +8,25 @@
     }
   },
   "metrics": {
-    "confusion_matrix": {
-      "just_test": "test"
-    },
-    "mIoU": {
-     "iou_thresh": 0.5
+    "smp": {
+      "mode" : "multilabel",
+      "ignore_index" : 0,
+      "threshold" : 0.5,
+      "num_classes" : 7,
+      "metrics": {
+        "f1" : {
+         "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+         },
+        "iou" : {
+          "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+        }
+      }
     }
+
   },
   "loss": {
     "name": "cross_entropy",

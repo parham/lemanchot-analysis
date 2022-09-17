@@ -42,8 +42,7 @@ def simple_train_step__(
     outputs = model(inputs)
 
     loss = criterion(outputs, targets)
-    outputs = outputs.argmax(dim=1, keepdims=True).to(dtype=torch.uint8)
-    targets = targets.argmax(dim=1, keepdims=True).to(dtype=torch.uint8)
+    outputs = outputs.sigmoid().long()
 
     loss.backward()
     optimizer.step()
