@@ -7,24 +7,9 @@ import torch
 from ignite.engine import Engine
 
 import segmentation_models_pytorch as smp
+from lemanchot.core import get_device
 
 from lemanchot.metrics.core import BaseMetric, metric_register
-
-@metric_register('smp_confusion_matrix')
-class SMP_ConfusionMatrix(BaseMetric):
-    def __init__(self, config) -> None:
-        super().__init__(config)
-    
-    def update(self, batch, **kwargs):
-        pass
-
-    def compute(self,
-        engine : Engine,
-        experiment : Experiment,
-        prefix : str = '',
-        **kwargs
-    ):
-        pass
 
 @metric_register('smp')
 class SMP_Metrics(BaseMetric):
@@ -33,7 +18,7 @@ class SMP_Metrics(BaseMetric):
         self.metrics_stats = {}
         # {
         #       "mode" : "multiclass", # "binary", "multilabel"
-        #       "ignore_index" : 0, # Default: None
+        #       "ignore_index" : -1, # Default: None
         #       "threshold" : 0.1, # Default: None
         #       "num_classes" : 6,
         #       "metrics" : {

@@ -7,6 +7,9 @@
         }
     },
     "metrics" : {
+        "confusion_matrix" : {
+            "cal_stats" : false
+        },
         "rmse" : {
             "max_p" : 8
         },
