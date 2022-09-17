@@ -1,5 +1,5 @@
 services:
-  app:
+  lemanchot_analysis:
     image: lemanchotanalysis:latest
     stdin_open: true
     tty: true
