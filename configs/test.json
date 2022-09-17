@@ -22,7 +22,7 @@
         },
         "smp" : {
             "mode" : "multiclass",
-            "ignore_index" : 0,
+            "ignore_index" : -1,
             "threshold" : 0.1,
             "num_classes" : 7,
             "metrics" : {

@@ -41,14 +41,14 @@ def simple_train_step__(
 
     outputs = model(inputs)
 
-    loss = criterion(outputs, targets)
-    outputs = outputs.argmax(dim=1, keepdims=True).to(dtype=torch.uint8)
+    loss = criterion(outputs, targets.squeeze(1).to(dtype=torch.long))
+    outputs = outputs.argmax(dim=1, keepdims=True).to(dtype=torch.int)
 
     loss.backward()
     optimizer.step()
 
     return {
-        'y' : targets,
+        'y' : batch[1],
         'y_pred' : outputs,
         'loss' : loss.item()
     }

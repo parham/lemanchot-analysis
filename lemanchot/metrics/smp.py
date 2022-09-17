@@ -3,6 +3,7 @@
 from dotmap import DotMap
 from comet_ml import Experiment
 
+import torch
 from ignite.engine import Engine
 
 import segmentation_models_pytorch as smp
@@ -112,10 +113,11 @@ class SMP_Metrics(BaseMetric):
 
     def update(self, batch, **kwargs):
         output, target = batch[-2], batch[-1]
+        target = target.to(dtype=output.dtype)
         # Calculate the stats
         tp, fp, fn, tn = smp.metrics.get_stats(output, target, 
             mode=self.mode, 
-            threshold=self.threshold if hasattr(self, 'threshold') else None, 
+            threshold=self.threshold if hasattr(self, 'threshold') and self.mode != 'multiclass' else None, 
             ignore_index=self.ignore_index if hasattr(self, 'ignore_index') else None,
             num_classes=self.num_classes
         )

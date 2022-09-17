@@ -90,6 +90,14 @@ class ConfusionMatrix(BaseMetric):
         self.step_confusion_matrix = newc_step
 
     def update(self, data, **kwargs):
+        outputs = data[0]
+        targets = data[1]
+        num_samples = targets.shape[0]
+        for i in range(num_samples):
+            tmp = self._prepare(i, data[0], data[1])
+            self._update_imp(tmp, **kwargs)
+
+    def _update_imp(self, data, **kwargs):
         output, target = data[-2], data[-1]
         # Flattening the output and target
         out = output.flatten()
