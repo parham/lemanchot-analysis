@@ -106,9 +106,9 @@ def load_scheduler(
 
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -156,7 +156,7 @@ def load_scheduler(
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
-            engine.state.metrics['lr'] = engine.state.param_history["lr"]
+            engine.state.metrics['lr'] = engine.state.param_history["lr"][-1]
 
         return scheduler
 
@@ -181,9 +181,9 @@ def load_scheduler(
         scheduler = LRScheduler(cosine_lr)
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -328,13 +328,13 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     ) -> Dict:
         profile = get_profile(engine.state.profile_name)
 
-        batch = list(map(lambda x: x.to(device=get_device(), dtype=torch.int), batch[0:2]))
+        data = list(map(lambda x: x.to(device=get_device()), batch[0:2]))
         # Logging computation time
         t = time.time()
         # Apply the model to data
         res = step_func(
             engine=engine,
-            batch=batch,
+            batch=data,
             device=device,
             model=model,
             criterion=loss,

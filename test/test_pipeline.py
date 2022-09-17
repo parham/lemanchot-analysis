@@ -75,11 +75,11 @@ class TestDataset(unittest.TestCase):
         engine = run_record["engine"]
         engine.logger = setup_logger("trainer")
 
-        metric = SSIM(data_range=1.0)
-        metric.attach(engine, "ssim_ignite", usage=BatchWise())
+        # metric = SSIM(data_range=1.0)
+        # metric.attach(engine, "ssim_ignite", usage=BatchWise())
 
-        metric = Bleu(ngram=4, smooth="smooth1")
-        metric.attach(engine, "bleu_ignite", usage=BatchWise())
+        # metric = Bleu(ngram=4, smooth="smooth1")
+        # metric.attach(engine, "bleu_ignite", usage=BatchWise())
 
         ######### Dataset & Dataloader ##########
         dataset = XCFDataset(
@@ -98,4 +98,4 @@ class TestDataset(unittest.TestCase):
         print(state)
 
 if __name__ == '__main__':
-t    unittest.main()
+    unittest.main()
