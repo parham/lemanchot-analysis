@@ -106,9 +106,9 @@ def load_scheduler(
 
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -156,7 +156,7 @@ def load_scheduler(
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
-            engine.state.metrics['lr'] = engine.state.param_history["lr"]
+            engine.state.metrics['lr'] = engine.state.param_history["lr"][-1]
 
         return scheduler
 
@@ -181,9 +181,9 @@ def load_scheduler(
         scheduler = LRScheduler(cosine_lr)
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -212,9 +212,9 @@ def load_scheduler(
         scheduler = LRScheduler(exp_lr)
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -327,23 +327,36 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment: Experiment,
     ) -> Dict:
         profile = get_profile(engine.state.profile_name)
+
+        data = list(map(lambda x: x.to(device=get_device()), batch[0:2]))
+        # Logging computation time
         t = time.time()
+        # Apply the model to data
         res = step_func(
             engine=engine,
-            batch=batch,
+            batch=data,
             device=device,
             model=model,
             criterion=loss,
             optimizer=optimizer,
             experiment=experiment,
         )
-
         step_time = time.time() - t
+        
+        # Logging loss & step time
+        if 'loss' in res:
+            engine.state.metrics['loss'] = res['loss']
+        engine.state.metrics['step_time'] = step_time
+
+        targets = res["y"]
+        outputs = res["y_pred"] if not "y_processed" in res else res["y_processed"]
+
+        # Calculate metrics
+        for m in metrics:
+            m.update((outputs, targets))
+            m.compute(engine, experiment)
+        
         if profile.enable_logging:
-            # Logging loss & step time
-            if 'loss' in res:
-                engine.state.metrics['loss'] = res['loss']
-            engine.state.metrics['step_time'] = step_time
             # Calculate metrics
             if 'metrics' in res:
                 engine.state.metrics.update(res['metrics'])
@@ -363,20 +376,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                             f"output-{i}",
                             step=engine.state.iteration,
                         )
-
-            targets = res["y"]
-            outputs = res["y_pred"] if not "y_processed" in res else res["y_processed"]
-
-            num_samples = targets.shape[0]
-            for i in range(num_samples):
-                out = outputs[i, :, :, :]
-                trg = targets[i, :, :, :]
-
-                out = (out.squeeze(0) if out.shape[0] == 1 else out.permute(1,2,0)).cpu().detach().numpy()
-                trg = trg.squeeze(0).cpu().detach().numpy()
-                for m in metrics:
-                    m.update((out, trg))
-                    m.compute(engine, experiment)
 
         return res
 
@@ -409,7 +408,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "engine": engine,
         "model": model,
         "optimizer": optimizer,
-        "scheduler" : scheduler,
         "loss": loss,
     }
     enable_checkpoint_save = (

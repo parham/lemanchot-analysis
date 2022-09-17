@@ -45,6 +45,17 @@ class BaseMetric(object):
         for key, value in config.items():
             setattr(self, key, value)
 
+    def _prepare(self, 
+        batch_index : int,
+        outputs, targets
+    ):
+        out = outputs[batch_index, :, :, :]
+        trg = targets[batch_index, :, :, :]
+
+        out = (out.squeeze(0) if out.shape[0] == 1 else out.permute(1,2,0)).cpu().detach().numpy()
+        trg = trg.squeeze(0).cpu().detach().numpy()
+        return (out, trg)
+
     def reset(self):
         """ reset the internal states """
         return
@@ -112,7 +123,15 @@ class Function_Metric(BaseMetric):
         self.__last_ret = None
         self.__args = config
 
-    def update(self, batch, **kwargs):
+    def update(self, data, **kwargs):
+        outputs = data[0]
+        targets = data[1].to(dtype=outputs.dtype)
+        num_samples = targets.shape[0]
+        for i in range(num_samples):
+            tmp = self._prepare(i, outputs, targets)
+            self._update_imp(tmp, **kwargs)
+
+    def _update_imp(self, batch, **kwargs):
         """ update the internal states with given batch """
         output, target = batch[-2], batch[-1]
         self.__last_ret = self.__func(output, target, **self.__args)

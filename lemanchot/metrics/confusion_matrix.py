@@ -68,6 +68,7 @@ class ConfusionMatrix(BaseMetric):
         lbl.sort()
         self.class_ids = lbl
         self.class_labels = [list(self.categories.keys())[self.class_ids.index(v)] for v in self.class_ids]
+        self.cal_stats = True
         self.reset()
 
     def reset(self):
@@ -90,6 +91,14 @@ class ConfusionMatrix(BaseMetric):
         self.step_confusion_matrix = newc_step
 
     def update(self, data, **kwargs):
+        outputs = data[0]
+        targets = data[1]
+        num_samples = targets.shape[0]
+        for i in range(num_samples):
+            tmp = self._prepare(i, data[0], data[1])
+            self._update_imp(tmp, **kwargs)
+
+    def _update_imp(self, data, **kwargs):
         output, target = data[-2], data[-1]
         # Flattening the output and target
         out = output.flatten()
@@ -130,8 +139,9 @@ class ConfusionMatrix(BaseMetric):
         )
 
         # Calculate confusion matrix based metrics
-        stats = measure_accuracy_cm__(self.confusion_matrix)
-        self.log_metrics(engine, experiment, stats, prefix=prefix)
+        if self.cal_stats:
+            stats = measure_accuracy_cm__(self.confusion_matrix)
+            self.log_metrics(engine, experiment, stats, prefix=prefix)
 
         return CMRecord(
             self.confusion_matrix,
