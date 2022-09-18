@@ -36,17 +36,16 @@
         }
     },
     "loss" : {
-        "name" : "soft_bce",
+        "name" : "dice",
         "config" : {
-            "reduction" : "mean",
+            "mode" : "multiclass",
             "number_classes" : 7
         }
     },
     "optimizer" : {
-        "name" : "SGD",
+        "name" : "Adam",
         "config" : {
-            "lr" : 0.85,
-            "momentum": 0.9
+            "lr" : 0.85
         }
     },
     "scheduler" : {
@@ -58,7 +57,7 @@
             "factor" : 0.9,
             "patience" : 1,
             "threshold_mode" : "rel",
-            "threshold" : 0.1
+            "threshold" : 1e-4
         }
     },
     "pipeline" : {
