@@ -364,7 +364,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             # Assume Tensor B x C x W x H
             # Logging imagery results
             for key, img in res.items():
-                if not key.startswith('y_'):
+                if not key.startswith('y'):
                     continue
 
                 num_samples = img.shape[0]
