@@ -445,7 +445,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
-        print(f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.last_loss}, lr: {lr}")
+        print(f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']}, lr: {lr}")
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_metrics(engine):
