@@ -40,7 +40,9 @@ from lemanchot.transform import (
     ImageResize,
     ImageResizeByCoefficient,
     NumpyImageToTensor,
+    ToFloatTensor,
     ToGrayscale,
+    ToLongTensor,
 )
 
 class TestDataset(unittest.TestCase):
@@ -60,13 +62,15 @@ class TestDataset(unittest.TestCase):
             ImageResize(70),
             ImageResizeByCoefficient(32),
             NumpyImageToTensor(),
-            FilterOutAlphaChannel()
+            FilterOutAlphaChannel(),
+            ToFloatTensor()
         ])
         target_transform = Compose([
             ImageResize(70),
             ImageResizeByCoefficient(32),
             NumpyImageToTensor(),
-            FilterOutAlphaChannel()
+            FilterOutAlphaChannel(),
+            ToLongTensor()
         ])
         # Load segmentation
         run_record = load_segmentation(

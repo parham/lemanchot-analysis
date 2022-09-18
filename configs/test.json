@@ -3,7 +3,8 @@
         "name" : "unet_resnet18",
         "config" : {
             "channels" : 3,
-            "num_classes" : 7
+            "num_classes" : 7,
+            "activation" : "sigmoid"
         }
     },
     "metrics" : {
@@ -35,15 +36,16 @@
         }
     },
     "loss" : {
-        "name" : "cross_entropy",
+        "name" : "soft_bce",
         "config" : {
-            "reduction" : "mean"
+            "reduction" : "mean",
+            "number_classes" : 7
         }
     },
     "optimizer" : {
         "name" : "SGD",
         "config" : {
-            "lr" : 0.5,
+            "lr" : 0.85,
             "momentum": 0.9
         }
     },
@@ -53,8 +55,8 @@
             "metric_name" : "loss",
             "save_history" : true,
             "mode" : "min",
-            "factor" : 0.5,
-            "patience" : 3,
+            "factor" : 0.9,
+            "patience" : 1,
             "threshold_mode" : "rel",
             "threshold" : 0.1
         }

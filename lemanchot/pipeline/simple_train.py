@@ -31,9 +31,6 @@ def simple_train_step__(
 
     inputs, targets = batch
 
-    inputs = inputs.to(dtype=torch.float32, device=device)
-    targets = targets.to(dtype=torch.float32, device=device)
-
     criterion.prepare_loss(ref=batch[0])
 
     model.train()
@@ -41,15 +38,18 @@ def simple_train_step__(
 
     outputs = model(inputs)
 
-    loss = criterion(outputs, targets.squeeze(1).to(dtype=torch.long))
-    outputs = outputs.argmax(dim=1, keepdims=True).to(dtype=torch.int)
-    targets = targets.to(dtype=torch.int)
+    loss = criterion(outputs, targets)
+    outputs = outputs.argmax(dim=1, keepdims=True)
+
+    if len(targets.shape) < 4:
+        targets = targets.unsqueeze(1)
+    # targets = targets.to(dtype=torch.int)
 
     loss.backward()
     optimizer.step()
 
     return {
-        'y' : targets,
+        'y_true' : targets,
         'y_pred' : outputs,
         'loss' : loss.item()
     }

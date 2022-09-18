@@ -16,6 +16,8 @@ from skimage import color
 from torchvision.transforms import ToPILImage, PILToTensor, RandomCrop
 from torchvision.transforms.functional import InterpolationMode, resize, rotate, crop
 
+from lemanchot.core import get_device
+
 
 class GrayToRGB(torch.nn.Module):
     def forward(self, sample) -> Any:
@@ -27,9 +29,7 @@ class GrayToRGB(torch.nn.Module):
 
 class FilterOutAlphaChannel(torch.nn.Module):
     def forward(self, img) -> Any:
-        channel = img.shape[0]
-        res = img[:-1, :, :] if channel > 3 else img
-        return res
+        return img[:3, :, :] if len(img.shape) == 3 and img.shape[0] > 3 else img
 
 class BothRandomRotate(torch.nn.Module):
     def __init__(self, angles: Tuple[int], weights: Tuple[int] = None):
@@ -103,13 +103,27 @@ class ImageResizeByCoefficient(torch.nn.Module):
 class NumpyImageToTensor(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        self.to_pil = ToPILImage()
-        self.to_tensor = PILToTensor()
 
     def forward(self, img):
-        img = self.to_pil(img)
-        img = self.to_tensor(img)
-        return img
+        tmp = torch.tensor(img, device=get_device())
+        if len(tmp.shape) == 3:
+            tmp = tmp.permute((-1,0,1))
+
+        return tmp
+
+class ToFloatTensor(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, img):
+        return img.to(dtype=torch.float)
+
+class ToLongTensor(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, img):
+        return img.to(dtype=torch.long)
 
 class ToGrayscale(torch.nn.Module):
     def __init__(self) -> None:
@@ -117,7 +131,6 @@ class ToGrayscale(torch.nn.Module):
 
     def forward(self, img):
         return color.rgb2gray(img) if len(img.shape) > 2 else img
-
 
 class TargetDilation(torch.nn.Module):
     def __init__(self, factor) -> None:
@@ -128,7 +141,6 @@ class TargetDilation(torch.nn.Module):
         return torch.clamp(
             torch.nn.functional.conv2d(img, self.kernel.to(img.dtype), padding="same"), 0, 1
         )
-
 
 class ClassMapToMDTarget(torch.nn.Module):
     def __init__(self, categories: List, background_classid: int = 0) -> None:

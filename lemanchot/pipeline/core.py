@@ -10,18 +10,18 @@ import os
 import time
 import logging
 import functools
+import numpy as np
 
 from dotmap import DotMap
 from comet_ml import Experiment
 from typing import Callable, Dict, List, Union
 
-import numpy as np
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, ExponentialLR
 from torchvision.transforms import ToPILImage
 
-from ignite.engine import Engine
+from ignite.engine import Engine, create_supervised_evaluator, create_supervised_trainer
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 from ignite.handlers.param_scheduler import (
@@ -156,7 +156,7 @@ def load_scheduler(
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
-            engine.state.metrics['lr'] = engine.state.param_history["lr"][-1]
+            engine.state.metrics['lr'] = np.mean(np.array(engine.state.param_history["lr"][-1]))
 
         return scheduler
 
@@ -348,8 +348,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             engine.state.metrics['loss'] = res['loss']
         engine.state.metrics['step_time'] = step_time
 
-        targets = res["y"]
-        outputs = res["y_pred"] if not "y_processed" in res else res["y_processed"]
+        targets = res['y_true']
+        outputs = res['y_pred'] if not 'y_processed' in res else res['y_processed']
 
         # Calculate metrics
         for m in metrics:
@@ -364,17 +364,16 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             # Assume Tensor B x C x W x H
             # Logging imagery results
             for key, img in res.items():
-                if not key.startswith('y'):
+                if not 'y_' in key:
                     continue
-
                 num_samples = img.shape[0]
                 for i in range(num_samples):
                     sample = img[i, :, :, :]
                     if profile.enable_image_logging:
                         experiment.log_image(
                             make_tensor_for_comet(sample),
-                            f"output-{i}",
-                            step=engine.state.iteration,
+                            f"{key}-{i}",
+                            step=engine.state.iteration
                         )
 
         return res

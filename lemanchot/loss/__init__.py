@@ -10,3 +10,5 @@
 from .core import *
 from .focal import *
 from .cross_entropy import *
+from .dice import *
+from .bce_logits import *
