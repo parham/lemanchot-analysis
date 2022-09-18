@@ -10,7 +10,6 @@
   "metrics": {
     "smp": {
       "mode" : "multilabel",
-      "ignore_index" : 0,
       "threshold" : 0.5,
       "num_classes" : 7,
       "metrics": {
@@ -29,7 +28,7 @@
 
   },
   "loss": {
-    "name": "cross_entropy",
+    "name": "binary_cross_entropy",
     "config": {
       "reduction": "mean"
     }
@@ -50,13 +49,13 @@
         "save_history" : true,
         "mode" : "min",
         "factor" : 0.1,
-        "patience" : 5,
+        "patience" : 7,
         "threshold_mode" : "rel",
         "threshold" : 0.01
     }
   },
   "pipeline": {
-    "simple_train": {
+    "simple_multilabel": {
       "max_epoch": 100,
       "batch_size": 8
     }

@@ -109,7 +109,7 @@
       "enable_image_logging": false,
       "pipeline": "simple_train",
       "checkpoint_save": true,
-      "checkpoint_load": true,
+      "checkpoint_load": false,
       "experiment_config_name": "unet50_texture",
       "dataset_name": "lemanchot-analysis",
       "dataset_path": "/data/lemanchot-analysis/952",

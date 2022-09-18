@@ -41,9 +41,37 @@ def simple_train_step__(
     loss = criterion(outputs, targets)
     outputs = outputs.argmax(dim=1, keepdims=True)
 
-    if len(targets.shape) < 4:
-        targets = targets.unsqueeze(1)
-    # targets = targets.to(dtype=torch.int)
+    loss.backward()
+    optimizer.step()
+
+    return {
+        'y_true' : targets,
+        'y_pred' : outputs,
+        'loss' : loss.item()
+    }
+
+@pipeline_register("simple_multilabel")
+def simple_multilabel_step__(
+    engine : Engine,
+    batch,
+    device,
+    model : BaseModule,
+    criterion,
+    optimizer : optim.Optimizer,
+    experiment : Experiment
+) -> Dict:
+
+    inputs, targets = batch
+
+    criterion.prepare_loss(ref=batch[0])
+
+    model.train()
+    optimizer.zero_grad()
+
+    outputs = model(inputs)
+
+    loss = criterion(outputs, targets)
+    outputs = outputs.sigmoid()
 
     loss.backward()
     optimizer.step()

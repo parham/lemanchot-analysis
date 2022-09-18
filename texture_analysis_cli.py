@@ -55,10 +55,10 @@ def main():
     ######### Transformation ##########
     # Initialize Transformation
     input_transforms = Compose([ToTensor()])
-    target_transform = None #Compose([TargetDilation(3)])
+    target_transform = None  # Compose([TargetDilation(3)])
     both_transforms = Sequential(
-            BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90)),
-            BothRandomCrop((512, 512)),
+        BothRandomCrop((512, 512)),
+        BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90)),
     )
     # transform = torch.nn.Sequential(
     # ImageResize(70),
