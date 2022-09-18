@@ -1,5 +1,4 @@
 
-
 """ 
     @project LeManchot-Analysis : Core components
     @organization Laval University
@@ -8,11 +7,30 @@
     @industrial-partner TORNGATS
 """
 
+import torch
+
 import logging
 from dotmap import DotMap
 from typing import List, Union
 
 from lemanchot.core import BaseCore
+
+def classmap_2_multilayer(data, number_classes):
+    """This method assumes that data is NxHxW
+
+    Args:
+        data (_type_): _description_
+        number_classes (_type_): _description_
+    """
+    sz = data.shape
+    ml_data = torch.zeros((sz[0], number_classes, sz[1], sz[2]))
+    for i in range(sz[0]):
+        for c in range(number_classes):
+            tmp = torch.zeros(sz[1], sz[2])
+            ctmp = data[i,:,:]
+            tmp[ctmp == c] = 1.
+            ml_data[i,c,:,:] = tmp
+    return ml_data
 
 class BaseLoss(BaseCore):
     def __init__(self, name : str, config) -> None:
@@ -97,4 +115,3 @@ def load_loss(experiment_config : DotMap):
         name=loss_name,
         config=loss_config
     )
-

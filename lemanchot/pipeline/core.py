@@ -10,18 +10,18 @@ import os
 import time
 import logging
 import functools
+import numpy as np
 
 from dotmap import DotMap
 from comet_ml import Experiment
 from typing import Callable, Dict, List, Union
 
-import numpy as np
 import torch
 import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, ExponentialLR
 from torchvision.transforms import ToPILImage
 
-from ignite.engine import Engine
+from ignite.engine import Engine, create_supervised_evaluator, create_supervised_trainer
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 from ignite.handlers.param_scheduler import (
@@ -106,9 +106,9 @@ def load_scheduler(
 
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -124,7 +124,7 @@ def load_scheduler(
         scheduler_config: DotMap
     ):
         # "scheduler" : {
-        #     "name" : "ReduceOnPlateau",
+        #     "name" : "ReduceLROnPlateau",
         #     "config" : {
         #         "metric_name" : "loss",
         #         "save_history" : true,
@@ -137,7 +137,7 @@ def load_scheduler(
         # }
         scheduler = ReduceLROnPlateauScheduler(
             optimizer, 
-            metric_name=scheduler_config['metric'],
+            metric_name=scheduler_config['metric_name'],
             save_history=scheduler_config['save_history'], 
             mode=scheduler_config['mode'], 
             factor=scheduler_config['factor'], 
@@ -148,15 +148,15 @@ def load_scheduler(
         )
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
         @engine.on(Events.ITERATION_COMPLETED)
         def loging_metrics_lr():
-            engine.state.metrics['lr'] = engine.state.param_history["lr"]
+            engine.state.metrics['lr'] = np.mean(np.array(engine.state.param_history["lr"][-1]))
 
         return scheduler
 
@@ -181,9 +181,9 @@ def load_scheduler(
         scheduler = LRScheduler(cosine_lr)
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -212,9 +212,9 @@ def load_scheduler(
         scheduler = LRScheduler(exp_lr)
         period = scheduler_config['period'] if 'period' in scheduler_config else 'iteration'
         if period == 'iteration':
-            engine.add_event_handler(Events.ITERATION_STARTED, scheduler)
+            engine.add_event_handler(Events.ITERATION_COMPLETED, scheduler)
         elif period == 'epoch':
-            engine.add_event_handler(Events.EPOCH_STARTED, scheduler)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, scheduler)
         else:
             raise ValueError('The period for scheduler is not supported!')
 
@@ -327,23 +327,36 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment: Experiment,
     ) -> Dict:
         profile = get_profile(engine.state.profile_name)
+
+        data = list(map(lambda x: x.to(device=get_device()), batch[0:2]))
+        # Logging computation time
         t = time.time()
+        # Apply the model to data
         res = step_func(
             engine=engine,
-            batch=batch,
+            batch=data,
             device=device,
             model=model,
             criterion=loss,
             optimizer=optimizer,
             experiment=experiment,
         )
-
         step_time = time.time() - t
+        
+        # Logging loss & step time
+        if 'loss' in res:
+            engine.state.metrics['loss'] = res['loss']
+        engine.state.metrics['step_time'] = step_time
+
+        targets = res['y_true']
+        outputs = res['y_pred'] if not 'y_processed' in res else res['y_processed']
+
+        # Calculate metrics
+        for m in metrics:
+            m.update((outputs, targets))
+            m.compute(engine, experiment)
+        
         if profile.enable_logging:
-            # Logging loss & step time
-            if 'loss' in res:
-                engine.state.metrics['loss'] = res['loss']
-            engine.state.metrics['step_time'] = step_time
             # Calculate metrics
             if 'metrics' in res:
                 engine.state.metrics.update(res['metrics'])
@@ -351,32 +364,17 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             # Assume Tensor B x C x W x H
             # Logging imagery results
             for key, img in res.items():
-                if not key.startswith('y_'):
+                if not 'y_' in key:
                     continue
-
                 num_samples = img.shape[0]
                 for i in range(num_samples):
                     sample = img[i, :, :, :]
                     if profile.enable_image_logging:
                         experiment.log_image(
                             make_tensor_for_comet(sample),
-                            f"output-{i}",
-                            step=engine.state.iteration,
+                            f"{key}-{i}",
+                            step=engine.state.iteration
                         )
-
-            targets = res["y"]
-            outputs = res["y_pred"] if not "y_processed" in res else res["y_processed"]
-
-            num_samples = targets.shape[0]
-            for i in range(num_samples):
-                out = outputs[i, :, :, :]
-                trg = targets[i, :, :, :]
-
-                out = (out.squeeze(0) if out.shape[0] == 1 else out.permute(1,2,0)).cpu().detach().numpy()
-                trg = trg.squeeze(0).cpu().detach().numpy()
-                for m in metrics:
-                    m.update((out, trg))
-                    m.compute(engine, experiment)
 
         return res
 
@@ -409,7 +407,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "engine": engine,
         "model": model,
         "optimizer": optimizer,
-        "scheduler" : scheduler,
         "loss": loss,
     }
     enable_checkpoint_save = (
@@ -447,7 +444,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
-        print(f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.last_loss}, lr: {lr}")
+        print(f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']}, lr: {lr}")
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_metrics(engine):
@@ -455,7 +452,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         if profile.enable_logging:
             metrics = engine.state.metrics
             experiment.log_metrics(
-                metrics,
+                dict(metrics),
                 step=engine.state.iteration, 
                 epoch=engine.state.epoch
             )
@@ -471,4 +468,3 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment.end()
 
     return run_record
-

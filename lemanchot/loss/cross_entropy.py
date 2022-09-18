@@ -7,6 +7,7 @@
     @industrial-partner TORNGATS
 """
 
+import torch
 from torch import nn
 
 from lemanchot.loss.core import BaseLoss, loss_register
@@ -21,4 +22,6 @@ class CrossEntropyLoss(BaseLoss):
         return
     
     def forward(self, output, target, **kwargs):
-        return self.criteria(output, target)
+        if len(target.shape) == 4:
+            target = target.squeeze(1)
+        return self.criteria(output, target.to(dtype=torch.long))

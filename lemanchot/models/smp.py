@@ -24,7 +24,8 @@ class Unet_Resnet18(BaseModule):
             encoder_name='resnet18',
             encoder_weights="imagenet",
             in_channels=self.channels,
-            classes=self.num_classes 
+            classes=self.num_classes,
+            activation=self.activation
         )
     
     def forward(self, x):

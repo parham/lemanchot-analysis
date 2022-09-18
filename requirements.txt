@@ -6,7 +6,7 @@ matplotlib
 Pillow
 scikit-image
 scikit-learn
-opencv-python
+opencv-python-headless
 pyfftw
 pyyaml
 # Extra index for torch and torchvision.

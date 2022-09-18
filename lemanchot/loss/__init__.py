@@ -9,6 +9,8 @@
 
 from .core import *
 from .cross_entropy import *
+from .dice import *
+from .smp import *
 from .focal import *
 from .dice import *
 from .ssim import *

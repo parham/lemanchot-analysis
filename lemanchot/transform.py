@@ -13,8 +13,10 @@ from typing import Any, List, Tuple
 from PIL import Image
 from skimage import color
 
-from torchvision.transforms import ToPILImage, PILToTensor
-from torchvision.transforms.functional import InterpolationMode, resize, rotate
+from torchvision.transforms import ToPILImage, PILToTensor, RandomCrop
+from torchvision.transforms.functional import InterpolationMode, resize, rotate, crop
+
+from lemanchot.core import get_device
 
 
 class GrayToRGB(torch.nn.Module):
@@ -27,21 +29,30 @@ class GrayToRGB(torch.nn.Module):
 
 class FilterOutAlphaChannel(torch.nn.Module):
     def forward(self, img) -> Any:
-        channel = img.shape[0]
-        res = img[:-1, :, :] if channel > 3 else img
-        return res
+        return img[:3, :, :] if len(img.shape) == 3 and img.shape[0] > 3 else img
 
 class BothRandomRotate(torch.nn.Module):
     def __init__(self, angles: Tuple[int], weights: Tuple[int] = None):
         super().__init__()
         self.angles = angles
-        self.weights = weights if not weights else [1]*len(angles)
+        self.weights = weights if not weights else [1] * len(angles)
 
-    def forward(self, img: Image, target: Image):
+    def forward(self, args):
         ang = choices(self.angles, weights=self.weights, k=1)[0]
-        img = rotate(img, ang)
-        target = rotate(target, ang)
-        return img, target
+        return [rotate(img, ang) for img in args]
+
+class BothRandomCrop(torch.nn.Module):
+    def __init__(self, crop_size):
+        super().__init__()
+        self.size = crop_size
+
+    def forward(self, args):
+        i, j, h, w = RandomCrop.get_params(args[0], self.size)
+        return [crop(img, i, j, h, w) for img in args]
+
+    def forward(self, args):
+        i, j, h, w = RandomCrop.get_params(args[0], self.size)
+        return [crop(img, i, j, h, w) for img in args]
 
 class ImageResize(torch.nn.Module):
     def __init__(
@@ -92,13 +103,27 @@ class ImageResizeByCoefficient(torch.nn.Module):
 class NumpyImageToTensor(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
-        self.to_pil = ToPILImage()
-        self.to_tensor = PILToTensor()
 
     def forward(self, img):
-        img = self.to_pil(img)
-        img = self.to_tensor(img)
-        return img
+        tmp = torch.tensor(img, device=get_device())
+        if len(tmp.shape) == 3:
+            tmp = tmp.permute((-1,0,1))
+
+        return tmp
+
+class ToFloatTensor(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, img):
+        return img.to(dtype=torch.float)
+
+class ToLongTensor(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, img):
+        return img.to(dtype=torch.long)
 
 class ToGrayscale(torch.nn.Module):
     def __init__(self) -> None:
@@ -106,6 +131,16 @@ class ToGrayscale(torch.nn.Module):
 
     def forward(self, img):
         return color.rgb2gray(img) if len(img.shape) > 2 else img
+
+class TargetDilation(torch.nn.Module):
+    def __init__(self, factor) -> None:
+        super().__init__()
+        self.kernel = torch.ones((1, 1, factor, factor), requires_grad=False, dtype=torch.uint8)
+
+    def forward(self, img: Image):
+        return torch.clamp(
+            torch.nn.functional.conv2d(img, self.kernel.to(img.dtype), padding="same"), 0, 1
+        )
 
 class ClassMapToMDTarget(torch.nn.Module):
     def __init__(self, categories: List, background_classid: int = 0) -> None:

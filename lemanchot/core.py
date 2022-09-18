@@ -22,6 +22,7 @@ from typing import List
 from dotmap import DotMap
 from datetime import datetime
 
+import numpy as np
 import torch
 import yaml
 
@@ -237,5 +238,6 @@ def make_tensor_for_comet(img : torch.Tensor):
         tmp = tmp.permute((1,2,0))
     else:
         raise ValueError('the image format is not supported for comet.ml')
-    
-    return tmp.cpu().detach().numpy()
+    tmp = tmp.cpu().detach().numpy()
+    tmp = (((np.max(tmp) - tmp) / (np.max(tmp) - np.min(tmp))) * 255).astype(int)
+    return tmp
