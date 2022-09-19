@@ -15,6 +15,7 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import (
     Compose,
     Grayscale,
+    Resize,
     ToTensor,
 )
 from ignite.utils import setup_logger
@@ -54,10 +55,9 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    input_transforms = Compose([ToTensor()])
-    target_transform = None  # Compose([TargetDilation(3)])
+    input_transforms = Compose([Resize((512, 512)), ToTensor()])
+    target_transform = Compose([Resize((512, 512))])
     both_transforms = Sequential(
-        BothRandomCrop((512, 512)),
         BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90)),
     )
     # transform = torch.nn.Sequential(

@@ -22,10 +22,10 @@ class Unet_Resnet18(BaseModule):
         )
         self.clss = smp.Unet(
             encoder_name='resnet18',
-            encoder_weights="imagenet",
+            encoder_weights=self.weights,
             in_channels=self.channels,
             classes=self.num_classes,
-            activation=self.activation
+            # activation=self.activation
         )
 
     def forward(self, x):

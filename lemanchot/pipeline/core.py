@@ -11,6 +11,7 @@ import time
 import logging
 import functools
 from uuid import uuid4
+import json
 import numpy as np
 
 from dotmap import DotMap
@@ -389,7 +390,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment=experiment,
     )
     # Log hyperparameters
-    experiment.log_parameters(dict(experiment_config))
+    experiment.log_parameters(json.dumps(dict(experiment_config)))
     # Instantiate the engine
     engine = Engine(seg_func)
     # Create scheduler instance
