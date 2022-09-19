@@ -28,7 +28,7 @@ import yaml
 
 from comet_ml import Experiment
 
-from visualization import mask2colormap
+from .visualization import mask2colormap
 
 """Generate random strings
 
@@ -234,12 +234,9 @@ def make_tensor_for_comet(img : torch.Tensor):
 
     tmp = mask2colormap(img)
     channel = tmp.shape[0]
-    # if channel == 1:
-    #     tmp = tmp.squeeze(0)
     if channel == 3:
         tmp = tmp.permute((1,2,0))
     else:
         raise ValueError('the image format is not supported for comet.ml')
     tmp = tmp.cpu().detach().numpy()
-    # tmp = (((np.max(tmp) - tmp) / (np.max(tmp) - np.min(tmp))) * 255).astype(int)
     return tmp

@@ -367,16 +367,14 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             for key, img in res.items():
                 if not "y_" in key:
                     continue
-                num_samples = img.shape[0]
-                for i in range(num_samples):
+                # Control number of logged images with enable_image_logging setting.
+                for i in range(min(profile.enable_image_logging, img.shape[0])):
                     sample = img[i, :, :, :]
-                    if profile.enable_image_logging:
-                        experiment.log_image(
-                            make_tensor_for_comet(sample),
-                            f"{key}-{i}",
-                            step=engine.state.iteration,
-                        )
-
+                    experiment.log_image(
+                        make_tensor_for_comet(sample),
+                        f"{key}-{i}",
+                        step=engine.state.iteration,
+                    )
         return res
 
     # Initialize the pipeline function
@@ -391,7 +389,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment=experiment,
     )
     # Log hyperparameters
-    experiment.log_parameters(experiment_config)
+    experiment.log_parameters(dict(experiment_config))
     # Instantiate the engine
     engine = Engine(seg_func)
     # Create scheduler instance
