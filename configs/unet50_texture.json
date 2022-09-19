@@ -4,7 +4,7 @@
     "config": {
       "channels": 3,
       "num_classes": 7,
-      "weights": "imagenet"
+      "weights": null
     }
   },
   "metrics": {
