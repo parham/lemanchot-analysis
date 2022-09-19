@@ -20,13 +20,12 @@ from typing import Callable, Dict, List, Union
 
 import torch
 import torch.optim as optim
-from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, ExponentialLR
-from torchvision.transforms import ToPILImage
+from torch.optim.lr_scheduler import StepLR, ExponentialLR, CosineAnnealingWarmRestarts
 
-from ignite.engine import Engine, create_supervised_evaluator, create_supervised_trainer
+from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
-from ignite.handlers.param_scheduler import LRScheduler, ReduceLROnPlateauScheduler
+from ignite.handlers.param_scheduler import LRScheduler, ReduceLROnPlateauScheduler, CosineAnnealingScheduler
 
 from lemanchot.core import (
     exception_logger,
@@ -166,17 +165,23 @@ def load_scheduler(
         # "scheduler" : {
         #     "name" : "CosineAnnealingLR",
         #     "config" : {
-        #         "T_max" : 10,
-        #         "eta_min" : 0.01
+        #         "T_0": 5,
+        #         "T_mul" : 1,
+        #         "eta_min" : 0.00001
         #     }
         # }
-        cosine_lr = CosineAnnealingLR(
+        scheduler = CosineAnnealingScheduler(
             optimizer=optimizer,
-            T_max=scheduler_config["T_max"],
-            eta_min=scheduler_config["eta_min"],
+            param_name='lr',
+            start_value=scheduler_config["start_value"],
+            end_value=scheduler_config["end_value"],
+            cycle_size=scheduler_config["cycle_size"],
+            cycle_mult=scheduler_config["cycle_mult"],
+            start_value_mult=scheduler_config["mult"],
+            end_value_mult=scheduler_config["mult"],
         )
 
-        scheduler = LRScheduler(cosine_lr)
+        # scheduler = LRScheduler(cosine_lr)
         period = (
             scheduler_config["period"] if "period" in scheduler_config else "iteration"
         )
@@ -390,7 +395,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         experiment=experiment,
     )
     # Log hyperparameters
-    experiment.log_parameters(json.dumps(dict(experiment_config)))
+    experiment.log_parameters(experiment_config.toDict())
     # Instantiate the engine
     engine = Engine(seg_func)
     # Create scheduler instance
@@ -414,10 +419,10 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     enable_checkpoint_save = (
         profile.checkpoint_save if "checkpoint_save" in profile else False
     )
-    model_id = str(uuid4())
+    model_id = str(uuid4())[0:8]
     if enable_checkpoint_save:
         checkpoint_dir = load_settings().checkpoint_dir
-        checkpoint_file = f"{pipeline_name}-{model.__class__}-{model_id}.pt"
+        checkpoint_file = f"{pipeline_name}-{model.name}-{model_id}.pt"
         checkpoint_saver = ModelCheckpoint(
             dirname=checkpoint_dir,
             filename_pattern=checkpoint_file,
@@ -436,7 +441,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
         checkpoint_file = os.path.join(
-            checkpoint_dir, f"{pipeline_name}-{model.__class__}-{model_id}.pt"
+            checkpoint_dir, f"{pipeline_name}-{model.name}-{model_id}.pt"
         )
         if os.path.isfile(checkpoint_file):
             checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
@@ -450,7 +455,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
         print(
-            f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']:.4f}, lr: {lr}"
+            f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']:.4f}, lr: {lr:.4f}"
         )
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
