@@ -12,26 +12,15 @@ import logging
 
 from torch.nn import Sequential
 from torch.utils.data import DataLoader
-from torchvision.transforms import (
-    Compose,
-    Grayscale,
-    Resize,
-    ToTensor,
-)
+from torchvision.transforms import Resize
 from ignite.utils import setup_logger
 
-from gimp_labeling_converter import XCFDataset
 from lemanchot.core import get_profile, get_profile_names
 from lemanchot.dataset import SegmentationDataset
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
-    TargetDilation,
-    BothRandomCrop,
-    BothRandomRotate,
-    FilterOutAlphaChannel,
-    ImageResize,
-    ImageResizeByCoefficient,
-    NumpyImageToTensor,
+    BothToTensor,
+    TrivialAugmentWide,
 )
 
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
@@ -41,7 +30,6 @@ parser.add_argument(
     choices=get_profile_names(),
     help="Select the name of profiles.",
 )
-# parser.add_argument('--profile', '-p', type=str, required=True, help="The name of the profile")
 
 
 def main():
@@ -55,23 +43,12 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    input_transforms = Compose([Resize((512, 512)), ToTensor()])
-    target_transform = Compose([Resize((512, 512))])
+    input_transforms = Resize((512, 512))
+    target_transform = Resize((512, 512))
     both_transforms = Sequential(
-        BothRandomRotate(angles=(0, 15, 30, 45, 60, 75, 90)),
+        TrivialAugmentWide(31, "bilinear"),
+        BothToTensor(),
     )
-    # transform = torch.nn.Sequential(
-    # ImageResize(70),
-    # ImageResizeByCoefficient(32),
-    # NumpyImageToTensor(),
-    # FilterOutAlphaChannel(),
-    # )
-    # target_transform = torch.nn.Sequential(
-    # ImageResize(70),
-    # ImageResizeByCoefficient(32),
-    # NumpyImageToTensor(),
-    # FilterOutAlphaChannel(),
-    # )
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, database_name=dataset_name
@@ -79,12 +56,6 @@ def main():
     engine = run_record["engine"]
     engine.logger = setup_logger("trainer")
     ######### Dataset & Dataloader ##########
-    # dataset = XCFDataset(
-    # root_dir=dataset_path,
-    # category=categories,
-    # transform=transform,
-    # target_transform=target_transform,
-    # )
     dataset = SegmentationDataset(
         root=dataset_path,
         img_folder="img",

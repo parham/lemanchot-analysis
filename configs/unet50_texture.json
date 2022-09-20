@@ -36,6 +36,7 @@
     "name": "SGD",
     "config": {
       "lr": 0.5,
+      "momentum": 0.9,
       "weight_decay": 0.005
     }
   },
@@ -43,8 +44,8 @@
     "name" : "CosineAnnealingLR",
     "config" : {
       "start_value": 0.5,
-      "end_value": 0.05,
-      "cycle_size": 4,
+      "end_value": 0,
+      "cycle_size": 12,
       "cycle_mult": 2,
       "mult": 0.5
     }

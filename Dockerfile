@@ -17,4 +17,4 @@ RUN pip install git+https://github.com/qubvel/segmentation_models.pytorch \
     git+https://github.com/waspinator/coco.git@2.1.0 \
     git+https://github.com/waspinator/pycococreator.git@0.2.0 && pip install gimp-labeling-converter
 
-CMD ["tail", "-f", "/dev/null"]
+CMD ["tail", "/dev/null"]

@@ -110,6 +110,7 @@
       "pipeline": "simple_multilabel",
       "checkpoint_save": true,
       "checkpoint_load": false,
+      "checkpoint_file": null,
       "experiment_config_name": "unet50_texture",
       "dataset_name": "lemanchot-analysis",
       "dataset_path": "/data/lemanchot-analysis/952",

@@ -419,10 +419,11 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     enable_checkpoint_save = (
         profile.checkpoint_save if "checkpoint_save" in profile else False
     )
-    model_id = str(uuid4())[0:8]
+    checkpoint_file = f"{pipeline_name}-{model.name}-{str(uuid4())[0:8]}.pt"
     if enable_checkpoint_save:
+        experiment.log_parameter(name="checkpoint_file", value=checkpoint_file)
         checkpoint_dir = load_settings().checkpoint_dir
-        checkpoint_file = f"{pipeline_name}-{model.name}-{model_id}.pt"
+        checkpoint_file = checkpoint_file
         checkpoint_saver = ModelCheckpoint(
             dirname=checkpoint_dir,
             filename_pattern=checkpoint_file,
@@ -441,7 +442,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
         checkpoint_file = os.path.join(
-            checkpoint_dir, f"{pipeline_name}-{model.name}-{model_id}.pt"
+            checkpoint_dir, f"{load_settings().checkpoint_file}"
         )
         if os.path.isfile(checkpoint_file):
             checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
