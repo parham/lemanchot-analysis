@@ -301,16 +301,18 @@ class GeneralizedDiceLoss(BaseLoss):
     def __init__(self, name : str, config) -> None:
         """
         Defaults:
-            include_background: bool = True,
-            to_onehot_y: bool = False,
-            sigmoid: bool = False,
-            softmax: bool = False,
-            other_act: Optional[Callable] = None,
-            w_type: Union[Weight, str] = Weight.SQUARE,
-            reduction: Union[LossReduction, str] = LossReduction.MEAN,
-            smooth_nr: float = 1e-5,
-            smooth_dr: float = 1e-5,
-            batch: bool = False,
+            {
+                "include_background": true,
+                "to_onehot_y": false,
+                "sigmoid": true,
+                "softmax": false,
+                "other_act": null,
+                "w_type": "square",
+                "reduction": "mean",
+                "smooth_nr":  1e-5,
+                "smooth_dr":  1e-5,
+                "batch": false
+            }
         Args:
             include_background: If False channel index 0 (background category) is excluded from the calculation.
             to_onehot_y: whether to convert `y` into the one-hot format. Defaults to False.

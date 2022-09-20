@@ -1,5 +1,5 @@
 
-""" 
+"""
     @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
@@ -22,14 +22,32 @@ class Unet_Resnet18(BaseModule):
         )
         self.clss = smp.Unet(
             encoder_name='resnet18',
-            encoder_weights="imagenet",
+            encoder_weights=self.weights,
             in_channels=self.channels,
             classes=self.num_classes,
-            activation=self.activation
+            # activation=self.activation
         )
-    
+
     def forward(self, x):
         return self.clss(x)
+
+@model_register('unet_resnet50')
+class Unet_Resnet50(BaseModule):
+    def __init__(self, name : str, config : DotMap) -> None:
+        super().__init__(
+            name='unet_resnet50',
+            config=config
+        )
+        self.clss = smp.Unet(
+            encoder_name='resnet50',
+            encoder_weights=self.weights,
+            in_channels=self.channels,
+            classes=self.num_classes
+        )
+
+    def forward(self, x):
+        return self.clss(x)
+
 
 @model_register('unetplusplus_resnet18')
 class UnetPlusPlus_Resnet18(BaseModule):
@@ -42,7 +60,7 @@ class UnetPlusPlus_Resnet18(BaseModule):
             encoder_name='resnet18',
             encoder_weights="imagenet",
             in_channels=self.channels,
-            classes=self.num_classes 
+            classes=self.num_classes
         )
 
     def forward(self, x):
