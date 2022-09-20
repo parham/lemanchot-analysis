@@ -81,18 +81,6 @@ pyrightconfig.json
 # Jupyter NB Checkpoints
 .ipynb_checkpoints/
 
-# exclude data formats from source control by default
-**.JPG
-**.png
-**.jpeg
-**.jpg
-**.dxf
-**.xcf
-**.zip
-**.svg
-# Mac OS-specific storage files
-.DS_Store
-
 # vim
 *.swp
 *.swo
