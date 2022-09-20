@@ -1,7 +1,6 @@
 
-
 """ 
-    @title A Deep Semi-supervised Segmentation Approach for Thermographic Analysis of Industrial Components
+    @title A Deep Semi-Supervised Segmentation Approach for Thermographic Analysis of Industrial Components
     @organization Laval University
     @professor  Professor Xavier Maldague
     @author     Parham Nooralishahi
@@ -38,15 +37,13 @@ logging.basicConfig(
 )
 
 known_args = []
-parser = argparse.ArgumentParser(description="ROI Segmentation of Thermal Image")
-parser.add_argument('tfile', type=str, help="Thermal Image file path.")
-parser.add_argument('vfile', type=str, help="Visible Image file path.")
+parser = argparse.ArgumentParser(description="Multi-Modal Analysis")
+parser.add_argument('file', type=str, help="Multi-Modal file")
 parser.add_argument('--device', type=str, default='cuda', help="The selected device.")
 parser.add_argument('--iteration', type=int, default=60, help="The maximum number of iteration.")
-parser.add_argument('--nclass', type=int, default=4, help="The minimum number of classes.")
-parser.add_argument('--output', type=str, default='.', help="The result folder.")
-parser.add_argument('--registeration', action='store_false', help="Enable the multi-modal registration feature.")
-parser.add_argument('--registeration', action='store_false', help="Enable the region selection feature.")
+parser.add_argument('--nclass', type=int, default=10, help="The minimum number of classes.")
+# parser.add_argument('--output', type=str, default='.', help="The result folder.")
+# parser.add_argument('--registeration', action='store_false', help="Enable the multi-modal registration feature.")
 
 def cp_to_opencv(cps : List):
     source = np.zeros((len(cps), 2))
@@ -73,26 +70,11 @@ def region_segmentation():
         logging.error(f'{args.tfile} does not exist!')
         return
     
-    ir_filename = Path(args.tfile).stem
-    ir_img = np.asarray(Image.open(args.tfile))
-    if ir_img is None:
-        logging.error('Failed to load the thermal image!')
-        return
-
-    vis_filename = Path(args.vfile).stem
-    vis_img = np.asarray(Image.open(args.vfile))
-    if vis_img is None:
-        logging.error('Failed to load the visible image!')
-        return
-
-    # cps = cpselect(ir_img, vis_img)
-    # source, dest = cp_to_opencv(cps)
-    # homography, _ = cv2.findHomography(source, dest)
-    # corrected_ir = cv2.warpPerspective(ir_img, homography, (vis_img.shape[1], vis_img.shape[0]))
-
-    # roi = cv2.selectROI('Select Region of Interest', corrected_ir, showCrosshair=True)
-    # cropped_vis = vis_img[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
-    # cropped_ir = corrected_ir[int(roi[1]):int(roi[1] + roi[3]), int(roi[0]):int(roi[0] + roi[2])]
+    data = loadmat(args.file)
+    thermal = data['aligned_ir'] if 'aligned_ir' in data else None
+    thermal_roi = data['ir_roi'] if 'ir_roi' in data else None
+    visible = data['viz'] if 'viz' in data else None
+    visible_roi = data['viz_roi'] if 'viz_roi' in data else None
 
     experiment_config = get_config('wonjik2020')
     # Create model instance
@@ -116,14 +98,12 @@ def region_segmentation():
         ToFloatTensor()
     ])
 
-    input = transform(ir_img)
+    input = transform(thermal_roi)
     input = input.to(dtype=torch.float32, device=args.device)
 
     criterion.prepare_loss(ref=input)
 
-    to_pil = transforms.ToPILImage()
     result = None
-
     for iter in trange(args.iteration):
         model.train()
         optimizer.zero_grad()
@@ -145,16 +125,7 @@ def region_segmentation():
         result = trg
     
     logging.info('Saving the result ... ')
-    result = to_pil(result.squeeze(0).squeeze(0))
-
-    # mat = {
-    #     'homography' : homography,
-    #     'visible' : np.asarray(cropped_vis),
-    #     'thermal' : np.asarray(cropped_ir),
-    #     'thermal_segment' : np.asarray(result)
-    # }
-    # savemat(os.path.join(args.output, f'{ir_filename}.mat'), mat, do_compression=True)
-
+    thermal_seg = result.squeeze(0).squeeze(0)
 
 if __name__ == "__main__":
     region_segmentation()
