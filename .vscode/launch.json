@@ -17,8 +17,7 @@
             },
             "args" : [
                 "/home/phm/Dataset/texture-analysis/piping_inspection/fused/23_FUSED.mat",
-                // "--output", "/home/phm/Datasets/Case Study 01: Pipe inspection/results",
-                "--device", "cpu"
+                // "--output", "/home/phm/Datasets/Case Study 01: Pipe inspection/results"
             ]
         },
         {
