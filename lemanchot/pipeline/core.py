@@ -20,7 +20,7 @@ from typing import Callable, Dict, List, Union
 
 import torch
 import torch.optim as optim
-from torch.optim.lr_scheduler import StepLR, ExponentialLR, CosineAnnealingWarmRestarts
+from torch.optim.lr_scheduler import StepLR, ExponentialLR
 
 from ignite.engine import Engine
 from ignite.engine.events import Events

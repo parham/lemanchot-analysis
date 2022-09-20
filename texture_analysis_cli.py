@@ -18,7 +18,6 @@ from lemanchot.core import get_profile, get_profile_names
 from lemanchot.dataset import SegmentationDataset
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
-    BothRandomRotate,
     BothCompose,
     BothToTensor,
     TrivialAugmentWide,
