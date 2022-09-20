@@ -1,5 +1,5 @@
 {
-    "device" : "cuda",
+    "device" : "cpu",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
         "zephyrus-ulaval" : {
@@ -183,7 +183,7 @@
                 "Plastic" : 6
             }
         },
-                "zephyrus" : {
+        "zephyrus" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
             "project_name" : "texture-analysis",
             "workspace" : "zephyrus",
@@ -204,5 +204,4 @@
             }
         }
     }
-  }
 }

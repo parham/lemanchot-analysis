@@ -95,6 +95,6 @@ logs/
 models/*
 
 # Programming environement
-.vscode
+.vscode/*
 pyrightconfig.json
 .python-version
