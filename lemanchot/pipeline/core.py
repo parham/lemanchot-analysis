@@ -11,7 +11,6 @@ import time
 import logging
 import functools
 from uuid import uuid4
-import json
 import numpy as np
 
 from dotmap import DotMap
@@ -25,7 +24,11 @@ from torch.optim.lr_scheduler import StepLR, ExponentialLR
 from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
-from ignite.handlers.param_scheduler import LRScheduler, ReduceLROnPlateauScheduler, CosineAnnealingScheduler
+from ignite.handlers.param_scheduler import (
+    LRScheduler,
+    ReduceLROnPlateauScheduler,
+    CosineAnnealingScheduler,
+)
 
 from lemanchot.core import (
     exception_logger,
@@ -39,6 +42,7 @@ from lemanchot.core import (
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
+from lemanchot.visualization import COLORS
 
 
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
@@ -172,7 +176,7 @@ def load_scheduler(
         # }
         scheduler = CosineAnnealingScheduler(
             optimizer=optimizer,
-            param_name='lr',
+            param_name="lr",
             start_value=scheduler_config["start_value"],
             end_value=scheduler_config["end_value"],
             cycle_size=scheduler_config["cycle_size"],
@@ -396,6 +400,15 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     )
     # Log hyperparameters
     experiment.log_parameters(experiment_config.toDict())
+    # Log colormap-encoding
+    cnames = COLORS.names()
+    colors = {
+        cls_name: cnames[color_idx]
+        for cls_name, color_idx in zip(
+            get_profile(profile_name).categories.items(), 
+        )
+    }
+    experiment.log_parameters({"colors":colors})
     # Instantiate the engine
     engine = Engine(seg_func)
     # Create scheduler instance
