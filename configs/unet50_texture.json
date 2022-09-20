@@ -35,7 +35,7 @@
   "optimizer": {
     "name": "SGD",
     "config": {
-      "lr": 0.5,
+      "lr": 0.01,
       "momentum": 0.9,
       "weight_decay": 0.005
     }
@@ -43,9 +43,9 @@
   "scheduler" : {
     "name" : "CosineAnnealingLR",
     "config" : {
-      "start_value": 0.5,
+      "start_value": 0.01,
       "end_value": 0,
-      "cycle_size": 12,
+      "cycle_size": 18,
       "cycle_mult": 2,
       "mult": 0.5
     }

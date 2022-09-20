@@ -16,7 +16,6 @@ from skimage import color
 
 from torchvision.transforms import RandomCrop
 from torchvision.transforms.autoaugment import TrivialAugmentWide as TAWide, _apply_op
-from torchvision.transforms.autoaugment import _apply_op
 from torchvision.transforms.functional import (
     InterpolationMode,
     resize,
@@ -49,9 +48,9 @@ class BothRandomRotate(torch.nn.Module):
         self.angles = angles
         self.weights = weights if not weights else [1] * len(angles)
 
-    def forward(self, args):
+    def forward(self, img, target):
         ang = choices(self.angles, weights=self.weights, k=1)[0]
-        return [rotate(img, ang) for img in args]
+        return rotate(img, ang), rotate(target, ang)
 
 
 class BothRandomCrop(torch.nn.Module):
@@ -59,18 +58,25 @@ class BothRandomCrop(torch.nn.Module):
         super().__init__()
         self.size = crop_size
 
-    def forward(self, args):
-        i, j, h, w = RandomCrop.get_params(args[0], self.size)
-        return [crop(img, i, j, h, w) for img in args]
+    def forward(self, img, target):
+        i, j, h, w = RandomCrop.get_params(img, self.size)
+        return crop(img, i, j, h, w), crop(target, i, j, h, w)
 
 class BothToTensor(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
-    def forward(self, args):
-        return (
-            to_tensor(arg) if not isinstance(arg, torch.Tensor) else arg for arg in args
-        )
+    def forward(self, img, target):
+        return to_tensor(img), target
+
+class BothCompose:
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, image, target):
+        for t in self.transforms:
+            image, target = t(image, target)
+        return image, target 
 
 class ImageResize(torch.nn.Module):
     def __init__(
@@ -209,7 +215,7 @@ class TrivialAugmentWide(TAWide):
     def __init__(
         self,
         num_magnitude_bins: int = 31,
-        interpolation: InterpolationMode = InterpolationMode.NEAREST,
+        interpolation: InterpolationMode = InterpolationMode.BILINEAR,
         fill: Optional[List[float]] = None,
     ) -> None:
         super().__init__(num_magnitude_bins, interpolation, fill)
@@ -245,11 +251,15 @@ class TrivialAugmentWide(TAWide):
         if signed and torch.randint(2, (1,)):
             magnitude *= -1.0
 
-        return (
-            _apply_op(
+        img = _apply_op(
                 img, op_name, magnitude, interpolation=self.interpolation, fill=fill
-            ),
-            _apply_op(
-                target, op_name, magnitude, interpolation=self.interpolation, fill=fill
-            ),
-        )
+            )            
+        if op_name in {"ShearX", "ShearY", "TranslateX", "TranslateY", "Rotate", "Invert"}:
+            # if target.type() != torch.uint8:
+            #     target = target.to(dtype=torch.uint8)
+
+            target = _apply_op(
+                    target, op_name, magnitude, interpolation=self.interpolation, fill=fill
+                )
+
+        return img, target

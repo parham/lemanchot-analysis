@@ -10,17 +10,19 @@ import argparse
 import sys
 import logging
 
-from torch.nn import Sequential
 from torch.utils.data import DataLoader
-from torchvision.transforms import Resize
+from torchvision.transforms import Resize, ToTensor
 from ignite.utils import setup_logger
 
 from lemanchot.core import get_profile, get_profile_names
 from lemanchot.dataset import SegmentationDataset
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
+    BothRandomRotate,
+    BothCompose,
     BothToTensor,
     TrivialAugmentWide,
+    InterpolationMode
 )
 
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
@@ -44,11 +46,11 @@ def main():
     ######### Transformation ##########
     # Initialize Transformation
     input_transforms = Resize((512, 512))
-    target_transform = Resize((512, 512))
-    both_transforms = Sequential(
-        TrivialAugmentWide(31, "bilinear"),
-        BothToTensor(),
-    )
+    target_transform = Resize((512, 512), InterpolationMode.NEAREST)
+    both_transforms = BothCompose([
+        TrivialAugmentWide(31, InterpolationMode.NEAREST),
+        BothToTensor()
+    ])
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, database_name=dataset_name

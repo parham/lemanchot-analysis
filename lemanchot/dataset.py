@@ -327,6 +327,6 @@ class SegmentationDataset(VisionDataset):
         _, target = self.gt_dataset[index]
 
         if self.both_transforms is not None:
-            sample, target = self.both_transforms(input=[sample, target])
+            sample, target = self.both_transforms(sample, target)
 
         return sample, target
