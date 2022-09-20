@@ -72,9 +72,6 @@ pyrightconfig.json
 # Pycharm
 .idea
 
-# VS Code
-.vscode/
-
 # Spyder
 .spyproject/
 
