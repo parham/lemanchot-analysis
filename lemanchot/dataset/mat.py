@@ -27,7 +27,11 @@ class MATLABDataset(Dataset):
         self.transforms = transforms
         self.target_transforms = target_transforms
         self.root_dir = root_dir
+        if os.path.isdir(root_dir):
+            raise ValueError('The directory "%s" does not exist.' % root_dir)
         self.file_list = glob.glob(os.path.join(self.root_dir, '*.mat'))
+        if len(self.file_list) == 0:
+            raise ValueError('No mat file does not exist.')
         self.input_tag = input_tag
         self.target_tag = target_tag
 
