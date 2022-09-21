@@ -12,3 +12,8 @@ from .cross_entropy import *
 from .dice import *
 from .focal import *
 from .smp import *
+from .ssim import *
+from .superres import *
+from .threefactor import *
+from .twofactor import *
+from .wnet import *
