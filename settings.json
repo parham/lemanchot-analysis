@@ -12,13 +12,16 @@
       "log_env_host": true,
       "enable_logging": true,
       "enable_image_logging": true,
+      "enable_image_saving" : {
+        "save_dir" : ""
+      },
       "pipeline": "simple_train",
       "checkpoint_save": true,
       "checkpoint_load": true,
       "checkpoint_log_cometml" : true,
       "experiment_config_name": "test",
       "dataset_name": "Laval_Road_9h52",
-      "dataset_path": "/data/lemanchot-analysis/952/",
+      "dataset_path": "/data/lemanchot-analysis/952/labeled",
       "categories": {
         "Metal": 1,
         "Vegetation": 2,
@@ -139,7 +142,7 @@
       "checkpoint_file": null,
       "experiment_config_name": "unet50_texture",
       "dataset_name": "lemanchot-analysis",
-      "dataset_path": "/data/lemanchot-analysis/952",
+      "dataset_path": "/data/lemanchot-analysis/952/labeled",
       "categories": {
         "background" :0,
         "metal": 1,

@@ -99,7 +99,7 @@ class TestDataset(unittest.TestCase):
 
         # Run the pipeline
         state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
-        print(state)
+        print(state)    
 
 if __name__ == '__main__':
     unittest.main()
