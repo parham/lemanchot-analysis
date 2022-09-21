@@ -10,8 +10,8 @@
 from comet_ml import Experiment
 from typing import Dict
 
+import torch
 import torch.optim as optim
-from torch import no_grad, threshold
 from ignite.engine import Engine
 
 from lemanchot.pipeline.core import pipeline_register
@@ -39,6 +39,9 @@ def simple_train_step__(
 
     loss = criterion(outputs, targets)
     outputs = outputs.argmax(dim=1, keepdims=True)
+
+    if len(targets.shape) < 4:
+        targets = targets.unsqueeze(1)
 
     loss.backward()
     optimizer.step()
@@ -74,7 +77,7 @@ def simple_multilabel_step__(
     loss.backward()
     optimizer.step()
     
-    outputs = threshold(outputs.sigmoid(), 0.5, 0)
+    outputs = torch.threshold(outputs.sigmoid(), 0.5, 0)
 
     return {
         'y_true' : targets,

@@ -11,6 +11,7 @@ from dotmap import DotMap
 
 import segmentation_models_pytorch as smp
 
+from lemanchot.core import get_or_default
 from lemanchot.models.core import BaseModule, model_register
 
 @model_register('unet_resnet18')
@@ -22,14 +23,15 @@ class Unet_Resnet18(BaseModule):
         )
         self.clss = smp.Unet(
             encoder_name='resnet18',
-            encoder_weights=self.weights,
-            in_channels=self.channels,
-            classes=self.num_classes,
-            # activation=self.activation
+            encoder_weights=get_or_default(config, 'weights', None),
+            in_channels=get_or_default(config, 'channels', 3),
+            classes=get_or_default(config, 'num_classes', 2),
+            activation=get_or_default(config, 'activation', None)
         )
 
     def forward(self, x):
         return self.clss(x)
+
 
 @model_register('unet_resnet50')
 class Unet_Resnet50(BaseModule):
@@ -40,9 +42,10 @@ class Unet_Resnet50(BaseModule):
         )
         self.clss = smp.Unet(
             encoder_name='resnet50',
-            encoder_weights=self.weights,
-            in_channels=self.channels,
-            classes=self.num_classes
+            encoder_weights=get_or_default(config, 'weights', None),
+            in_channels=get_or_default(config, 'channels', 3),
+            classes=get_or_default(config, 'num_classes', 2),
+            activation=get_or_default(config, 'activation', None)
         )
 
     def forward(self, x):
@@ -58,9 +61,10 @@ class UnetPlusPlus_Resnet18(BaseModule):
         )
         self.clss = smp.UnetPlusPlus(
             encoder_name='resnet18',
-            encoder_weights="imagenet",
-            in_channels=self.channels,
-            classes=self.num_classes
+            encoder_weights=get_or_default(config, 'weights', None),
+            in_channels=get_or_default(config, 'channels', 3),
+            classes=get_or_default(config, 'num_classes', 2),
+            activation=get_or_default(config, 'activation', None)
         )
 
     def forward(self, x):
