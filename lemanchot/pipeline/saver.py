@@ -11,6 +11,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 
+from dotmap import DotMap
 from comet_ml import Experiment
 
 from ignite.engine import Engine
@@ -32,7 +33,7 @@ class ModelLogger_CometML:
     def __call__(self, engine: Engine, to_save: Dict):
         checkpoint_fpath = self.checkpoint_handler.last_checkpoint
         self.experiment.log_model(
-            name=f'{self.pipeline_name}-{self.model_name}',
+            name=f'{self.pipeline_name}-{self.model_name}', # ::{engine.state.epoch}
             file_or_folder=str(checkpoint_fpath),
             metadata=engine.state.metrics,
             overwrite=True

@@ -15,6 +15,7 @@
       "pipeline": "simple_train",
       "checkpoint_save": true,
       "checkpoint_load": true,
+      "checkpoint_log_cometml" : true,
       "experiment_config_name": "test",
       "dataset_name": "Laval_Road_9h52",
       "dataset_path": "/data/lemanchot-analysis/952/",

@@ -420,9 +420,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "optimizer": optimizer,
         "loss": loss,
     }
-    enable_checkpoint_save = (
-        profile.checkpoint_save if "checkpoint_save" in profile else False
-    )
+    enable_checkpoint_save = profile.checkpoint_save if 'checkpoint_save' in profile else False
+    enable_checkpoint_log = profile.checkpoint_log_cometml if 'checkpoint_log_cometml' in profile else False
     checkpoint_file = f"{pipeline_name}-{model.name}-{str(uuid4())[0:8]}.pt"
     if enable_checkpoint_save:
         experiment.log_parameter(name="checkpoint_file", value=checkpoint_file)
@@ -437,10 +436,11 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             n_saved=1,
             global_step_transform=global_step_from_engine(engine),
         )
-        engine.add_event_handler(Events.ITERATION_COMPLETED, checkpoint_saver, run_record)
+        engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
         # Logging Model
-        checkpoint_logger = ModelLogger_CometML(pipeline_name, model.name, experiment, checkpoint_saver)
-        engine.add_event_handler(Events.ITERATION_COMPLETED, checkpoint_logger, run_record)
+        if enable_checkpoint_log:
+            checkpoint_logger = ModelLogger_CometML(pipeline_name, model.name, experiment, checkpoint_saver)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_logger, run_record)
 
     # Load Checkpoint
     enable_checkpoint_load = (
