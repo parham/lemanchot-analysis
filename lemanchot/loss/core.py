@@ -17,7 +17,6 @@ from lemanchot.core import BaseCore
 
 def classmap_2_multilayer(data, number_classes):
     """This method assumes that data is NxHxW
-
     Args:
         data (_type_): _description_
         number_classes (_type_): _description_
