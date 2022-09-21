@@ -66,5 +66,8 @@ def iterative_region_segmentation(
         if num_classes <= class_count_limit:
             break
 
-        output = trg.squeeze(0).squeeze(0)
-        yield output
+        yield {
+            'y' : batch[1],
+            'y_pred' : trg,
+            'loss' : loss.item()
+        }

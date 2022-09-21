@@ -10,24 +10,26 @@
 import argparse
 import logging
 import os
+from pathlib import Path
 import sys
 
 from tqdm import trange
 
-import torchvision.transforms as transforms
+from torchvision.transforms import Compose
 from torch.utils.data import DataLoader
 
-from lemanchot.dataset.mat import MATLABDataset
-from lemanchot.methods import iterative_region_segmentation
+from PIL import Image
 
 sys.path.append(os.getcwd())
 sys.path.append(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from lemanchot.core import get_config, get_device
+from lemanchot.core import get_config, get_device, get_experiment, get_profile_names
 from lemanchot.loss.core import load_loss
 from lemanchot.models.core import load_model
 from lemanchot.pipeline.core import load_optimizer
+from lemanchot.dataset.mat import MATLABDataset
+from lemanchot.methods import iterative_region_segmentation
 from lemanchot.transform import (
     FilterOutAlphaChannel,
     ImageResize,
@@ -43,38 +45,31 @@ logging.basicConfig(
 )
 
 parser = argparse.ArgumentParser(description="Multi-Modal Analysis")
-parser.add_argument('file', type=str, help="Multi-Modal file")
-parser.add_argument('--iteration', type=int, default=60,
-                    help="The maximum number of iteration.")
-parser.add_argument('--nclass', type=int, default=10,
-                    help="The minimum number of classes.")
+parser.add_argument('dir', type=str, help="Multi-Modal file")
+parser.add_argument('--out', type=str, help="The output directory")
+parser.add_argument('--profile', required=True, choices=get_profile_names(), help="Select the name of profiles.")
+parser.add_argument('--iteration', type=int, default=60, help="The maximum number of iteration.")
+parser.add_argument('--nclass', type=int, default=10, help="The minimum number of classes.")
 
 def main():
     args = parser.parse_intermixed_args()
     parser.print_help()
 
-    if not os.path.isfile(args.file):
-        logging.error(f'{args.file} does not exist!')
+    if not os.path.isdir(args.dir):
+        logging.error(f'{args.dir} does not exist!')
         return
     
+    Path(args.out).mkdir(parents=True, exist_ok=True)
+
     # Determine the selected device to use for processing
     device = get_device()
     # Load the experiment configuration
     experiment_config = get_config('wonjik2020')
-    # Create model instance
-    logging.info('Loading model ...')
-    model = load_model(experiment_config)
-    model.to(device)
-    # Create loss instance
-    logging.info('Loading loss ...')
-    criterion = load_loss(experiment_config)
-    criterion.to(device)
-    # Create optimizer instance
-    logging.info('Loading optimizer ...')
-    optimizer = load_optimizer(model, experiment_config)
+    # Create the experiment
+    experiment = get_experiment(args.profile, 'piping_inspection')
     # Create transformations
     logging.info('Creating and Applying transformations ...')
-    transforms = transforms.Compose([
+    transform = Compose([
         # ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
@@ -83,28 +78,43 @@ def main():
     ])
     # Create the dataset
     dataset = MATLABDataset(
-        root_dir = args.file,
+        root_dir = args.dir,
         input_tag = 'ir_roi',
-        transforms = transforms
+        transforms = transform
     )
     data_loader = DataLoader(
         dataset, 
         batch_size=1, 
         shuffle=True
-    )	
-    data_iterator=iter(data_loader)
+    )
 
     logging.info('Dataset is created ...')
 
+    step = 1
     for data in iter(data_loader):
-        for i in trange(args.iteration):
-            iterative_region_segmentation(
-                batch=batch,
-                experiment_config=experiment_config,
-                device=device,
-                num_iteration=
-            )
-
+        fpath = data[-1]
+        fname = Path(fpath).stem
+        logging.info(f'Processing ... {fpath}')
+        process_obj = iterative_region_segmentation(
+            batch=data,
+            experiment_config=experiment_config,
+            device=device,
+            num_iteration=args.iteration,
+            class_count_limit=args.nclass
+        )
+        res = None
+        for output in trange(process_obj):
+            output = output.squeeze(0).squeeze(0).cpu().detach().numpy()
+            # Logging the loss metric
+            experiment.log_metric('loss', output, step=step, epoch=1)
+            # Logging the output image
+            experiment.log_image(output, name=fname, step=step)
+            res = output
+        step += 1
+        # Save the output image
+        outfile = os.path.join(args.out, f'{fname}.png')
+        logging.info(f'Saving the output image ... {outfile}')
+        Image.fromarray(res).save(outfile)
 
 if __name__ == "__main__":
     try:
