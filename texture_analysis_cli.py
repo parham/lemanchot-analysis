@@ -68,15 +68,15 @@ def main():
         both_transforms=both_transforms,
     )
     if profile.weight_dataset:
-        sampler = generate_weighted_sampler(dataset, engine.state.batch_size)
+        # This function is very long.
+        sampler = generate_weighted_sampler(dataset.gt_dataset, engine.state.batch_size)
     else:
         sampler = None
-        
+
     data_loader = DataLoader(
         dataset,
         batch_size=engine.state.batch_size,
-        shuffle=True if sampler is not None else None,
-        num_workers=device_count() * 4,
+        shuffle=True if sampler is None else None,
         sampler=sampler,
     )
 

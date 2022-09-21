@@ -404,11 +404,9 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     cnames = COLORS.names()
     colors = {
         cls_name: cnames[color_idx]
-        for cls_name, color_idx in zip(
-            get_profile(profile_name).categories.items(), 
-        )
+        for cls_name, color_idx in get_profile(profile_name).categories.items()
     }
-    experiment.log_parameters({"colors":colors})
+    experiment.log_parameters({"colors": colors})
     # Instantiate the engine
     engine = Engine(seg_func)
     # Create scheduler instance
