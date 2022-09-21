@@ -382,7 +382,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                     sample = img[i, :, :, :]
                     experiment.log_image(
                         make_tensor_for_comet(sample),
-                        f"{key}-{i}",
+                        f"{key}-{engine.state.epoch}-{i}",
                         step=engine.state.iteration,
                     )
         return res
