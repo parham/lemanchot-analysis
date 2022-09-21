@@ -27,7 +27,7 @@ class MATLABDataset(Dataset):
         self.transforms = transforms
         self.target_transforms = target_transforms
         self.root_dir = root_dir
-        if os.path.isdir(root_dir):
+        if not os.path.isdir(root_dir):
             raise ValueError('The directory "%s" does not exist.' % root_dir)
         self.file_list = glob.glob(os.path.join(self.root_dir, '*.mat'))
         if len(self.file_list) == 0:
@@ -50,7 +50,7 @@ class MATLABDataset(Dataset):
             raise ValueError('Target tag does not included in the data')
         
         input = data[self.input_tag]
-        target = data[self.target_tag] if self.target_tag is not None else None
+        target = data[self.target_tag] if self.target_tag is not None else np.zeros(input.shape, dtype=np.uint8)
 
         if self.transforms is not None:
             input = self.transforms(input)
@@ -59,4 +59,4 @@ class MATLABDataset(Dataset):
             self.target_transforms is not None:
             target = self.target_transforms(target)
 
-        return (input, target)
+        return (input, target, fs)
