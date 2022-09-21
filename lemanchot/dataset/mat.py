@@ -59,4 +59,4 @@ class MATLABDataset(Dataset):
             self.target_transforms is not None:
             target = self.target_transforms(target)
 
-        return (input, target)
+        return (input, target, fs)
