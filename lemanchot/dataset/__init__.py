@@ -1,5 +1,5 @@
 
-""" 
+"""
     @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
@@ -7,8 +7,8 @@
     @industrial-partner TORNGATS
 """
 
-from .core import *
-from .cross_entropy import *
-from .dice import *
-from .focal import *
-from .smp import *
+from .file_repeater import *
+from .huang import *
+from .json import *
+from .repetitive import *
+from .unlabeled import *
