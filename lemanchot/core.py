@@ -37,6 +37,12 @@ Returns:
 """
 generate_random_str = lambda x: ''.join(random.choice(string.ascii_lowercase) for i in range(x))
 
+"""
+Get the value associated with a key in a dictionary 
+or return a default value.
+"""
+get_or_default = lambda data, key, vdefault: data[key] if key in data else vdefault
+
 class BaseCore(torch.nn.Module):
     """Base class for all module like components"""
     def __init__(self, name : str, config) -> None:

@@ -39,7 +39,11 @@ class UnlabeledImageDataset(Dataset):
         super().__init__()
         self.transform = transform
         self.root_dir = root_dir
+        if os.path.isdir(root_dir):
+            raise ValueError('The directory "%s" does not exist.' % root_dir)
         self.file_list = glob.glob(os.path.join(self.root_dir, f'*.{file_extension}'))
+        if len(self.file_list) == 0:
+            raise ValueError('No %s file does not exist.' % file_extension)
 
     def __len__(self):
         return len(self.file_list)
