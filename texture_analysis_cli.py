@@ -10,18 +10,19 @@ import argparse
 import sys
 import logging
 
+from torch.cuda import device_count
 from torch.utils.data import DataLoader
-from torchvision.transforms import Resize, ToTensor
+from torchvision.transforms import Resize
 from ignite.utils import setup_logger
 
 from lemanchot.core import get_profile, get_profile_names
-from lemanchot.dataset import SegmentationDataset
+from lemanchot.dataset import SegmentationDataset, generate_weighted_sampler
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
     BothCompose,
     BothToTensor,
     TrivialAugmentWide,
-    InterpolationMode
+    InterpolationMode,
 )
 
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
@@ -46,10 +47,9 @@ def main():
     # Initialize Transformation
     input_transforms = Resize((512, 512))
     target_transform = Resize((512, 512), InterpolationMode.NEAREST)
-    both_transforms = BothCompose([
-        TrivialAugmentWide(31, InterpolationMode.NEAREST),
-        BothToTensor()
-    ])
+    both_transforms = BothCompose(
+        [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
+    )
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, database_name=dataset_name
@@ -67,7 +67,18 @@ def main():
         target_transforms=target_transform,
         both_transforms=both_transforms,
     )
-    data_loader = DataLoader(dataset, batch_size=engine.state.batch_size, shuffle=True)
+    if profile.weight_dataset:
+        sampler = generate_weighted_sampler(dataset, engine.state.batch_size)
+    else:
+        sampler = None
+        
+    data_loader = DataLoader(
+        dataset,
+        batch_size=engine.state.batch_size,
+        shuffle=True if sampler is not None else None,
+        num_workers=device_count() * 4,
+        sampler=sampler,
+    )
 
     # Run the pipeline
     state = engine.run(data_loader, max_epochs=engine.state.max_epoch)

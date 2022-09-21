@@ -18,7 +18,7 @@ from typing import Dict, Optional, Set, List, Callable, Tuple, Union
 from torch import Tensor, from_numpy, logical_not
 from torch import stack as torch_stack
 from torch import zeros as torch_zeros
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, WeightedRandomSampler
 from torchvision.datasets import VisionDataset
 from gimp_labeling_converter import XCFDataset, generate_cmap, gimp_helper
 from lemanchot.rle import decode_rle
@@ -218,7 +218,7 @@ class JSONDataset(VisionDataset):
             [target.get(c, torch_zeros(size)) for c in self.classes.keys()], dim=0
         )
 
-        if "background"in self.classes.keys():
+        if "background" in self.classes.keys():
             target[self.classes.background, ...] = logical_not(target.sum(dim=0))
 
         if self.transforms is not None:
@@ -330,3 +330,21 @@ class SegmentationDataset(VisionDataset):
             sample, target = self.both_transforms(sample, target)
 
         return sample, target
+
+
+def generate_weighted_sampler(
+    dataset: Dataset, batch_size: int, w_type: str = "squared", replacement: bool = True
+) -> WeightedRandomSampler:
+    scale = 2 if w_type == "squared" else 1
+    sum = 0.0
+
+    ind_weight = list()
+    for idx in range(len(dataset)):
+        ind_weight.append(dataset[idx].sum(dim=(-2, -1)))
+        sum += ind_weight[-1]
+
+    sum = sum.reciprocal() ** scale
+    ind_weight = torch_stack(ind_weight, dim=0).mul(sum)
+    return WeightedRandomSampler(
+        weights=ind_weight.sum(dim=1).tolist(), num_samples=batch_size, replacement=replacement
+    )

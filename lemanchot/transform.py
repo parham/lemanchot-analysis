@@ -255,9 +255,6 @@ class TrivialAugmentWide(TAWide):
                 img, op_name, magnitude, interpolation=self.interpolation, fill=fill
             )            
         if op_name in {"ShearX", "ShearY", "TranslateX", "TranslateY", "Rotate", "Invert"}:
-            # if target.type() != torch.uint8:
-            #     target = target.to(dtype=torch.uint8)
-
             target = _apply_op(
                     target, op_name, magnitude, interpolation=self.interpolation, fill=fill
                 )
