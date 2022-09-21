@@ -50,7 +50,7 @@ class MATLABDataset(Dataset):
             raise ValueError('Target tag does not included in the data')
         
         input = data[self.input_tag]
-        target = data[self.target_tag] if self.target_tag is not None else None
+        target = data[self.target_tag] if self.target_tag is not None else np.zeros(input.shape, dtype=np.uint8)
 
         if self.transforms is not None:
             input = self.transforms(input)
