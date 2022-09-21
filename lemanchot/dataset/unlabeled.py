@@ -7,12 +7,12 @@
     @industrial-partner TORNGATS
 """
 
-from ctypes import Union
+
 import functools
 import glob
 import os
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 import numpy as np
 
 from PIL import Image
