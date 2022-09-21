@@ -7,6 +7,7 @@
 """
 
 import os
+from pathlib import Path
 import time
 import logging
 import functools
@@ -16,7 +17,7 @@ import numpy as np
 
 from dotmap import DotMap
 from comet_ml import Experiment
-from typing import Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
 import torch.optim as optim
@@ -39,6 +40,7 @@ from lemanchot.core import (
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
+from lemanchot.pipeline.saver import ModelLogger_CometML
 
 
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
@@ -207,7 +209,8 @@ def load_scheduler(
         #         "gamma" : 0.98
         #     }
         # }
-        exp_lr = ExponentialLR(optimizer=optimizer, gamma=scheduler_config["gamma"])
+        exp_lr = ExponentialLR(optimizer=optimizer,
+                               gamma=scheduler_config["gamma"])
 
         scheduler = LRScheduler(exp_lr)
         period = (
@@ -307,7 +310,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     optimizer = load_optimizer(model, experiment_config)
     ############ Comet.ml Experiment ##############
     # Create the experiment instance
-    experiment = get_experiment(profile_name=profile_name, dataset=database_name)
+    experiment = get_experiment(
+        profile_name=profile_name, dataset=database_name)
     # Logging the model
     experiment.set_model_graph(str(model), overwrite=True)
     # Load profile
@@ -433,7 +437,10 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             n_saved=1,
             global_step_transform=global_step_from_engine(engine),
         )
-        engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
+        engine.add_event_handler(Events.ITERATION_COMPLETED, checkpoint_saver, run_record)
+        # Logging Model
+        checkpoint_logger = ModelLogger_CometML(pipeline_name, model.name, experiment, checkpoint_saver)
+        engine.add_event_handler(Events.ITERATION_COMPLETED, checkpoint_logger, run_record)
 
     # Load Checkpoint
     enable_checkpoint_load = (
@@ -445,8 +452,10 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             checkpoint_dir, f"{load_settings().checkpoint_file}"
         )
         if os.path.isfile(checkpoint_file):
-            checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
-            ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj)
+            checkpoint_obj = torch.load(
+                checkpoint_file, map_location=get_device())
+            ModelCheckpoint.load_objects(
+                to_load=run_record, checkpoint=checkpoint_obj)
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_training(engine):
@@ -454,7 +463,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
-        step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
+        step_time = engine.state.step_time if hasattr(
+            engine.state, "step_time") else 0
         print(
             f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']:.4f}, lr: {lr:.4f}"
         )
