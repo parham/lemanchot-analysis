@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import sys
 
-from tqdm import trange
+from tqdm import tqdm
 
 from torchvision.transforms import Compose
 from torch.utils.data import DataLoader
@@ -24,7 +24,7 @@ sys.path.append(os.getcwd())
 sys.path.append(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from lemanchot.core import get_config, get_device, get_experiment, get_profile_names
+from lemanchot.core import get_config, get_device, get_experiment, get_profile, get_profile_names
 from lemanchot.loss.core import load_loss
 from lemanchot.models.core import load_model
 from lemanchot.pipeline.core import load_optimizer
@@ -63,14 +63,16 @@ def main():
 
     # Determine the selected device to use for processing
     device = get_device()
+    profile = get_profile(args.profile)
     # Load the experiment configuration
-    experiment_config = get_config('wonjik2020')
+    experiment_name = get_profile(args.profile).experiment_config_name
+    experiment_config = get_config(experiment_name)
     # Create the experiment
     experiment = get_experiment(args.profile, 'piping_inspection')
     # Create transformations
     logging.info('Creating and Applying transformations ...')
-    transform = Compose([
-        # ImageResize(70),
+    transforms = Compose([
+        ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel(),
@@ -80,7 +82,7 @@ def main():
     dataset = MATLABDataset(
         root_dir = args.dir,
         input_tag = 'ir_roi',
-        transforms = transform
+        transforms = transforms
     )
     data_loader = DataLoader(
         dataset, 
@@ -90,9 +92,8 @@ def main():
 
     logging.info('Dataset is created ...')
 
-    step = 1
     for data in iter(data_loader):
-        fpath = data[-1]
+        fpath = data[-1][0]
         fname = Path(fpath).stem
         logging.info(f'Processing ... {fpath}')
         process_obj = iterative_region_segmentation(
@@ -103,14 +104,19 @@ def main():
             class_count_limit=args.nclass
         )
         res = None
-        for output in trange(process_obj):
+        step = 1
+        for out in tqdm(process_obj):
+            output = out['y_pred']
             output = output.squeeze(0).squeeze(0).cpu().detach().numpy()
             # Logging the loss metric
-            experiment.log_metric('loss', output, step=step, epoch=1)
+            experiment.log_metrics({
+                'loss' : out['loss'],
+                'class_count' : out['class_count']
+            }, step=step, epoch=1)
             # Logging the output image
             experiment.log_image(output, name=fname, step=step)
             res = output
-        step += 1
+            step += 1
         # Save the output image
         outfile = os.path.join(args.out, f'{fname}.png')
         logging.info(f'Saving the output image ... {outfile}')

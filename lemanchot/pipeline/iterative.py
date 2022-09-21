@@ -97,7 +97,7 @@ def wonjik2020_train_step__(
     optimizer.step()
 
     return {
-        'y' : batch[1],
+        'y_true' : batch[1],
         'y_pred' : trg,
         'loss' : loss.item()
     }

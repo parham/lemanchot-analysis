@@ -4,7 +4,7 @@
     "profiles" : {
         "iterative-thermal-segmentation" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
-            "project_name" : "thermal-segmentor",
+            "project_name" : "texture-analysis",
             "workspace" : "parham",
             "log_git_metadata" : true,
             "log_env_gpu" : true,
@@ -15,13 +15,7 @@
             "pipeline" : "wonjik2020",
             "checkpoint_save" : false,
             "checkpoint_load" : false,
-            "experiment_config_name" : "wonjik2020",
-            "dataset_name" : "Sample",
-            "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
-            "categories" : {
-                "defect" : 2,
-                "surface_defect" : 3
-            }
+            "experiment_config_name" : "wonjik2020"
         },
         "zephyrus-ulaval" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
@@ -106,7 +100,7 @@
             "checkpoint_load" : false,
             "experiment_config_name" : "wonjik2020",
             "dataset_name" : "Sample",
-            "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
+            "dataset_path" : "/home/phm/Dataset/thermal-segmentation/Sample",
             "categories" : {
                 "defect" : 2,
                 "surface_defect" : 3

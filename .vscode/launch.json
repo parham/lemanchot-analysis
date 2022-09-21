@@ -35,7 +35,7 @@
                 "LEMANCHOT_VT_CONFIG_DIR" : "configs"
             },
             "args" : [
-                "--profile", "parham-wnet"
+                "--profile", "parham-wonjik2020"
             ]
         },
         {

@@ -49,7 +49,7 @@ def wnet_train_step__(
     optimizer.step()
 
     return {
-        'y' : batch[1],
+        'y_true' : batch[1],
         'y_pred' : outputs,
         'loss' : loss.item()
     }

@@ -49,7 +49,7 @@ def dbscan_train_step__(
     postprocessed = to_tensor(postprocessed[0]).unsqueeze(0)
 
     return {
-        'y' : batch[1],
+        'y_true' : batch[1],
         'y_pred' : outputs,
         'y_processed' : postprocessed,
         'loss' : 0.001

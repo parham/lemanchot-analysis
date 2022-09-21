@@ -19,7 +19,6 @@ from lemanchot.pipeline.core import load_optimizer
 def iterative_region_segmentation(
     batch,
     experiment_config,
-    transforms,
     device,
     num_iteration : int,
     class_count_limit : int
@@ -40,7 +39,6 @@ def iterative_region_segmentation(
     # Create transformations
     logging.info('Creating and Applying transformations ...')
     # Apply the transformations to the given data
-    input = transforms(input)
     input = input.to(dtype=torch.float32, device=device)
     # Prepare the loss function for the pipeline
     criterion.prepare_loss(ref=input)
@@ -51,7 +49,7 @@ def iterative_region_segmentation(
         model.train()
         optimizer.zero_grad()
         # Pass the data to the model
-        output = model(input.unsqueeze(0))
+        output = model(input)
         output = output.squeeze(0)
         # Calculate the output as the new target
         _, trg = torch.max(output, 0)
@@ -69,5 +67,6 @@ def iterative_region_segmentation(
         yield {
             'y' : batch[1],
             'y_pred' : trg,
-            'loss' : loss.item()
+            'loss' : loss.item(),
+            'class_count' : num_classes
         }
