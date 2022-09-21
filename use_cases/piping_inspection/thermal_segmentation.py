@@ -15,6 +15,10 @@ import sys
 from tqdm import trange
 
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+
+from lemanchot.dataset.mat import MATLABDataset
+from lemanchot.methods import iterative_region_segmentation
 
 sys.path.append(os.getcwd())
 sys.path.append(__file__)
@@ -70,19 +74,36 @@ def main():
     optimizer = load_optimizer(model, experiment_config)
     # Create transformations
     logging.info('Creating and Applying transformations ...')
-    transform = transforms.Compose([
+    transforms = transforms.Compose([
         # ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel(),
         ToFloatTensor()
     ])
-
     # Create the dataset
-    
+    dataset = MATLABDataset(
+        root_dir = args.file,
+        input_tag = 'ir_roi',
+        transforms = transforms
+    )
+    data_loader = DataLoader(
+        dataset, 
+        batch_size=1, 
+        shuffle=True
+    )	
+    data_iterator=iter(data_loader)
 
-    for iter in trange(args.iteration):
+    logging.info('Dataset is created ...')
 
+    for data in iter(data_loader):
+        for i in trange(args.iteration):
+            iterative_region_segmentation(
+                batch=batch,
+                experiment_config=experiment_config,
+                device=device,
+                num_iteration=
+            )
 
 
 if __name__ == "__main__":
