@@ -18,8 +18,10 @@ class RepetitiveDatasetWrapper(XCFDataset):
         category: Dict[str, int],
         transform=None,
         target_transform=None,
+        iteration : int = 1
     ) -> None:
         super().__init__(root_dir, category, transform, target_transform)
+        self.iteration = iteration
 
     @property
     def wrapped_dataset(self):

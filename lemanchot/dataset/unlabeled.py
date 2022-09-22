@@ -19,7 +19,6 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.datasets import VisionDataset
 
-
 class UnlabeledImageDataset(Dataset):
     """
     Dataset for images in a folder
@@ -39,19 +38,29 @@ class UnlabeledImageDataset(Dataset):
         super().__init__()
         self.transform = transform
         self.root_dir = root_dir
+        # Check if the given directory does not exist!
         if os.path.isdir(root_dir):
             raise ValueError('The directory "%s" does not exist.' % root_dir)
+        # Extract the files with given file extension from the given directory.
         self.file_list = glob.glob(os.path.join(self.root_dir, f'*.{file_extension}'))
+        # Check if no file is available.
         if len(self.file_list) == 0:
             raise ValueError('No %s file does not exist.' % file_extension)
 
     def __len__(self):
+        """Get the number of extracted files.
+
+        Returns:
+            int: file count
+        """
         return len(self.file_list)
     
     @functools.lru_cache(maxsize=10)
     def __getitem__(self, idx):
         fs = self.file_list[idx]
+        # Load the image and convert to numpy array
         img = np.asarray(Image.open(fs))
+        # Apply the transformation to the given data
         if self.transforms is not None:
             img = self.transforms(img)
         return (img, None)
