@@ -1,3 +1,12 @@
+
+""" 
+    @project LeManchot-Analysis : Multi-Modal Texture Analysis to Enhance Drone-based Thermographic Inspection of Structures
+    @organization Laval University
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
+"""
+
 from torch import stack as torch_stack
 from torch.utils.data import Dataset, WeightedRandomSampler
 
