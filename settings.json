@@ -13,7 +13,7 @@
       "enable_logging": true,
       "enable_image_logging": 3,
       "image_saving" : {
-        "root_dir" : "results"
+        "root_dir" : "/data/lemanchot-analysis/952/results"
       },
       "pipeline": "simple_train",
       "checkpoint_save": true,
