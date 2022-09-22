@@ -17,6 +17,7 @@ from lemanchot.loss.core import BaseLoss, classmap_2_multilayer, loss_register
 
 @loss_register('soft_bce')
 class SMP_BCEWithLogitsLoss(BaseLoss):
+    """ The smp implementation of BCEWithLogitsLoss """
     def __init__(self, name : str, config) -> None:
         super().__init__(name=name, config=config)
         config.pop('number_classes')
@@ -31,10 +32,15 @@ class SMP_BCEWithLogitsLoss(BaseLoss):
 
 @loss_register('dice')
 class SMP_DiceLoss(BaseLoss):
-    # {
-    #     "mode" : "multiclass",
-    #     "number_classes" : 7
-    # }
+    """ The smp implementation of DiceLoss
+
+        Example of configuration section
+        {
+            "mode" : "multiclass",
+            "number_classes" : 7
+        }
+    """
+    
     def __init__(self, name : str, config) -> None:
         super().__init__(name=name, config=config)
         config.pop('number_classes')
