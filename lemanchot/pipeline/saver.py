@@ -19,6 +19,7 @@ from ignite.engine import Engine
 from ignite.handlers import ModelCheckpoint
 
 class ModelLogger_CometML:
+    """ ModelLogger_CometML provides the feature to log models in comet.ml """
     def __init__(self,
         pipeline_name : str,
         model_name : str,
@@ -32,6 +33,12 @@ class ModelLogger_CometML:
         self.checkpoint_handler = checkpoint_handler
 
     def __call__(self, engine: Engine, to_save: Dict):
+        """Logging the model each time, it calls
+
+        Args:
+            engine (Engine): the engine handler.
+            to_save (Dict): the dictionary containing the model.
+        """
         checkpoint_fpath = self.checkpoint_handler.last_checkpoint
         self.experiment.log_model(
             name=f'{self.pipeline_name}-{self.model_name}', # ::{engine.state.epoch}

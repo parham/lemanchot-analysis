@@ -43,7 +43,10 @@ from lemanchot.models import BaseModule, load_model
 from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 
 
-def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
+def load_optimizer(
+    model: BaseModule, 
+    experiment_config: DotMap
+) -> optim.Optimizer:
     """Load the optimizer based on given configuration
 
     Args:
@@ -67,14 +70,27 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
     )
 
     return {
-        "SGD": lambda ps, config: optim.SGD(ps, **config),
-        "Adam": lambda ps, config: optim.Adam(ps, **config),
+        'SGD' : lambda ps, config: optim.SGD(ps, **config),
+        'Adam' : lambda ps, config: optim.Adam(ps, **config),
+        'Adadelta' : lambda ps, config: optim.Adadelta(ps, **config),
+        'AdamW' : lambda ps, config: optim.AdamW(ps, **config),
+        'Adamax' : lambda ps, config: optim.Adamax(ps, **config),
+        'RMSprop' : lambda ps, config: optim.RMSprop(ps, **config),
     }[optim_name](params, optim_config)
 
 
 def load_scheduler(
-    engine: Engine, optimizer: optim.Optimizer, experiment_config: DotMap
+    engine: Engine, 
+    optimizer: optim.Optimizer, 
+    experiment_config: DotMap
 ):
+    """Load Optimizer Scheduler based on the given configuration
+
+    Args:
+        engine (Engine): the engine handler
+        optimizer (optim.Optimizer): the optimizer handler
+        experiment_config (DotMap): the given configuration
+    """
     if optimizer is None or not "scheduler" in experiment_config:
         return None
 
@@ -293,6 +309,15 @@ def load_pipeline(pipeline_name: str) -> Callable:
 
 @exception_logger
 def load_segmentation(profile_name: str, database_name: str) -> Dict:
+    """ Initialize and instantiate the pipeline
+
+    Args:
+        profile_name (str): the name of the selected profile
+        database_name (str): the name of the database
+
+    Returns:
+        Dict: the dictionary containing the engine, model, scheduler, and other components.
+    """
     # Load experiment configuration
     experiment_name = get_profile(profile_name).experiment_config_name
     experiment_config = get_config(experiment_name)
