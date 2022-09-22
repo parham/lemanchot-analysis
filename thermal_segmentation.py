@@ -15,8 +15,8 @@ import torch
 from torch.utils.data import DataLoader
 
 from ignite.utils import setup_logger
-
 from gimp_labeling_converter import XCFDataset
+
 from lemanchot.core import get_profile, get_profile_names
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import FilterOutAlphaChannel, ImageResize, ImageResizeByCoefficient, NumpyImageToTensor
