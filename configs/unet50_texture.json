@@ -1,6 +1,6 @@
 {
   "model": {
-    "name": "unet_resnet18",
+    "name": "unet_resnet50",
     "config": {
       "channels": 3,
       "num_classes": 7,

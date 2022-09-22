@@ -69,7 +69,7 @@ def main():
     )
     if profile.weight_dataset:
         # This function is very long.
-        sampler = generate_weighted_sampler(dataset.gt_dataset, engine.state.batch_size)
+        sampler = generate_weighted_sampler(dataset.gt_dataset)
     else:
         sampler = None
 

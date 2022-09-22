@@ -1,6 +1,6 @@
 {
   "model": {
-    "name": "unet_resnet50",
+    "name": "unet_resnet18",
     "config": {
       "channels": 1,
       "num_classes": 1,
@@ -8,11 +8,22 @@
     }
   },
   "metrics": {
-    "confusion_matrix": {
-      "just_test": "test"
-    },
-    "mIoU": {
-     "iou_thresh": 0.5
+    "smp": {
+      "mode" : "multilabel",
+      "threshold" : 0.5,
+      "num_classes" : 7,
+      "metrics": {
+        "f1" : {
+         "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+         },
+        "iou" : {
+          "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+        }
+      }
     }
   },
   "loss": {
@@ -24,17 +35,19 @@
   "optimizer": {
     "name": "SGD",
     "config": {
-      "lr": 0.01,
-      "momentum": 0.8,
-      "weight_decay": 0.5,
-      "nesterov": true
+      "lr": 0.5,
+      "momentum": 0.9,
+      "weight_decay": 0.005
     }
   },
-  "scheduler": {
-    "name": "ReduceLROnPlateau",
-    "config": {
-      "factor": 0.1,
-      "patience": 5
+  "scheduler" : {
+    "name" : "CosineAnnealingLR",
+    "config" : {
+      "start_value": 0.5,
+      "end_value": 0,
+      "cycle_size": 8,
+      "cycle_mult": 2,
+      "mult": 0.5
     }
   },
   "pipeline": {
