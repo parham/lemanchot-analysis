@@ -16,9 +16,9 @@
                 "LEMANCHOT_VT_CONFIG_DIR" : "configs"
             },
             "args" : [
-                "/home/phm/Dataset/texture-analysis/piping_inspection/fused",
-                "--out", "/home/phm/Dataset/texture-analysis/piping_inspection/segs",
-                "--profile", "iterative-thermal-segmentation",
+                "/data/lemanchot-analysis/piping_inspection/fused",
+                "--out", "/data/lemanchot-analysis/piping_inspection/segs",
+                "--profile", "iterative-thermal-segmentation-piping",
                 "--iteration", "50",
                 "--nclass", "4"
             ]

@@ -1,5 +1,5 @@
 {
-    "device" : "gpu",
+    "device" : "cuda",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
         "iterative-thermal-segmentation-piping" : {

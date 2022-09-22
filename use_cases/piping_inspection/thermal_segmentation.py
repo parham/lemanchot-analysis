@@ -20,7 +20,6 @@ from torch.utils.data import DataLoader
 
 from PIL import Image
 
-from lemanchot.pipeline.saver import ImageSaver
 
 sys.path.append(os.getcwd())
 sys.path.append(__file__)
@@ -30,6 +29,7 @@ from lemanchot.core import get_config, get_device, get_experiment, get_profile, 
 from lemanchot.loss.core import load_loss
 from lemanchot.models.core import load_model
 from lemanchot.pipeline.core import load_optimizer
+from lemanchot.pipeline.saver import ImageSaver
 from lemanchot.dataset.mat import MATLABDataset
 from lemanchot.methods import iterative_region_segmentation
 from lemanchot.transform import (
@@ -122,10 +122,10 @@ def main():
             res = output
             step += 1
         # Logging the image
-        img_saver(engine, fname, )
-        outfile = os.path.join(args.out, f'{fname}.png')
-        logging.info(f'Saving the output image ... {outfile}')
-        Image.fromarray(res).save(outfile)
+        img_saver(fname, res)
+        logging.info(f'Saving the output image ... {fname}')
+        # outfile = os.path.join(args.out, f'{fname}.png')
+        # Image.fromarray(res).save(outfile)
 
 if __name__ == "__main__":
     try:
