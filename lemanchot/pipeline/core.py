@@ -40,7 +40,7 @@ from lemanchot.core import (
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
-from lemanchot.pipeline.saver import ModelLogger_CometML
+from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 
 
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
@@ -325,6 +325,11 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     ############ Metrics ##############
     # Create metric instances
     metrics = load_metrics(experiment_config, profile.categories)
+    # Create the image logger
+    img_saver = None
+    if 'image_saving' in profile:
+        image_saving = profile.image_saving
+        img_saver = ImageSaver(**image_saving)
 
     def __run_pipeline(
         engine: Engine,
@@ -379,12 +384,14 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                     continue
                 # Control number of logged images with enable_image_logging setting.
                 for i in range(min(profile.enable_image_logging, img.shape[0])):
-                    sample = img[i, :, :, :]
-                    experiment.log_image(
-                        make_tensor_for_comet(sample),
+                    sample = make_tensor_for_comet(img[i, :, :, :])
+                    experiment.log_image(sample,
                         f"{key}-{engine.state.epoch}-{i}",
                         step=engine.state.iteration,
                     )
+                    if img_saver is not None and \
+                       key == 'y_pred':
+                        img_saver(engine, key, sample)
         return res
 
     # Initialize the pipeline function

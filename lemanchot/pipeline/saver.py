@@ -8,11 +8,12 @@
     @industrial-partner TORNGATS
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+import os
+from pathlib import Path
 from typing import Dict
-
-from dotmap import DotMap
 from comet_ml import Experiment
+from PIL import Image
 
 from ignite.engine import Engine
 from ignite.handlers import ModelCheckpoint
@@ -38,3 +39,14 @@ class ModelLogger_CometML:
             metadata=engine.state.metrics,
             overwrite=True
         )
+
+
+class ImageSaver:
+    def __init__(self, root_dir) -> None:
+        self.root_dir = root_dir
+        if not os.path.isdir(root_dir):
+            Path(root_dir).mkdir(parents=True, exist_ok=True)
+
+    def __call__(self, engine: Engine, label : str, img):
+        file = os.path.join(self.root_dir, f'{label}-{engine.state.epoch}-{engine.state.iteration}.png')
+        Image.fromarray(img).save(file)
