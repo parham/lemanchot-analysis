@@ -54,6 +54,6 @@ class ImageSaver:
         if not os.path.isdir(root_dir):
             Path(root_dir).mkdir(parents=True, exist_ok=True)
 
-    def __call__(self, engine: Engine, label : str, img):
+    def __call__(self, label : str, img):
         file = os.path.join(self.root_dir, f'{label}.png')
         Image.fromarray(img).save(file)
