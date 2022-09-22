@@ -14,5 +14,5 @@ services:
               capabilities: [gpu]
               count: 1
     volumes:
-      - /data:/data:ro
+      - /data:/data
       - ~/.ssh/id_rsa:/root/.ssh/id_rsa

@@ -10,6 +10,7 @@
 from .file_repeater import *
 from .huang import *
 from .json import *
+from .mat import *
 from .repetitive import *
 from .unlabeled import *
 from .utils import generate_weighted_sampler

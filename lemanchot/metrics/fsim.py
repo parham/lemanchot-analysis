@@ -9,7 +9,6 @@
 
 import cv2
 import numpy as np
-
 import phasepack.phasecong as pc
 
 from lemanchot.metrics.core import Function_Metric, assert_image_shapes_equal, metric_register 
