@@ -20,6 +20,8 @@ from torch.utils.data import DataLoader
 
 from PIL import Image
 
+from lemanchot.pipeline.saver import ImageSaver
+
 sys.path.append(os.getcwd())
 sys.path.append(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -89,9 +91,11 @@ def main():
         batch_size=1, 
         shuffle=True
     )
+    # Create the image saver
+    logging.info('Creating and Initialize Image Saver ...')
+    img_saver = ImageSaver(args.out)
 
     logging.info('Dataset is created ...')
-
     for data in iter(data_loader):
         fpath = data[-1][0]
         fname = Path(fpath).stem
@@ -117,7 +121,8 @@ def main():
             experiment.log_image(output, name=fname, step=step)
             res = output
             step += 1
-        # Save the output image
+        # Logging the image
+        img_saver(engine, fname, )
         outfile = os.path.join(args.out, f'{fname}.png')
         logging.info(f'Saving the output image ... {outfile}')
         Image.fromarray(res).save(outfile)
