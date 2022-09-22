@@ -18,7 +18,11 @@ from ignite.engine import Engine
 __metric_handler = {}
 
 def metric_register(name : str):
-    """ register metrics to be used """
+    """Register metrics to be used
+
+    Args:
+        name (str): _description_
+    """
     def __embed_func(clss):
         global __metric_handler
         if not issubclass(clss, BaseMetric):
@@ -39,7 +43,7 @@ def list_metrics() -> List[str]:
     return list(__metric_handler.keys())
 
 class BaseMetric(object):
-    """ Base class for metrics """
+    """ Base class for the implementation of metrics """
     def __init__(self, config):
         # Initialize the configuration
         for key, value in config.items():
@@ -92,6 +96,18 @@ class BaseMetric(object):
         pass
 
 def load_metric(name, config) -> BaseMetric:
+    """Load the metric handler
+
+    Args:
+        name (str): the name of given metrics
+        config (DotMap): the configuration 
+
+    Raises:
+        ValueError: raise if the metric does not exist!
+
+    Returns:
+        BaseMetric: metric handler
+    """
     global __metric_handler
     if not name in list_metrics():
         msg = f'{name} metric is not supported!'
@@ -101,6 +117,15 @@ def load_metric(name, config) -> BaseMetric:
     return __metric_handler[name](config)
 
 def load_metrics(experiment_config : DotMap, categories):
+    """Load all metrics given in the configuration 
+
+    Args:
+        experiment_config (DotMap): the configuration
+        categories (_type_): the list of categories and their associated class ids
+
+    Returns:
+        List: list of metrics
+    """
     metrics_configs = experiment_config.metrics
 
     metrics_obj = []
