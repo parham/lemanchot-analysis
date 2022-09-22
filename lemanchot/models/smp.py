@@ -16,6 +16,7 @@ from lemanchot.models.core import BaseModule, model_register
 
 @model_register('unet_resnet18')
 class Unet_Resnet18(BaseModule):
+    """ Implementation of SMP UNET RESNET-18 """
     def __init__(self, name : str, config : DotMap) -> None:
         super().__init__(
             name='unet_resnet18',
@@ -35,6 +36,7 @@ class Unet_Resnet18(BaseModule):
 
 @model_register('unet_resnet50')
 class Unet_Resnet50(BaseModule):
+    """ Implementation of SMP UNET RESNET-50 """
     def __init__(self, name : str, config : DotMap) -> None:
         super().__init__(
             name='unet_resnet50',
@@ -54,6 +56,7 @@ class Unet_Resnet50(BaseModule):
 
 @model_register('unetplusplus_resnet18')
 class UnetPlusPlus_Resnet18(BaseModule):
+    """ Implementation of SMP UNET++ RESNET-18 """
     def __init__(self, name : str, config : DotMap) -> None:
         super().__init__(
             name='unetplusplus_resnet18',
