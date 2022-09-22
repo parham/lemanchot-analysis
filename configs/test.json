@@ -4,7 +4,8 @@
         "config" : {
             "channels" : 3,
             "num_classes" : 7,
-            "activation" : "sigmoid"
+            "activation" : "sigmoid",
+            "weights" : "imagenet"
         }
     },
     "metrics" : {

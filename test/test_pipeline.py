@@ -49,7 +49,7 @@ class TestDataset(unittest.TestCase):
     
     def test_pipeline(self):
 
-        profile_name = 'zephyrus_cracks'
+        profile_name = 'test-zephyrus'
 
         ######### Settings ##########
         profile = get_profile(profile_name)
@@ -59,14 +59,14 @@ class TestDataset(unittest.TestCase):
         ######### Transformation ##########
         # Initialize Transformation
         transform = Compose([
-            ImageResize(70),
+            ImageResize(100),
             ImageResizeByCoefficient(32),
             NumpyImageToTensor(),
             FilterOutAlphaChannel(),
             ToFloatTensor()
         ])
         target_transform = Compose([
-            ImageResize(70),
+            ImageResize(100),
             ImageResizeByCoefficient(32),
             NumpyImageToTensor(),
             FilterOutAlphaChannel(),
@@ -99,7 +99,7 @@ class TestDataset(unittest.TestCase):
 
         # Run the pipeline
         state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
-        print(state)
+        print(state)    
 
 if __name__ == '__main__':
     unittest.main()
