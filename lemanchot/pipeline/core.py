@@ -410,13 +410,11 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                 # Control number of logged images with enable_image_logging setting.
                 for i in range(min(profile.enable_image_logging, img.shape[0])):
                     sample = make_tensor_for_comet(img[i, :, :, :])
-                    experiment.log_image(sample,
-                        f"{key}-{engine.state.epoch}-{i}",
-                        step=engine.state.iteration,
-                    )
+                    label = f'{key}-{engine.state.epoch}-{i}'
+                    experiment.log_image(sample, label, step=engine.state.iteration)
                     if img_saver is not None and \
                        key == 'y_pred':
-                        img_saver(engine, key, sample)
+                        img_saver(engine, label, sample)
         return res
 
     # Initialize the pipeline function
