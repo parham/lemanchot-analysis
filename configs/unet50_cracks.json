@@ -3,7 +3,7 @@
     "name": "unet_resnet18",
     "config": {
       "channels": 1,
-      "num_classes": 1,
+      "num_classes": 2,
       "weights": null
     }
   },
@@ -11,8 +11,11 @@
     "smp": {
       "mode" : "multilabel",
       "threshold" : 0.5,
-      "num_classes" : 7,
+      "num_classes" : 2,
       "metrics": {
+        "cm": {
+          "dim": 1
+        },
         "f1" : {
          "reduction" : "macro",
          "class_weights" : null,
@@ -35,7 +38,7 @@
   "optimizer": {
     "name": "SGD",
     "config": {
-      "lr": 0.5,
+      "lr": 0.05,
       "momentum": 0.9,
       "weight_decay": 0.005
     }
@@ -43,15 +46,15 @@
   "scheduler" : {
     "name" : "CosineAnnealingLR",
     "config" : {
-      "start_value": 0.5,
+      "start_value": 0.05,
       "end_value": 0,
-      "cycle_size": 8,
+      "cycle_size": 200,
       "cycle_mult": 2,
       "mult": 0.5
     }
   },
   "pipeline": {
-    "simple_train": {
+    "simple_multilabel": {
       "max_epoch": 100,
       "batch_size": 8
     }

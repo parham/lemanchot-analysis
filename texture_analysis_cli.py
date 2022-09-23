@@ -12,7 +12,7 @@ import logging
 
 from torch.cuda import device_count
 from torch.utils.data import DataLoader
-from torchvision.transforms import Resize
+from torchvision.transforms import Resize, Compose, Grayscale
 from ignite.utils import setup_logger
 
 from lemanchot.core import get_profile, get_profile_names
@@ -21,6 +21,7 @@ from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
     BothCompose,
     BothToTensor,
+    TargetDilation,
     TrivialAugmentWide,
     InterpolationMode,
 )
@@ -45,8 +46,10 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation
-    input_transforms = Resize((512, 512))
-    target_transform = Resize((512, 512), InterpolationMode.NEAREST)
+    input_transforms = Compose([Grayscale(), Resize((512, 512))])
+    target_transform = Compose(
+        [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
+    )
     both_transforms = BothCompose(
         [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
     )
@@ -60,7 +63,7 @@ def main():
     dataset = SegmentationDataset(
         root=dataset_path,
         img_folder="img",
-        img_ext=".png",
+        img_ext=".jpg",
         gt_folder="gt",
         classes=categories,
         input_transforms=input_transforms,

@@ -7,7 +7,7 @@
 """
 
 import torch
-from torch import Tensor
+from torch import Tensor, logical_not
 import numpy as np
 from random import choices
 from typing import Any, List, Tuple, Optional
@@ -22,7 +22,7 @@ from torchvision.transforms.functional import (
     rotate,
     crop,
     get_dimensions,
-    to_tensor
+    to_tensor,
 )
 
 from lemanchot.core import get_device
@@ -62,12 +62,14 @@ class BothRandomCrop(torch.nn.Module):
         i, j, h, w = RandomCrop.get_params(img, self.size)
         return crop(img, i, j, h, w), crop(target, i, j, h, w)
 
+
 class BothToTensor(torch.nn.Module):
     def __init__(self):
         super().__init__()
 
     def forward(self, img, target):
         return to_tensor(img), target
+
 
 class BothCompose:
     def __init__(self, transforms):
@@ -76,7 +78,8 @@ class BothCompose:
     def __call__(self, image, target):
         for t in self.transforms:
             image, target = t(image, target)
-        return image, target 
+        return image, target
+
 
 class ImageResize(torch.nn.Module):
     def __init__(
@@ -163,19 +166,35 @@ class ToGrayscale(torch.nn.Module):
 
 
 class TargetDilation(torch.nn.Module):
-    def __init__(self, factor) -> None:
+    def __init__(self, factor, channel: int = 1) -> None:
         super().__init__()
         self.kernel = torch.ones(
             (1, 1, factor, factor), requires_grad=False, dtype=torch.uint8
         )
+        self.channel = channel
 
     def forward(self, img: Image):
-        return torch.clamp(
-            torch.nn.functional.conv2d(img, self.kernel.to(img.dtype), padding="same"),
-            0,
-            1,
-        )
-
+        if img.size(0) == 2:
+            img[1, ...] = torch.clamp(
+                torch.nn.functional.conv2d(
+                    img[1:, ...], self.kernel.to(img.dtype), padding="same"
+                ),
+                0,
+                1,
+            )
+            img[0, ...] = logical_not(img[1:, ...])
+            return img
+        elif img.size(0) == 1:
+            return torch.clamp(
+                torch.nn.functional.conv2d(
+                    img, self.kernel.to(img.dtype), padding="same"
+                ),
+                0,
+                1,
+            )
+        else:
+            raise NotImplementedError("Dilation not implemented for targets with more than 2 channels.")
+        
 
 class ClassMapToMDTarget(torch.nn.Module):
     def __init__(self, categories: List, background_classid: int = 0) -> None:
@@ -252,11 +271,18 @@ class TrivialAugmentWide(TAWide):
             magnitude *= -1.0
 
         img = _apply_op(
-                img, op_name, magnitude, interpolation=self.interpolation, fill=fill
-            )            
-        if op_name in {"ShearX", "ShearY", "TranslateX", "TranslateY", "Rotate", "Invert"}:
+            img, op_name, magnitude, interpolation=self.interpolation, fill=fill
+        )
+        if op_name in {
+            "ShearX",
+            "ShearY",
+            "TranslateX",
+            "TranslateY",
+            "Rotate",
+            "Invert",
+        }:
             target = _apply_op(
-                    target, op_name, magnitude, interpolation=self.interpolation, fill=fill
-                )
+                target, op_name, magnitude, interpolation=self.interpolation, fill=fill
+            )
 
         return img, target

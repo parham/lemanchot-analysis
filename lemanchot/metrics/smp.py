@@ -112,6 +112,10 @@ class SMP_Metrics(BaseMetric):
         super().__init__(config)
         self.metrics_stats = {}
 
+    def _prepare_cm(self, tp, fp, fn, tn, dim):
+        cm = torch.stack([tp.sum(0), fp.sum(0), fn.sum(0), tn.sum(0)])
+        return cm[:, dim].reshape(self.num_classes, self.num_classes)
+
     def update(self, batch, **kwargs):
         output, target = batch[-2], batch[-1]
         target = target.to(dtype=output.dtype)
@@ -130,6 +134,10 @@ class SMP_Metrics(BaseMetric):
             raise ValueError("No metris is defined!")
 
         self.metrics_stats = {}
+        if "cm" in self.metrics:
+            metrics = self.metrics["cm"]
+            cm = self._prepare_cm(tp, fp, fn, tn, dim=metrics["dim"])
+            self.metrics_stats["cm"] = cm
         if "fbeta" in self.metrics:
             metrics = self.metrics["fbeta"]
             fbeta = smp.metrics.fbeta_score(
@@ -407,4 +415,7 @@ class SMP_Metrics(BaseMetric):
     def compute(
         self, engine: Engine, experiment: Experiment, prefix: str = "", **kwargs
     ):
+        if "cm" in self.metrics_stats.keys():
+            experiment.log_confusion_matrix(matrix=self.metrics_stats.pop("cm").tolist())
+
         self.log_metrics(engine, experiment, self.metrics_stats, prefix=prefix)
