@@ -74,7 +74,7 @@ def main():
     # Create transformations
     logging.info('Creating and Applying transformations ...')
     transforms = Compose([
-        ImageResize(70),
+        # ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel(),
