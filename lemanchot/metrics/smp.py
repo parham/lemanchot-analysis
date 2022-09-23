@@ -14,6 +14,7 @@ from lemanchot.metrics.core import BaseMetric, metric_register
 class SMP_Metrics(BaseMetric):
     def __init__(self, config) -> None:
         """
+        The implementation of smp metrics
         {
               "mode" : "multiclass", # "binary", "multilabel"
               "ignore_index" : -1, # Default: None
@@ -117,6 +118,14 @@ class SMP_Metrics(BaseMetric):
         return cm[:, dim].reshape(self.num_classes, self.num_classes)
 
     def update(self, batch, **kwargs):
+        """Update the metric status based on new data
+
+        Args:
+            batch (List): the given batch
+
+        Raises:
+            ValueError: when no inner metrics are defined! 
+        """
         output, target = batch[-2], batch[-1]
         target = target.to(dtype=output.dtype)
         # Calculate the stats
@@ -155,6 +164,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["fbeta"] = fbeta
+        ############ F1 metric ############
         if "f1" in self.metrics:
             metrics = self.metrics["f1"]
             f1 = smp.metrics.f1_score(
@@ -171,6 +181,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["f1"] = f1
+        ############ IoU metric ############
         if "iou" in self.metrics:
             metrics = self.metrics["iou"]
             iou = smp.metrics.iou_score(
@@ -187,6 +198,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["iou"] = iou
+        ############ Accuracy metric ############
         if "accuracy" in self.metrics:
             metrics = self.metrics["accuracy"]
             accuracy = smp.metrics.accuracy(
@@ -203,6 +215,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["accuracy"] = accuracy
+        ############ Percision metric ############
         if "precision" in self.metrics:
             metrics = self.metrics["precision"]
             precision = smp.metrics.precision(
@@ -219,6 +232,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["precision"] = precision
+        ############ Recall metric ############
         if "recall" in self.metrics:
             metrics = self.metrics["recall"]
             recall = smp.metrics.recall(
@@ -235,6 +249,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["recall"] = recall
+        ############ Sensitivity metric ############
         if "sensitivity" in self.metrics:
             metrics = self.metrics["sensitivity"]
             sensitivity = smp.metrics.sensitivity(
@@ -251,6 +266,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["sensitivity"] = sensitivity
+        ############ Specificity metric ############
         if "specificity" in self.metrics:
             metrics = self.metrics["specificity"]
             specificity = smp.metrics.specificity(
@@ -267,6 +283,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["specificity"] = specificity
+        ############ Balanced Accuracy metric ############
         if "balanced_accuracy" in self.metrics:
             metrics = self.metrics["balanced_accuracy"]
             balanced_accuracy = smp.metrics.balanced_accuracy(
@@ -283,6 +300,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["balanced_accuracy"] = balanced_accuracy
+        ############ PPV metric ############
         if "ppv" in self.metrics:
             metrics = self.metrics["ppv"]
             ppv = smp.metrics.positive_predictive_value(
@@ -299,6 +317,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["ppv"] = ppv
+        ############ NPV metric ############
         if "npv" in self.metrics:
             metrics = self.metrics["npv"]
             npv = smp.metrics.negative_predictive_value(
@@ -315,6 +334,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["npv"] = npv
+        ############ FNR metric ############
         if "fnr" in self.metrics:
             metrics = self.metrics["fnr"]
             fnr = smp.metrics.false_negative_rate(
@@ -331,6 +351,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["fnr"] = fnr
+        ############ FPR metric ############
         if "fpr" in self.metrics:
             metrics = self.metrics["fpr"]
             fpr = smp.metrics.false_positive_rate(
@@ -347,6 +368,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["fpr"] = fpr
+        ############ FDR metric ############
         if "fdr" in self.metrics:
             metrics = self.metrics["fdr"]
             fdr = smp.metrics.false_discovery_rate(
@@ -363,6 +385,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["fdr"] = fdr
+        ############ FOR metric ############
         if "for" in self.metrics:
             metrics = self.metrics["for"]
             forv = smp.metrics.false_omission_rate(
@@ -379,6 +402,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["for"] = forv
+        ############ LR+ metric ############
         if "lr+" in self.metrics:
             metrics = self.metrics["lr+"]
             lrp = smp.metrics.positive_likelihood_ratio(
@@ -395,6 +419,7 @@ class SMP_Metrics(BaseMetric):
                 else 1.0,
             )
             self.metrics_stats["lr+"] = lrp
+        ############ LR- metric ############
         if "lr-" in self.metrics:
             metrics = self.metrics["lr-"]
             lrn = smp.metrics.negative_likelihood_ratio(

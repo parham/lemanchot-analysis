@@ -8,6 +8,7 @@
 """
 
 from .core import *
+from .bce_logits import *
 from .cross_entropy import *
 from .dice import *
 from .focal import *

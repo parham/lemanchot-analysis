@@ -11,20 +11,17 @@ import enum
 import warnings
 from enum import Enum
 from typing import (
-    Callable,
     Collection,
     Hashable,
     Iterable,
     List,
     Mapping,
-    Optional,
     Union,
     cast,
 )
 
 import torch
 import torch.nn as nn
-from torch.nn.modules.loss import _Loss
 
 from lemanchot.loss.core import BaseLoss, loss_register
 

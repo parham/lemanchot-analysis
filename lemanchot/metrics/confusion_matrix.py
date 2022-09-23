@@ -31,10 +31,10 @@ def measure_accuracy_cm__(
 
     Args:
         cmatrix (np.ndarray): confusion matrix
-        labels (List[str]): _description_
+        labels (List[str]): the list of labels
 
     Returns:
-        Dict: _description_
+        Dict: the calculated metrics (precision, recall, accuracy, fscore)
     """
     fp = cmatrix.sum(axis=0) - np.diag(cmatrix)
     fn = cmatrix.sum(axis=1) - np.diag(cmatrix)
@@ -62,6 +62,9 @@ def measure_accuracy_cm__(
 
 @metric_register('confusion_matrix')
 class ConfusionMatrix(BaseMetric):
+    """
+    ConfusionMatrix is a class for calculating confusion matrix
+    """
     def __init__(self, config) -> None:
         super().__init__(config)
         lbl = list(self.categories.values())
@@ -91,9 +94,8 @@ class ConfusionMatrix(BaseMetric):
         self.step_confusion_matrix = newc_step
 
     def update(self, data, **kwargs):
-        outputs = data[0]
-        targets = data[1]
-        num_samples = targets.shape[0]
+        """ Update the inner state of the confusion matrix with the new data """
+        num_samples = data[1].shape[0]
         for i in range(num_samples):
             tmp = self._prepare(i, data[0], data[1])
             self._update_imp(tmp, **kwargs)
@@ -128,7 +130,8 @@ class ConfusionMatrix(BaseMetric):
         experiment : Experiment,
         prefix : str = '',
         **kwargs
-    ):
+    ): 
+        """ Compute the confusion matrix and associated metrics """
         experiment.log_confusion_matrix(
             matrix=self.confusion_matrix,
             labels=self.class_labels,

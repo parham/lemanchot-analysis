@@ -14,6 +14,9 @@ from lemanchot.loss.core import BaseLoss, loss_register
 
 @loss_register('cross_entropy')
 class CrossEntropyLoss(BaseLoss):
+    """
+    The implementation of CrossEntropyLoss
+    """
     def __init__(self, name : str, config) -> None:
         super().__init__(name=name, config=config)
         self.criteria = nn.CrossEntropyLoss(**config).to(self.device)
@@ -28,7 +31,10 @@ class CrossEntropyLoss(BaseLoss):
 
 
 @loss_register('binary_cross_entropy')
-class BynaryCrossEntropyLoss(BaseLoss):
+class BinaryCrossEntropyLoss(BaseLoss):
+    """
+    The implementation of binary version of  CrossEntropyLoss
+    """
     def __init__(self, name : str, config) -> None:
         super().__init__(name=name, config=config)
         self.criteria = nn.BCEWithLogitsLoss(**config).to(self.device)
