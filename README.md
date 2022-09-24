@@ -16,23 +16,21 @@
 
 ## Experiments
 
-### Case Study 1 : ULAVAL Road Inspection:
+### Case Study 1 : ULAVAL Handheld 
 
-- We are going to use coupled thermal and visible images for inspection of pavement roads.
-- Since the drone's altitude is static for each data session, we will use the GCP placed at begining of each session to determine the parameters for modality registration.
+In this case study, the objective is to use thermal images to enhance the detection in visible images. The resulted fused images are then used to detect cracks. During the discussion section, we are going to compare the result of crack detection in: (1) the normal images, (2) the fusion images, (3) comapre the results in worst case scenarios (shadows and low illuminatio and low contrast).
 
-**OBJECTIVES**: We will use the visible image to segment vegetation and pavement in visible images, then use these blobs to segment thermal images.
+### Case Study 1 : Piping inspection:
 
-### Case Study 2 : Piping Inspection
+In this case study, firstly, we are going to use manual registration to align thermal and visible images, then the the region of interest is extracted. Later, the textures of thermal and visible images are analyzed to classify the abnormalities.
 
-- We are going to use coupled thermal and visible images for piping inspection.
-**OBJECTIVE**: (a) Fusion of thermal and visible images, (b) Distinguish normal and abnormal defects for industrial inspection.
+### Case Study 3 : ULAVAL Road
 
-### Case Study 3 : Bridge Inspection
+The thermal and visible images collected from a road inspection were analyzed. then the visible images are used to segment pavement areas. Later, the region of interest will be extracted in thermal images.
 
-- We are going to use coupled thermal and visible images for bridge inspection.
-**OBJECTIVE**: (a) Registration of thermal and visible images, (b) Extract concrete areas from thermal images using segmentation of visible images.
+### Case Study 4 : Building Inspection
 
+Using visible images to extract the region of interest in building inspection.
 
 # LeManchot-VT-Smart
 
