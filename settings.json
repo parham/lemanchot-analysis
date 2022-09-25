@@ -143,6 +143,7 @@
       "experiment_config_name": "unet50_texture",
       "dataset_name": "lemanchot-analysis",
       "dataset_path": "/data/lemanchot-analysis/952/labeled",
+      "weight_dataset": true,
       "categories": {
         "background" :0,
         "metal": 1,
