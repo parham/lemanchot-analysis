@@ -127,6 +127,28 @@
         "crack": 1
       }
     },
+    "zephyrus_cracks_test": {
+      "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
+      "project_name": "texture-analysis",
+      "workspace": "parham",
+      "log_git_metadata": true,
+      "log_env_gpu": true,
+      "log_env_cpu": true,
+      "log_env_host": true,
+      "enable_logging": true,
+      "enable_image_logging": 1,
+      "pipeline": "simple_multilabel",
+      "checkpoint_save": false,
+      "checkpoint_load": true,
+      "checkpoint_file": "/lemanchot-analysis/checkpoints/simple_multilabel-unet_resnet18-782542fc_crack_model.pt",
+      "experiment_config_name": "unet50_cracks",
+      "dataset_name": "lemanchot-cracks-test",
+      "dataset_path": "/data/lemanchot-cracks/test/UL-Road-HandHeld/",
+      "categories": {
+        "background": 0,
+        "crack": 1
+      }
+    },
     "zephyrus_texture": {
       "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
       "project_name": "texture-analysis",

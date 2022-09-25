@@ -4,7 +4,7 @@
     "config": {
       "channels": 1,
       "num_classes": 2,
-      "weights": null
+      "weights": "imagenet"
     }
   },
   "metrics": {
@@ -36,17 +36,16 @@
     }
   },
   "optimizer": {
-    "name": "SGD",
+    "name": "Adam",
     "config": {
-      "lr": 0.05,
-      "momentum": 0.9,
+      "lr": 0.001,
       "weight_decay": 0.005
     }
   },
   "scheduler" : {
     "name" : "CosineAnnealingLR",
     "config" : {
-      "start_value": 0.05,
+      "start_value": 0.001,
       "end_value": 0,
       "cycle_size": 200,
       "cycle_mult": 2,

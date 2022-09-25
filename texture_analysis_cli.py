@@ -33,6 +33,13 @@ parser.add_argument(
     choices=get_profile_names(),
     help="Select the name of profiles.",
 )
+parser.add_argument(
+    "--test",
+    required=False,
+    default=False,
+    type=bool,
+    help="Use for the testing dataset.",
+)
 
 
 def main():
@@ -45,14 +52,19 @@ def main():
     dataset_path = profile.dataset_path
     categories = profile.categories
     ######### Transformation ##########
-    # Initialize Transformation
-    input_transforms = Compose([Grayscale(), Resize((512, 512))])
-    target_transform = Compose(
-        [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
-    )
-    both_transforms = BothCompose(
-        [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
-    )
+    # Initialize Transformation for training
+    if not args.test:
+        input_transforms = Compose([Grayscale(), Resize((512, 512))])
+        target_transform = Compose(
+            [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
+        )
+        both_transforms = BothCompose(
+            [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
+        )
+    else:
+        input_transforms = Compose([Grayscale(), Resize((512, 512))])
+        target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
+        both_transforms = BothCompose([BothToTensor()])
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, database_name=dataset_name
@@ -70,7 +82,7 @@ def main():
         target_transforms=target_transform,
         both_transforms=both_transforms,
     )
-    if profile.weight_dataset:
+    if profile.weight_dataset and not args.test:
         # This function is very long.
         sampler = generate_weighted_sampler(dataset.gt_dataset)
     else:
@@ -84,16 +96,16 @@ def main():
     )
 
     # Run the pipeline
-    state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
+    state = engine.run(data_loader, max_epochs=engine.state.max_epoch if not args.testing else 1)
     print(state)
 
     return 0
 
 
 if __name__ == "__main__":
-    print("The experiment is started ...")
+    print("The experiment started ...")
     try:
         sys.exit(main())
     except Exception as ex:
         logging.exception(ex)
-    print("The experiment is finished ...")
+    print("The experiment finished ...")
