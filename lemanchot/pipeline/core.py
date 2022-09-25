@@ -494,7 +494,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         if os.path.isfile(checkpoint_file):
             logging.info(f"Loading checkpoint {checkpoint_file}")
             checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
-            run_record['model'].load_state_dict = checkpoint_obj['model'] 
+            run_record['model'].load_state_dict(checkpoint_obj['model'])
             # FIXME: This is loading all the engine state also, overwriting
             # all the config laoded above.
             # ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj['model'])
