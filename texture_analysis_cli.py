@@ -96,7 +96,7 @@ def main():
     )
 
     # Run the pipeline
-    state = engine.run(data_loader, max_epochs=engine.state.max_epoch if not args.test else 1)
+    state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
     print(state)
 
     return 0

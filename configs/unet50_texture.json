@@ -54,6 +54,10 @@
     "simple_multilabel": {
       "max_epoch": 100,
       "batch_size": 8
+    },
+    "simple_multilabel_test": {
+      "max_epoch": 1,
+      "batch_size": 16
     }
   }
 }

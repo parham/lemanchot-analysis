@@ -490,7 +490,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
         checkpoint_file = os.path.join(
-            checkpoint_dir, f"{load_settings().checkpoint_file}"
+            checkpoint_dir, f"{get_profile(profile_name).checkpoint_file}"
         )
         if os.path.isfile(checkpoint_file):
             logging.info(f"Loading checkpoint {checkpoint_file}")
