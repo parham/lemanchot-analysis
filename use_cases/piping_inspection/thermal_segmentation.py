@@ -20,6 +20,7 @@ from torch.utils.data import DataLoader
 
 from PIL import Image
 
+
 sys.path.append(os.getcwd())
 sys.path.append(__file__)
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -28,6 +29,7 @@ from lemanchot.core import get_config, get_device, get_experiment, get_profile, 
 from lemanchot.loss.core import load_loss
 from lemanchot.models.core import load_model
 from lemanchot.pipeline.core import load_optimizer
+from lemanchot.pipeline.saver import ImageSaver
 from lemanchot.dataset.mat import MATLABDataset
 from lemanchot.methods import iterative_region_segmentation
 from lemanchot.transform import (
@@ -72,7 +74,7 @@ def main():
     # Create transformations
     logging.info('Creating and Applying transformations ...')
     transforms = Compose([
-        ImageResize(70),
+        # ImageResize(70),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel(),
@@ -89,9 +91,11 @@ def main():
         batch_size=1, 
         shuffle=True
     )
+    # Create the image saver
+    logging.info('Creating and Initialize Image Saver ...')
+    img_saver = ImageSaver(args.out)
 
     logging.info('Dataset is created ...')
-
     for data in iter(data_loader):
         fpath = data[-1][0]
         fname = Path(fpath).stem
@@ -117,10 +121,11 @@ def main():
             experiment.log_image(output, name=fname, step=step)
             res = output
             step += 1
-        # Save the output image
-        outfile = os.path.join(args.out, f'{fname}.png')
-        logging.info(f'Saving the output image ... {outfile}')
-        Image.fromarray(res).save(outfile)
+        # Logging the image
+        img_saver(fname, res)
+        logging.info(f'Saving the output image ... {fname}')
+        # outfile = os.path.join(args.out, f'{fname}.png')
+        # Image.fromarray(res).save(outfile)
 
 if __name__ == "__main__":
     try:

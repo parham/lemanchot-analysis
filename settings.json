@@ -1,8 +1,8 @@
 {
-    "device" : "cpu",
+    "device" : "cuda",
     "checkpoint_dir" : "./checkpoints",
     "profiles" : {
-        "iterative-thermal-segmentation" : {
+        "iterative-thermal-segmentation-piping" : {
             "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
             "project_name" : "texture-analysis",
             "workspace" : "parham",
@@ -10,8 +10,11 @@
             "log_env_gpu" : true,
             "log_env_cpu" : true,
             "log_env_host" : true,
-            "enable_logging" : true,
-            "enable_image_logging" : true,
+            "enable_logging": true,
+            "enable_image_logging": 3,
+            "image_saving" : {
+              "root_dir" : "/home/phm/Dataset/texture-analysis/piping_inspection/segs"
+            },
             "pipeline" : "wonjik2020",
             "checkpoint_save" : false,
             "checkpoint_load" : false,

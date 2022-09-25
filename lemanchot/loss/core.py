@@ -15,12 +15,11 @@ from typing import List, Union
 
 from lemanchot.core import BaseCore
 
-def classmap_2_multilayer(data, number_classes):
+def classmap_2_multilayer(data, number_classes : int):
     """This method assumes that data is NxHxW
-
     Args:
-        data (_type_): _description_
-        number_classes (_type_): _description_
+        data (torch.Tensor): The given data
+        number_classes (int): The number of classes
     """
     sz = data.shape
     ml_data = torch.zeros((sz[0], number_classes, sz[1], sz[2]))
@@ -33,7 +32,15 @@ def classmap_2_multilayer(data, number_classes):
     return ml_data
 
 class BaseLoss(BaseCore):
+    """
+    BaseLoss is the base class for all the implementations of loss function
+    """
     def __init__(self, name : str, config) -> None:
+        """
+        Args:
+            name (str): the name of loss function
+            config (DotMap): the configuration for initialization 
+        """
         super().__init__(
             name=name,
             config=config
@@ -73,6 +80,18 @@ def list_losses() -> List[str]:
     return list(__loss_handler.keys())
 
 def load_loss_inline__(name : str, config):
+    """Load the loss as an inline object
+
+    Args:
+        name (str): The name of the loss function
+        config (DotMap): the configuration
+
+    Raises:
+        ValueError: raise if the name of loss functio does not exist
+
+    Returns:
+        _type_: _description_
+    """
     global __loss_handler
     if not name in list_losses():
         msg = f'{name} model is not supported!'
@@ -100,7 +119,6 @@ def load_loss(experiment_config : DotMap):
     global __loss_handler
     if not 'loss' in experiment_config:
         return None
-
     # Get loss name
     loss_name = experiment_config.loss.name
     # Get the loss configuration

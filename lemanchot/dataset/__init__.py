@@ -10,5 +10,6 @@
 from .file_repeater import *
 from .huang import *
 from .json import *
+from .mat import *
 from .repetitive import *
 from .unlabeled import *

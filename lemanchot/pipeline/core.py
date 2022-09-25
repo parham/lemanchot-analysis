@@ -7,6 +7,7 @@
 """
 
 import os
+from pathlib import Path
 import time
 import logging
 import functools
@@ -16,7 +17,7 @@ import numpy as np
 
 from dotmap import DotMap
 from comet_ml import Experiment
-from typing import Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
 import torch.optim as optim
@@ -39,9 +40,13 @@ from lemanchot.core import (
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
+from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 
 
-def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
+def load_optimizer(
+    model: BaseModule, 
+    experiment_config: DotMap
+) -> optim.Optimizer:
     """Load the optimizer based on given configuration
 
     Args:
@@ -65,14 +70,27 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
     )
 
     return {
-        "SGD": lambda ps, config: optim.SGD(ps, **config),
-        "Adam": lambda ps, config: optim.Adam(ps, **config),
+        'SGD' : lambda ps, config: optim.SGD(ps, **config),
+        'Adam' : lambda ps, config: optim.Adam(ps, **config),
+        'Adadelta' : lambda ps, config: optim.Adadelta(ps, **config),
+        'AdamW' : lambda ps, config: optim.AdamW(ps, **config),
+        'Adamax' : lambda ps, config: optim.Adamax(ps, **config),
+        'RMSprop' : lambda ps, config: optim.RMSprop(ps, **config),
     }[optim_name](params, optim_config)
 
 
 def load_scheduler(
-    engine: Engine, optimizer: optim.Optimizer, experiment_config: DotMap
+    engine: Engine, 
+    optimizer: optim.Optimizer, 
+    experiment_config: DotMap
 ):
+    """Load Optimizer Scheduler based on the given configuration
+
+    Args:
+        engine (Engine): the engine handler
+        optimizer (optim.Optimizer): the optimizer handler
+        experiment_config (DotMap): the given configuration
+    """
     if optimizer is None or not "scheduler" in experiment_config:
         return None
 
@@ -207,7 +225,8 @@ def load_scheduler(
         #         "gamma" : 0.98
         #     }
         # }
-        exp_lr = ExponentialLR(optimizer=optimizer, gamma=scheduler_config["gamma"])
+        exp_lr = ExponentialLR(optimizer=optimizer,
+                               gamma=scheduler_config["gamma"])
 
         scheduler = LRScheduler(exp_lr)
         period = (
@@ -290,6 +309,15 @@ def load_pipeline(pipeline_name: str) -> Callable:
 
 @exception_logger
 def load_segmentation(profile_name: str, database_name: str) -> Dict:
+    """ Initialize and instantiate the pipeline
+
+    Args:
+        profile_name (str): the name of the selected profile
+        database_name (str): the name of the database
+
+    Returns:
+        Dict: the dictionary containing the engine, model, scheduler, and other components.
+    """
     # Load experiment configuration
     experiment_name = get_profile(profile_name).experiment_config_name
     experiment_config = get_config(experiment_name)
@@ -307,7 +335,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     optimizer = load_optimizer(model, experiment_config)
     ############ Comet.ml Experiment ##############
     # Create the experiment instance
-    experiment = get_experiment(profile_name=profile_name, dataset=database_name)
+    experiment = get_experiment(
+        profile_name=profile_name, dataset=database_name)
     # Logging the model
     experiment.set_model_graph(str(model), overwrite=True)
     # Load profile
@@ -321,6 +350,11 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     ############ Metrics ##############
     # Create metric instances
     metrics = load_metrics(experiment_config, profile.categories)
+    # Create the image logger
+    img_saver = None
+    if 'image_saving' in profile:
+        image_saving = profile.image_saving
+        img_saver = ImageSaver(**image_saving)
 
     def __run_pipeline(
         engine: Engine,
@@ -375,12 +409,12 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                     continue
                 # Control number of logged images with enable_image_logging setting.
                 for i in range(min(profile.enable_image_logging, img.shape[0])):
-                    sample = img[i, :, :, :]
-                    experiment.log_image(
-                        make_tensor_for_comet(sample),
-                        f"{key}-{i}",
-                        step=engine.state.iteration,
-                    )
+                    sample = make_tensor_for_comet(img[i, :, :, :])
+                    label = f'{key}-{engine.state.epoch}-{i}'
+                    experiment.log_image(sample, label, step=engine.state.iteration)
+                    if img_saver is not None and \
+                       key == 'y_pred':
+                        img_saver(engine, label, sample)
         return res
 
     # Initialize the pipeline function
@@ -416,9 +450,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "optimizer": optimizer,
         "loss": loss,
     }
-    enable_checkpoint_save = (
-        profile.checkpoint_save if "checkpoint_save" in profile else False
-    )
+    enable_checkpoint_save = profile.checkpoint_save if 'checkpoint_save' in profile else False
+    enable_checkpoint_log = profile.checkpoint_log_cometml if 'checkpoint_log_cometml' in profile else False
     checkpoint_file = f"{pipeline_name}-{model.name}-{str(uuid4())[0:8]}.pt"
     if enable_checkpoint_save:
         experiment.log_parameter(name="checkpoint_file", value=checkpoint_file)
@@ -434,6 +467,10 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             global_step_transform=global_step_from_engine(engine),
         )
         engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
+        # Logging Model
+        if enable_checkpoint_log:
+            checkpoint_logger = ModelLogger_CometML(pipeline_name, model.name, experiment, checkpoint_saver)
+            engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_logger, run_record)
 
     # Load Checkpoint
     enable_checkpoint_load = (
@@ -445,8 +482,10 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             checkpoint_dir, f"{load_settings().checkpoint_file}"
         )
         if os.path.isfile(checkpoint_file):
-            checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
-            ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj)
+            checkpoint_obj = torch.load(
+                checkpoint_file, map_location=get_device())
+            ModelCheckpoint.load_objects(
+                to_load=run_record, checkpoint=checkpoint_obj)
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_training(engine):
@@ -454,7 +493,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         epoch = engine.state.epoch
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
-        step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
+        step_time = engine.state.step_time if \
+            hasattr(engine.state, "step_time") else 0
         print(
             f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']:.4f}, lr: {lr:.4f}"
         )

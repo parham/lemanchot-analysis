@@ -1,8 +1,16 @@
+
+"""
+    @project LeManchot-Analysis : Core components
+    @organization Laval University
+    @lab MiViM Lab
+    @supervisor Professor Xavier Maldague
+    @industrial-partner TORNGATS
+"""
+
 from enum import Enum
 from typing import List, Optional, Union
 from itertools import cycle
 import torch
-
 
 class COLORS(Enum):
     """
