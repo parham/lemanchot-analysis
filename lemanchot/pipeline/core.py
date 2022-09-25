@@ -482,27 +482,23 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             engine.add_event_handler(
                 Events.EPOCH_COMPLETED, checkpoint_logger, run_record
             )
+
     # Load Checkpoint
     enable_checkpoint_load = (
         profile.checkpoint_load if "checkpoint_load" in profile else False
     )
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
-        checkpoint_file = os.path.join(
-            checkpoint_dir, f"{get_profile(profile_name).checkpoint_file}"
-        )
+        checkpoint_file = os.path.join(checkpoint_dir, f"{profile.checkpoint_file}")
         if os.path.isfile(checkpoint_file):
-            logging.info(f"Loading checkpoint {checkpoint_file}")
             checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
-            run_record['model'].load_state_dict(checkpoint_obj['model'])
-            # FIXME: This is loading all the engine state also, overwriting
-            # all the config laoded above.
-            # ModelCheckpoint.load_objects(to_load=run_record, checkpoint=checkpoint_obj['model'])
-        else:
-            logging.warning(
-                f"Checkpoint {checkpoint_file} not found. Continue without loading..."
-            )
-    # Save Checkpoint
+            if profile.load_weights_only:
+                run_record["model"].load_state_dict(checkpoint_file)
+            else:
+                ModelCheckpoint.load_objects(
+                    to_load=run_record, checkpoint=checkpoint_obj
+                )
+
     @engine.on(Events.ITERATION_COMPLETED(every=1))
     def __log_training(engine):
         lr = engine.state.metrics["lr"] if "lr" in engine.state.metrics else 0
