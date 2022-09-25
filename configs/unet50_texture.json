@@ -57,7 +57,7 @@
     },
     "simple_multilabel_test": {
       "max_epoch": 1,
-      "batch_size": 16
+      "batch_size": 8
     }
   }
 }
