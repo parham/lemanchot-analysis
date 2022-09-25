@@ -75,7 +75,7 @@ def main():
     dataset = SegmentationDataset(
         root=dataset_path,
         img_folder="img",
-        img_ext=".jpg",
+        img_ext=".png",
         gt_folder="gt",
         classes=categories,
         input_transforms=input_transforms,
@@ -96,7 +96,7 @@ def main():
     )
 
     # Run the pipeline
-    state = engine.run(data_loader, max_epochs=engine.state.max_epoch if not args.testing else 1)
+    state = engine.run(data_loader, max_epochs=engine.state.max_epoch if not args.test else 1)
     print(state)
 
     return 0
