@@ -32,7 +32,7 @@ The thermal and visible images collected from a road inspection were analyzed. t
 
 Using visible images to extract the region of interest in building inspection.
 
-# LeManchot-VT-Smart
+# LeManchot-Analysis
 
 <!-- ![Diagram Image Link](./design/method.puml) -->
 
