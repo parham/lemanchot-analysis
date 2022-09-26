@@ -28,7 +28,7 @@ def simple_predict_step__(engine: Engine, batch, model: BaseModule, **kwargs) ->
     return {"y_pred": outputs}
 
 
-@pipeline_register("simple_pavement_predict")
+@pipeline_register("simple_multilabel_predict")
 @torch.no_grad()
 def simple_multilabel_step__(
     engine: Engine, batch, model: BaseModule, **kwargs

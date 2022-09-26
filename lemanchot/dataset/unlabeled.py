@@ -116,4 +116,4 @@ class ImageDataset(VisionDataset):
         if self.transforms is not None:
             img = self.transforms(img)
 
-        return path, img
+        return img

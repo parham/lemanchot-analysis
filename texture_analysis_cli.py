@@ -12,11 +12,11 @@ import logging
 
 from torch.cuda import device_count
 from torch.utils.data import DataLoader
-from torchvision.transforms import Resize, Compose, Grayscale
+from torchvision.transforms import Resize, Compose, Grayscale, ToTensor
 from ignite.utils import setup_logger
 
 from lemanchot.core import get_profile, get_profile_names
-from lemanchot.dataset import SegmentationDataset, generate_weighted_sampler
+from lemanchot.dataset import SegmentationDataset, generate_weighted_sampler, ImageDataset
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
     BothCompose,
@@ -72,15 +72,20 @@ def main():
     engine = run_record["engine"]
     engine.logger = setup_logger("trainer")
     ######### Dataset & Dataloader ##########
-    dataset = SegmentationDataset(
+    # dataset = SegmentationDataset(
+    #     root=dataset_path,
+    #     img_folder="img",
+    #     img_ext=".jpg",
+    #     gt_folder="gt",
+    #     classes=categories,
+    #     input_transforms=input_transforms,
+    #     target_transforms=target_transform,
+    #     both_transforms=both_transforms,
+    # )
+    dataset = ImageDataset(
         root=dataset_path,
-        img_folder="img",
-        img_ext=".jpg",
-        gt_folder="gt",
-        classes=categories,
-        input_transforms=input_transforms,
-        target_transforms=target_transform,
-        both_transforms=both_transforms,
+        folder_name="910",
+        transforms=ToTensor()
     )
     if profile.weight_dataset and not args.test:
         # This function is very long.

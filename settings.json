@@ -184,7 +184,7 @@
         "plastic": 6
       }
     },
-    "zephyrus_texture-test": {
+    "zephyrus_texture_test": {
       "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
       "project_name": "texture-analysis",
       "workspace": "parham",
@@ -193,16 +193,19 @@
       "log_env_cpu": true,
       "log_env_host": true,
       "enable_logging": true,
-      "enable_image_logging": 1,
-      "pipeline": "simple_multilabel_test",
+      "enable_image_logging": 999,
+      "pipeline": "simple_multilabel_predict",
       "checkpoint_save": false,
       "checkpoint_load": true,
       "checkpoint_file": "simple_multilabel-unet_resnet18-c4ddbd00_texture_model.pt",
       "load_weights_only": true,
-      "experiment_config_name": "unet50_texture",
+      "experiment_config_name": "unet50_texture_predict",
       "dataset_name": "lemanchot-analysis-test",
-      "dataset_path": "/data/lemanchot-analysis/910",
+      "dataset_path": "/data/lemanchot-analysis/",
       "weight_dataset": false,
+      "image_saving": {
+        "root_dir" : "/data/lemanchot-analysis/910/resutls"
+      },
       "categories": {
         "background" :0,
         "metal": 1,

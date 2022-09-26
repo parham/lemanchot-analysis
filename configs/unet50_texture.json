@@ -1,6 +1,6 @@
 {
   "model": {
-    "name": "unet_resnet50",
+    "name": "unet_resnet18",
     "config": {
       "channels": 3,
       "num_classes": 7,
@@ -56,6 +56,10 @@
       "batch_size": 8
     },
     "simple_multilabel_test": {
+      "max_epoch": 1,
+      "batch_size": 8
+    },    
+    "simple_multilabel_predict": {
       "max_epoch": 1,
       "batch_size": 8
     }

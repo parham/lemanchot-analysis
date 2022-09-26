@@ -151,8 +151,8 @@ class SegmentationDataset(VisionDataset):
 
     def __getitem__(self, index: int):
 
-        path, sample = self.samples_dataset[index]
-        _, target = self.gt_dataset[index]
+        *_, sample = self.samples_dataset[index]
+        *_, target = self.gt_dataset[index]
 
         if self.both_transforms is not None:
             sample, target = self.both_transforms(sample, target)
