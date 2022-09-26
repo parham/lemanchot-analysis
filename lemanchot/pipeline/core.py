@@ -493,7 +493,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         if os.path.isfile(checkpoint_file):
             checkpoint_obj = torch.load(checkpoint_file, map_location=get_device())
             if profile.load_weights_only:
-                run_record["model"].load_state_dict(checkpoint_file)
+                run_record["model"].load_state_dict(checkpoint_file["model"])
             else:
                 ModelCheckpoint.load_objects(
                     to_load=run_record, checkpoint=checkpoint_obj
