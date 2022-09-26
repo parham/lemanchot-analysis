@@ -1,0 +1,32 @@
+
+@startuml thermal-segmentation
+
+!theme vibrant
+
+' title 
+' <i>LeManchot-Analysis</i>
+' Fusion of Thermal and Visible Images
+' to Enhance the Inspection of Pavements
+' end title
+
+' group Pre-Aligned Coupled Multimodal Data
+
+start
+
+partition Multimodal-Fusion {
+    split
+        :Thermal Image;
+        :Preprocess Thermal Image;
+    split again
+        :Visible Image;
+        :Preprocess Visible Image;
+    end split
+
+    :Fusion of Thermal and Visible Images;
+}
+
+:Automated Crack Detection;
+
+stop
+
+@enduml

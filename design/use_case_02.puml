@@ -1,0 +1,44 @@
+
+@startuml thermal-segmentation
+
+!theme vibrant
+
+' title 
+' <i>LeManchot-Analysis</i>
+' Fusion of Thermal and Visible Images
+' to Enhance the Inspection of Pavements
+' end title
+
+' group Pre-Aligned Coupled Multimodal Data
+
+start
+
+partition Image-Registration {
+    split
+        ->  thermal modality;
+        :Preprocess Thermal Image;
+    split again
+        ->  visible modality;
+        :Preprocess Visible Image;
+    end split
+
+    :Manual registration of both modalities;
+    :Extract the region of interest;
+}
+
+partition Multimodal-Segmentation {
+fork
+    -> thermal modality;
+    :Unsupervised Thermal\nImage Segmentation;
+fork again
+    -> visible modality;
+    :Texture-based Segmentation;
+end fork
+}
+
+:Compare extracted regions;
+:Classify regions into subsurface and surface regions;
+
+stop
+
+@enduml
