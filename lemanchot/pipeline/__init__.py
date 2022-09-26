@@ -10,4 +10,3 @@
 from .core import *
 from .saver import *
 from .simple_train import *
-from .simple_test import *

@@ -6,11 +6,9 @@
     @industrial-partner TORNGATS
 """
 
-from comet_ml import Experiment
 from typing import Dict
 
 import torch
-import torch.optim as optim
 from ignite.engine import Engine
 
 from lemanchot.pipeline.core import pipeline_register
@@ -19,7 +17,7 @@ from lemanchot.models import BaseModule
 
 @pipeline_register("simple_test")
 @torch.no_grad()
-def simple_train_step__(
+def simple_test_step__(
     engine: Engine,
     batch,
     model: BaseModule,
