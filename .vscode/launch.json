@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Fusion of Thermal and Visible Images",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "LEMANCHOT_VT_SETTING_PATH": "settings.json",
+                "LEMANCHOT_VT_CONFIG_DIR" : "configs"
+            },
+            "args" : [
+                "/data/lemanchot-analysis/UL-Road-HandHeld",
+                "--output", "/data/lemanchot-analysis/UL-Road-HandHeld/fused_dp",
+            ]
+        },
+        {
             "name": "Python: Thermal Region Segmentation",
             "type": "python",
             "request": "launch",

@@ -15,6 +15,7 @@ torch
 torchvision
 comet_ml
 pytorch-ignite
+sporco
 
 # Must be installed separetely.
 # or with `cat requirements.txt | xargs -n 1 -L 1 pip install`
