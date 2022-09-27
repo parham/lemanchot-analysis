@@ -47,9 +47,8 @@ class ModelLogger_CometML:
             overwrite=True
         )
 
-
 class ImageSaver:
-    def __init__(self, root_dir) -> None:
+    def __init__(self, root_dir : str) -> None:
         self.root_dir = root_dir
         if not os.path.isdir(root_dir):
             Path(root_dir).mkdir(parents=True, exist_ok=True)

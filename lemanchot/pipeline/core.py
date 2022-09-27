@@ -32,6 +32,7 @@ from ignite.handlers.param_scheduler import (
 )
 
 from lemanchot.core import (
+    get_or_default,
     exception_logger,
     get_config,
     get_device,
@@ -41,11 +42,11 @@ from lemanchot.core import (
     make_tensor_for_comet,
 )
 from lemanchot.loss import load_loss
-from lemanchot.metrics import BaseMetric, load_metrics
+from lemanchot.metrics import load_metrics
 from lemanchot.models import BaseModule, load_model
 from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 from lemanchot.visualization import COLORS
-
+from lemanchot.pipeline.wrapper import load_wrapper
 
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
     """Load the optimizer based on given configuration
@@ -78,7 +79,6 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
         "Adamax": lambda ps, config: optim.Adamax(ps, **config),
         "RMSprop": lambda ps, config: optim.RMSprop(ps, **config),
     }[optim_name](params, optim_config)
-
 
 def load_scheduler(
     engine: Engine, optimizer: optim.Optimizer, experiment_config: DotMap
@@ -255,7 +255,6 @@ def load_scheduler(
 
 __pipeline_handler = {}
 
-
 def pipeline_register(name: Union[str, List[str]]):
     """Register a pipeline into the pipeline repository
 
@@ -271,7 +270,6 @@ def pipeline_register(name: Union[str, List[str]]):
 
     return __embed_func
 
-
 def list_pipelines() -> List[str]:
     """List of registered pipeline
 
@@ -280,7 +278,6 @@ def list_pipelines() -> List[str]:
     """
     global __pipeline_handler
     return list(__pipeline_handler.keys())
-
 
 @exception_logger
 def load_pipeline(pipeline_name: str) -> Callable:
@@ -303,7 +300,6 @@ def load_pipeline(pipeline_name: str) -> Callable:
         raise ValueError(msg)
 
     return __pipeline_handler[pipeline_name]
-
 
 @exception_logger
 def load_segmentation(profile_name: str, database_name: str) -> Dict:
@@ -353,77 +349,19 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         image_saving = profile.image_saving
         img_saver = ImageSaver(**image_saving)
 
-    def __run_pipeline(
-        engine: Engine,
-        batch,
-        step_func: Callable,
-        device,
-        model: BaseModule,
-        loss,
-        optimizer: optim.Optimizer,
-        metrics: List[BaseMetric],
-        experiment: Experiment,
-    ) -> Dict:
-        profile = get_profile(engine.state.profile_name)
-
-        data = list(map(lambda x: x.to(device=get_device()), batch[0:2]))
-        # Logging computation time
-        t = time.time()
-        # Apply the model to data
-        res = step_func(
-            engine=engine,
-            batch=data,
-            device=device,
-            model=model,
-            criterion=loss,
-            optimizer=optimizer,
-            experiment=experiment,
-        )
-        step_time = time.time() - t
-
-        # Logging loss & step time
-        if "loss" in res:
-            engine.state.metrics["loss"] = res["loss"]
-        engine.state.metrics["step_time"] = step_time
-
-        targets = res["y_true"]
-        outputs = res["y_pred"] if not "y_processed" in res else res["y_processed"]
-
-        # Calculate metrics
-        for m in metrics:
-            m.update((outputs, targets))
-            m.compute(engine, experiment)
-
-        if profile.enable_logging:
-            # Calculate metrics
-            if "metrics" in res:
-                engine.state.metrics.update(res["metrics"])
-
-            # Assume Tensor B x C x W x H
-            # Logging imagery results
-            for key, img in res.items():
-                if not "y_" in key:
-                    continue
-                # Control number of logged images with enable_image_logging setting.
-                for i in range(min(profile.enable_image_logging, img.shape[0])):
-                    sample = make_tensor_for_comet(img[i, :, :, :])
-                    label = f"{key}-{engine.state.epoch}-{i}"
-                    experiment.log_image(sample, label, step=engine.state.iteration)
-                    if img_saver is not None and key == "y_pred":
-                        img_saver(engine, label, sample)
-        return res
-
-    # Initialize the pipeline function
-    seg_func = functools.partial(
-        __run_pipeline,
+    wrapper_name = experiment_config.wrapper.name
+    seg_func = load_wrapper(
+        wrapper_name = wrapper_name,
         step_func=step_func,
         device=device,
         model=model,
         loss=loss,
-        metrics=metrics,
         optimizer=optimizer,
+        metrics=metrics,
         experiment=experiment,
+        img_saver=img_saver
     )
+
     # Log hyperparameters
     experiment.log_parameters(experiment_config.toDict())
     # Log colormap-encoding
@@ -506,8 +444,9 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
+        vloss = get_or_default(engine.state.metrics, 'loss', 0)
         print(
-            f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {engine.state.metrics['loss']:.4f}, lr: {lr:.4f}"
+            f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {vloss:.4f}, lr: {lr:.4f}"
         )
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
