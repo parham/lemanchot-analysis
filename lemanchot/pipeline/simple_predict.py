@@ -25,7 +25,9 @@ def simple_predict_step__(engine: Engine, batch, model: BaseModule, **kwargs) ->
     outputs = model(inputs)
     outputs = outputs.argmax(dim=1, keepdims=True)
 
-    return {"y_pred": outputs}
+    return {
+        'y_pred' : outputs
+    }
 
 
 @pipeline_register("simple_multilabel_predict")
@@ -40,4 +42,6 @@ def simple_multilabel_step__(
     outputs = model(inputs)
     outputs = torch.threshold(outputs.sigmoid(), 0.5, 0)
 
-    return {"y_pred": outputs}
+    return {
+        'y_pred': outputs
+    }
