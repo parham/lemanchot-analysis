@@ -38,11 +38,15 @@ def simple_test_step__(
     if len(targets.shape) < 4:
         targets = targets.unsqueeze(1)
 
-    return {"y_true": targets, "y_pred": outputs, "loss": loss.item()}
+    return {
+        'y_true' : targets, 
+        'y_pred' : outputs, 
+        'loss' : loss.item()
+    }
 
 
-@torch.no_grad()
 @pipeline_register("simple_multilabel_test")
+@torch.no_grad()
 def simple_multilabel_step__(
     engine: Engine,
     batch,
@@ -62,4 +66,8 @@ def simple_multilabel_step__(
 
     outputs = torch.threshold(outputs.sigmoid(), 0.5, 0)
 
-    return {"y_true": targets, "y_pred": outputs, "loss": loss.item()}
+    return {
+        'y_true' : targets, 
+        'y_pred' : outputs, 
+        'loss' : loss.item()
+    }
