@@ -6,7 +6,7 @@
     @industrial-partner TORNGATS
 """
 
-from typing import Dict, Callable
+from typing import Dict, Callable, NoReturn
 import time
 import torch
 from ignite.engine import Engine
@@ -26,7 +26,7 @@ class PredictWrapper(BaseWrapper):
     def __init__(self, step_func: Callable, device: str, **kwargs) -> None:
         super().__init__(step_func, device, **kwargs)
 
-    def __call__(self, engine: Engine, batch) -> Dict:
+    def __call__(self, engine: Engine, batch) -> NoReturn:
 
         # Local Variable Initialization
         step_func = self.step_func
@@ -35,7 +35,7 @@ class PredictWrapper(BaseWrapper):
         img_saver = self.img_saver if hasattr(self, "img_saver") else None
 
         profile = get_profile(engine.state.profile_name)
-        paths, data = batch 
+        paths, data = batch
         # Logging computation time
         t = time.time()
         # Apply the model to data
@@ -55,10 +55,9 @@ class PredictWrapper(BaseWrapper):
         if profile.enable_logging and img_saver is not None:
             # Assume Tensor B x C x W x H
             # Logging imagery results
-            for name, img in zip(paths, res['y_pred']):
+            for name, img in zip(paths, res["y_pred"]):
                 sample = make_tensor_for_comet(img)
                 img_saver(name, sample)
-        return res
 
 
 @pipeline_register("simple_predict")
