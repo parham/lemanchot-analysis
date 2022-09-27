@@ -35,7 +35,7 @@ from lemanchot.core import (
     load_settings,
 )
 from lemanchot.loss import load_loss
-from lemanchot.metrics import BaseMetric, load_metrics
+from lemanchot.metrics import load_metrics
 from lemanchot.models import BaseModule, load_model
 from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 from lemanchot.pipeline.wrapper import load_wrapper
