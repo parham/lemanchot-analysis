@@ -6,46 +6,41 @@
     @industrial-partner TORNGATS
 """
 
-import os
-from pathlib import Path
-import time
 import logging
-import functools
+import os
+import time
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Union
 from uuid import uuid4
+
 import numpy as np
-
-from dotmap import DotMap
-from comet_ml import Experiment
-from typing import Any, Callable, Dict, List, Optional, Union
-
 import torch
 import torch.optim as optim
-from torch.optim.lr_scheduler import StepLR, ExponentialLR
-
+from dotmap import DotMap
 from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
 from ignite.handlers.param_scheduler import (
+    CosineAnnealingScheduler,
     LRScheduler,
     ReduceLROnPlateauScheduler,
-    CosineAnnealingScheduler,
 )
-
 from lemanchot.core import (
-    get_or_default,
     exception_logger,
     get_config,
     get_device,
     get_experiment,
+    get_or_default,
     get_profile,
     load_settings,
-    make_tensor_for_comet,
 )
 from lemanchot.loss import load_loss
 from lemanchot.metrics import BaseMetric, load_metrics
 from lemanchot.models import BaseModule, load_model
 from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 from lemanchot.pipeline.wrapper import load_wrapper
+from lemanchot.visualization import COLORS
+from torch.optim.lr_scheduler import ExponentialLR, StepLR
 
 
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
@@ -79,6 +74,7 @@ def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimi
         "Adamax": lambda ps, config: optim.Adamax(ps, **config),
         "RMSprop": lambda ps, config: optim.RMSprop(ps, **config),
     }[optim_name](params, optim_config)
+
 
 def load_scheduler(
     engine: Engine, optimizer: optim.Optimizer, experiment_config: DotMap
@@ -255,6 +251,7 @@ def load_scheduler(
 
 __pipeline_handler = {}
 
+
 def pipeline_register(name: Union[str, List[str]]):
     """Register a pipeline into the pipeline repository
 
@@ -270,6 +267,7 @@ def pipeline_register(name: Union[str, List[str]]):
 
     return __embed_func
 
+
 def list_pipelines() -> List[str]:
     """List of registered pipeline
 
@@ -278,6 +276,7 @@ def list_pipelines() -> List[str]:
     """
     global __pipeline_handler
     return list(__pipeline_handler.keys())
+
 
 @exception_logger
 def load_pipeline(pipeline_name: str) -> Callable:
@@ -300,6 +299,7 @@ def load_pipeline(pipeline_name: str) -> Callable:
         raise ValueError(msg)
 
     return __pipeline_handler[pipeline_name]
+
 
 @exception_logger
 def load_segmentation(profile_name: str, database_name: str) -> Dict:
@@ -351,7 +351,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
 
     wrapper_name = experiment_config.wrapper.name
     seg_func = load_wrapper(
-        wrapper_name = wrapper_name,
+        wrapper_name=wrapper_name,
         step_func=step_func,
         device=device,
         model=model,
@@ -359,7 +359,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         optimizer=optimizer,
         metrics=metrics,
         experiment=experiment,
-        img_saver=img_saver
+        img_saver=img_saver,
     )
 
     # Log hyperparameters
@@ -391,9 +391,9 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "optimizer": optimizer,
         "loss": loss,
     }
-    enable_checkpoint_save = get_or_default(profile, 'checkpoint_save', False)
-    enable_checkpoint_log = get_or_default(profile, 'checkpoint_log_cometml', False)
-    
+    enable_checkpoint_save = get_or_default(profile, "checkpoint_save", False)
+    enable_checkpoint_log = get_or_default(profile, "checkpoint_log_cometml", False)
+
     checkpoint_file = f"{pipeline_name}-{model.name}-{str(uuid4())[0:8]}.pt"
     if enable_checkpoint_save:
         experiment.log_parameter(name="checkpoint_file", value=checkpoint_file)
@@ -419,7 +419,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             )
 
     # Load Checkpoint
-    enable_checkpoint_load = get_or_default(profile, 'checkpoint_load', False)
+    enable_checkpoint_load = get_or_default(profile, "checkpoint_load", False)
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
         checkpoint_file = os.path.join(checkpoint_dir, f"{profile.checkpoint_file}")
@@ -429,8 +429,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                 run_record["model"].load_state_dict(checkpoint_file["model"])
             else:
                 ModelCheckpoint.load_objects(
-                    to_load = run_record, 
-                    checkpoint = checkpoint_obj
+                    to_load=run_record, checkpoint=checkpoint_obj
                 )
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
@@ -440,7 +439,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         max_epochs = engine.state.max_epochs
         iteration = engine.state.iteration
         step_time = engine.state.step_time if hasattr(engine.state, "step_time") else 0
-        vloss = get_or_default(engine.state.metrics, 'loss', 0)
+        vloss = get_or_default(engine.state.metrics, "loss", 0)
         print(
             f"Epoch {epoch}/{max_epochs} [{step_time}] : {iteration} - batch loss: {vloss:.4f}, lr: {lr:.4f}"
         )
