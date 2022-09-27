@@ -52,19 +52,14 @@
   },
   "pipeline": {
     "simple_multilabel": {
+      "wrapper_name" : "default_pipeline",
       "max_epoch": 100,
       "batch_size": 8
     },
-    "simple_multilabel_test": {
-      "max_epoch": 1,
-      "batch_size": 8
-    },    
     "simple_multilabel_predict": {
+      "wrapper_name" : "default_predict",
       "max_epoch": 1,
       "batch_size": 8
     }
-  },
-  "wrapper" : {
-    "name" : "default_pipeline"
   }
 }

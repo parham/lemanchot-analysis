@@ -34,11 +34,12 @@ parser.add_argument(
     help="Select the name of profiles.",
 )
 parser.add_argument(
-    "--test",
+    "--mode",
     required=False,
-    default=False,
+    choices={'train', 'test', 'predict'},
+    default='train',
     type=bool,
-    help="Use for the testing dataset.",
+    help="Set the mode for Dataset initialization.",
 )
 
 
@@ -53,7 +54,7 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation for training
-    if not args.test:
+    if args.mode == 'train':
         input_transforms = Compose([Grayscale(), Resize((512, 512))])
         target_transform = Compose(
             [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
@@ -61,10 +62,11 @@ def main():
         both_transforms = BothCompose(
             [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
         )
-    else:
+    elif args.mode == 'test':
         input_transforms = Compose([Grayscale(), Resize((512, 512))])
         target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
         both_transforms = BothCompose([BothToTensor()])
+
     # Load segmentation
     run_record = load_segmentation(
         profile_name=profile_name, database_name=dataset_name
@@ -72,34 +74,39 @@ def main():
     engine = run_record["engine"]
     engine.logger = setup_logger("trainer")
     ######### Dataset & Dataloader ##########
-    # dataset = SegmentationDataset(
-    #     root=dataset_path,
-    #     img_folder="img",
-    #     img_ext=".jpg",
-    #     gt_folder="gt",
-    #     classes=categories,
-    #     input_transforms=input_transforms,
-    #     target_transforms=target_transform,
-    #     both_transforms=both_transforms,
-    # )
-    dataset = ImageDataset(
-        root=dataset_path,
-        folder_name="910",
-        transforms=ToTensor()
-    )
-    if profile.weight_dataset and not args.test:
+    if args.mode == 'predict':
+        dataset = ImageDataset(
+            root=dataset_path,
+            folder_name="img",
+            transforms=ToTensor()
+        )
+        shuffle = False
+    else:
+        dataset = SegmentationDataset(
+            root=dataset_path,
+            img_folder="img",
+            img_ext=".jpg",
+            gt_folder="gt",
+            classes=categories,
+            input_transforms=input_transforms,
+            target_transforms=target_transform,
+            both_transforms=both_transforms,
+        )
+        shuffle = True
+
+    if profile.weight_dataset and args.mode == 'train':
         # This function is very long.
         sampler = generate_weighted_sampler(dataset.gt_dataset)
+        shuffle = False
     else:
         sampler = None
 
     data_loader = DataLoader(
         dataset,
         batch_size=engine.state.batch_size,
-        shuffle=True if sampler is None else None,
+        shuffle=shuffle,
         sampler=sampler,
     )
-
     # Run the pipeline
     state = engine.run(data_loader, max_epochs=engine.state.max_epoch)
     print(state)

@@ -201,7 +201,7 @@
       "load_weights_only": true,
       "experiment_config_name": "unet50_texture_predict",
       "dataset_name": "lemanchot-analysis-test",
-      "dataset_path": "/data/lemanchot-analysis/",
+      "dataset_path": "/data/lemanchot-analysis/910",
       "weight_dataset": false,
       "image_saving": {
         "root_dir" : "/data/lemanchot-analysis/910/resutls"
