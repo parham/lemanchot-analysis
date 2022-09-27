@@ -385,12 +385,9 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         "optimizer": optimizer,
         "loss": loss,
     }
-    enable_checkpoint_save = (
-        profile.checkpoint_save if "checkpoint_save" in profile else False
-    )
-    enable_checkpoint_log = (
-        profile.checkpoint_log_cometml if "checkpoint_log_cometml" in profile else False
-    )
+    enable_checkpoint_save = get_or_default(profile, 'checkpoint_save', False)
+    enable_checkpoint_log = get_or_default(profile, 'checkpoint_log_cometml', False)
+    
     checkpoint_file = f"{pipeline_name}-{model.name}-{str(uuid4())[0:8]}.pt"
     if enable_checkpoint_save:
         experiment.log_parameter(name="checkpoint_file", value=checkpoint_file)
@@ -416,9 +413,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             )
 
     # Load Checkpoint
-    enable_checkpoint_load = (
-        profile.checkpoint_load if "checkpoint_load" in profile else False
-    )
+    enable_checkpoint_load = get_or_default(profile, 'checkpoint_load', False)
     if enable_checkpoint_load:
         checkpoint_dir = load_settings().checkpoint_dir
         checkpoint_file = os.path.join(checkpoint_dir, f"{profile.checkpoint_file}")
@@ -428,7 +423,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
                 run_record["model"].load_state_dict(checkpoint_file)
             else:
                 ModelCheckpoint.load_objects(
-                    to_load=run_record, checkpoint=checkpoint_obj
+                    to_load = run_record, 
+                    checkpoint = checkpoint_obj
                 )
 
     @engine.on(Events.ITERATION_COMPLETED(every=1))
