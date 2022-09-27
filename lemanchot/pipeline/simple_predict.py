@@ -11,14 +11,17 @@ import time
 import torch
 from ignite.engine import Engine
 
+from lemanchot.models import BaseModule
+from lemanchot.core import make_tensor_for_comet
 from lemanchot.pipeline.core import (
     pipeline_register,
     get_device,
-    get_profile,
-    make_tensor_for_comet,
+    get_profile
 )
-from lemanchot.models import BaseModule
-from .wrapper import BaseWrapper, wrapper_register
+from lemanchot.pipeline.wrapper import (
+    BaseWrapper, 
+    wrapper_register
+)
 
 
 @wrapper_register("default_predict")

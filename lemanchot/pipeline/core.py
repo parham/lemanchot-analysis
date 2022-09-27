@@ -339,6 +339,9 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     if not pipeline_name in experiment_config.pipeline:
         raise ValueError("Pipeline is not supported!")
     ############ Pipeline ##############
+    # Get Pipeline Configuration
+    pipeline_config = experiment_config.pipeline[pipeline_name]
+    # Load Pipeline Handler
     step_func = load_pipeline(pipeline_name)
     ############ Metrics ##############
     # Create metric instances
@@ -349,7 +352,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         image_saving = profile.image_saving
         img_saver = ImageSaver(**image_saving)
 
-    wrapper_name = experiment_config.wrapper.name
+    wrapper_name = pipeline_config.wrapper
     seg_func = load_wrapper(
         wrapper_name=wrapper_name,
         step_func=step_func,
@@ -375,8 +378,6 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     engine = Engine(seg_func)
     # Create scheduler instance
     scheduler = load_scheduler(engine, optimizer, experiment_config)
-    # Get Pipeline Configuration
-    pipeline_config = experiment_config.pipeline[pipeline_name]
     # Add configurations to the engine state
     engine.state.last_loss = 0
     if experiment_config.pipeline:
