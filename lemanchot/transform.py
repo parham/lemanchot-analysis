@@ -156,6 +156,12 @@ class ToLongTensor(torch.nn.Module):
     def forward(self, img):
         return img.to(dtype=torch.long)
 
+class ToUINT8Tensor(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def forward(self, img):
+        return img.to(dtype=torch.uint8)
 
 class ToGrayscale(torch.nn.Module):
     def __init__(self) -> None:
