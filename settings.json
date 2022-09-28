@@ -2,6 +2,155 @@
   "device": "cuda",
   "checkpoint_dir": "./checkpoints",
   "profiles": {
+    "iterative-thermal-segmentation-piping" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "texture-analysis",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging": true,
+        "enable_image_logging": 3,
+        "image_saving" : {
+          "root_dir" : "/home/phm/Dataset/texture-analysis/piping_inspection/segs"
+        },
+        "pipeline" : "wonjik2020",
+        "checkpoint_save" : false,
+        "checkpoint_load" : false,
+        "experiment_config_name" : "wonjik2020"
+    },
+    "zephyrus-ulaval" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "texture-analysis",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging" : true,
+        "enable_image_logging" : true,
+        "pipeline" : "simple_train",
+        "checkpoint_save" : true,
+        "checkpoint_load" : true,
+        "experiment_config_name" : "test",
+        "dataset_name" : "Laval_Road_9h52",
+        "dataset_path" : "/data/lemanchot-analysis/952",
+        "categories" : {
+            "Background" : 0,
+            "Metal" : 1,
+            "Vegetation" : 2,
+            "Pavement" : 3,
+            "Wood" : 4,
+            "Water" : 5,
+            "Plastic" : 6
+        }
+    },
+    "parham-wnet" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "thermal-segmentor",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging" : true,
+        "enable_image_logging" : true,
+        "pipeline" : "wnet",
+        "checkpoint_save" : false,
+        "checkpoint_load" : false,
+        "experiment_config_name" : "wnet",
+        "dataset_name" : "Sample",
+        "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
+        "categories" : {
+            "defect" : 2,
+            "surface_defect" : 3
+        }
+    },
+    "parham-unet_resnet18" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "thermal-segmentor",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging" : true,
+        "enable_image_logging" : true,
+        "pipeline" : "simple_train",
+        "checkpoint_save" : false,
+        "checkpoint_load" : false,
+        "experiment_config_name" : "unet_resnet18",
+        "dataset_name" : "Sample",
+        "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
+        "categories" : {
+            "defect" : 2,
+            "surface_defect" : 3
+        }
+    },
+    "parham-wonjik2020" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "thermal-segmentor",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging" : true,
+        "enable_image_logging" : true,
+        "pipeline" : "wonjik2020",
+        "checkpoint_save" : false,
+        "checkpoint_load" : false,
+        "experiment_config_name" : "wonjik2020",
+        "dataset_name" : "Sample",
+        "dataset_path" : "/home/phm/Dataset/thermal-segmentation/Sample",
+        "categories" : {
+            "defect" : 2,
+            "surface_defect" : 3
+        }
+    },
+    "parham-kanezaki2018" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "thermal-segmentor",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging" : true,
+        "enable_image_logging" : true,
+        "pipeline" : "kanezaki2018",
+        "checkpoint_save" : false,
+        "checkpoint_load" : false,
+        "experiment_config_name" : "kanezaki2018",
+        "dataset_name" : "Sample",
+        "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
+        "categories" : {
+            "defect" : 2,
+            "surface_defect" : 3
+        }
+    },
+    "parham-dbscan" : {
+        "api_key" : "8CuCMLyaa23fZDEY2uTxm5THf",
+        "project_name" : "thermal-segmentor",
+        "workspace" : "parham",
+        "log_git_metadata" : true,
+        "log_env_gpu" : true,
+        "log_env_cpu" : true,
+        "log_env_host" : true,
+        "enable_logging" : true,
+        "enable_image_logging" : true,
+        "pipeline" : "classics",
+        "checkpoint_save" : false,
+        "checkpoint_load" : false,
+        "experiment_config_name" : "dbscan",
+        "dataset_name" : "Sample",
+        "dataset_path" : "/home/phm/GoogleDrive/Personal/Datasets/my-dataset/thermal-segmentor/Samples/labeled_img",
+        "categories" : {
+            "defect" : 2,
+            "surface_defect" : 3
+        }
+    },
     "test-zephyrus": {
       "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
       "project_name": "texture-analysis",
