@@ -45,15 +45,14 @@ def main():
     parser.print_help()
     # Create Dataset
     logging.info('Create dataset!')
-    ds_dir = '/data/lemanchot-analysis/UL-Road-HandHeld'
-    fusdataset = FusionDataset(ds_dir)
+    fusdataset = FusionDataset(args.input)
     # data_loader = DataLoader(
     #     fusdataset, 
     #     batch_size=1, 
     #     shuffle=True
     # )
     # Create the result folder
-    fuse_dir = os.path.join(ds_dir, 'fused') if not args.output else args.output
+    fuse_dir = os.path.join(args.input, 'fused') if not args.output else args.output
     Path(fuse_dir).mkdir(parents=True, exist_ok=True)
     # Create transformations
     logging.info('Creating and Applying transformations ...')

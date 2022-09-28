@@ -16,8 +16,8 @@
                 "LEMANCHOT_VT_CONFIG_DIR" : "configs"
             },
             "args" : [
-                "/data/lemanchot-analysis/UL-Road-HandHeld",
-                "--output", "/data/lemanchot-analysis/UL-Road-HandHeld/fused_dp",
+                "/data/lemanchot-analysis/UL-Road-HandHeld/worst_case",
+                "--output", "/data/lemanchot-analysis/UL-Road-HandHeld/worst_case/fused_dp",
             ]
         },
         {
