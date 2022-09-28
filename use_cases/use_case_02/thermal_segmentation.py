@@ -37,7 +37,8 @@ from lemanchot.transform import (
     ImageResize,
     ImageResizeByCoefficient,
     NumpyImageToTensor,
-    ToFloatTensor
+    ToFloatTensor,
+    ToUINT8Tensor
 )
 
 logging.basicConfig(
@@ -78,12 +79,12 @@ def main():
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel(),
-        ToFloatTensor()
+        ToUINT8Tensor()
     ])
     # Create the dataset
     dataset = MATLABDataset(
         root_dir = args.dir,
-        input_tag = 'ir_roi',
+        input_tag = 'viz_roi',
         transforms = transforms
     )
     data_loader = DataLoader(
@@ -91,21 +92,37 @@ def main():
         batch_size=1, 
         shuffle=True
     )
+    logging.info('Dataset is created ...')
+    ################ Initialization ################
+    # Create model instance
+    logging.info('Loading model ...')
+    model = load_model(experiment_config)
+    model.to(device)
+    # Create loss instance
+    logging.info('Loading loss ...')
+    criterion = load_loss(experiment_config)
+    criterion.to(device)
+    # Create optimizer instance
+    logging.info('Loading optimizer ...')
+    optimizer = load_optimizer(model, experiment_config)
+
     # Create the image saver
     logging.info('Creating and Initialize Image Saver ...')
     img_saver = ImageSaver(args.out)
-
-    logging.info('Dataset is created ...')
+    ################ Run the Experiment ################
     for data in iter(data_loader):
         fpath = data[-1][0]
         fname = Path(fpath).stem
         logging.info(f'Processing ... {fpath}')
         process_obj = iterative_region_segmentation(
-            batch=data,
-            experiment_config=experiment_config,
-            device=device,
-            num_iteration=args.iteration,
-            class_count_limit=args.nclass
+            batch = data,
+            experiment_config = experiment_config,
+            device = device,
+            num_iteration = args.iteration,
+            class_count_limit = args.nclass,
+            model = model, 
+            criterion = criterion, 
+            optimizer = optimizer
         )
         res = None
         step = 1
@@ -117,15 +134,13 @@ def main():
                 'loss' : out['loss'],
                 'class_count' : out['class_count']
             }, step=step, epoch=1)
-            # Logging the output image
-            experiment.log_image(output, name=fname, step=step)
             res = output
             step += 1
+        # Logging the output image into comet.ml
+        experiment.log_image(output, name=fname, step=step)
         # Logging the image
         img_saver(fname, res)
         logging.info(f'Saving the output image ... {fname}')
-        # outfile = os.path.join(args.out, f'{fname}.png')
-        # Image.fromarray(res).save(outfile)
 
 if __name__ == "__main__":
     try:

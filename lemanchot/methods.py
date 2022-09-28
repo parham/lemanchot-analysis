@@ -21,23 +21,14 @@ def iterative_region_segmentation(
     experiment_config,
     device,
     num_iteration : int,
-    class_count_limit : int
+    class_count_limit : int,
+    model,
+    criterion,
+    optimizer
 ):
     input = batch[0]
     input = input.to(dtype=torch.float32, device=device)
-    # Create model instance
-    logging.info('Loading model ...')
-    model = load_model(experiment_config)
-    model.to(device)
-    # Create loss instance
-    logging.info('Loading loss ...')
-    criterion = load_loss(experiment_config)
-    criterion.to(device)
-    # Create optimizer instance
-    logging.info('Loading optimizer ...')
-    optimizer = load_optimizer(model, experiment_config)
-    # Create transformations
-    logging.info('Creating and Applying transformations ...')
+
     # Apply the transformations to the given data
     input = input.to(dtype=torch.float32, device=device)
     # Prepare the loss function for the pipeline
