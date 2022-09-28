@@ -105,7 +105,7 @@ class JSONDataset(VisionDataset):
         if self.transforms is not None:
             target = self.transforms(target)
 
-        return path, target
+        return target
 
 
 class SegmentationDataset(VisionDataset):
@@ -151,8 +151,8 @@ class SegmentationDataset(VisionDataset):
 
     def __getitem__(self, index: int):
 
-        *_, sample = self.samples_dataset[index]
-        *_, target = self.gt_dataset[index]
+        sample = self.samples_dataset[index]
+        target = self.gt_dataset[index]
 
         if self.both_transforms is not None:
             sample, target = self.both_transforms(sample, target)

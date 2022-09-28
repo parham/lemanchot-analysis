@@ -12,7 +12,7 @@ import logging
 
 from torch.cuda import device_count
 from torch.utils.data import DataLoader
-from torchvision.transforms import Resize, Compose, Grayscale, ToTensor
+from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Pad
 from ignite.utils import setup_logger
 
 from lemanchot.core import get_profile, get_profile_names
@@ -38,7 +38,7 @@ parser.add_argument(
     required=False,
     choices={'train', 'test', 'predict'},
     default='train',
-    type=bool,
+    type=str,
     help="Set the mode for Dataset initialization.",
 )
 
@@ -78,15 +78,15 @@ def main():
         dataset = ImageDataset(
             root=dataset_path,
             folder_name="img",
-            transforms=ToTensor()
+            transforms=Compose([ToTensor(), Pad((0, 8, 0, 8))])
         )
         shuffle = False
     else:
         dataset = SegmentationDataset(
             root=dataset_path,
-            img_folder="general_case/visible",
+            img_folder="img",
             img_ext=".jpg",
-            gt_folder="rle",
+            gt_folder="gt",
             classes=categories,
             input_transforms=input_transforms,
             target_transforms=target_transform,

@@ -56,8 +56,8 @@ class BaseMetric(object):
         out = outputs[batch_index, :, :, :]
         trg = targets[batch_index, :, :, :]
 
-        out = (out.squeeze(0) if out.shape[0] == 1 else out.permute(1,2,0)).cpu().detach().numpy()
-        trg = trg.squeeze(0).cpu().detach().numpy()
+        out = out.cpu().detach().numpy()
+        trg = trg.cpu().detach().numpy()
         return (out, trg)
 
     def reset(self):
