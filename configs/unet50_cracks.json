@@ -8,6 +8,9 @@
     }
   },
   "metrics": {
+    "ssim" : {
+      "max_p" : 8
+    },
     "smp": {
       "mode" : "multilabel",
       "threshold" : 0.5,
@@ -54,15 +57,14 @@
   },
   "pipeline": {
     "simple_multilabel": {
+      "wrapper" : "default_pipeline",
       "max_epoch": 100,
       "batch_size": 8
     },
     "simple_multilabel_test": {
+      "wrapper" : "default_pipeline",
       "max_epoch": 1,
       "batch_size": 8
     }
-  },
-  "wrapper" : {
-    "name" : "default_pipeline"
   }
 }

@@ -148,8 +148,8 @@
       "checkpoint_file": "simple_multilabel-unet_resnet18-782542fc_crack_model.pt",
       "load_weights_only": true,
       "experiment_config_name": "unet50_cracks",
-      "dataset_name": "lemanchot-cracks-test",
-      "dataset_path": "/data/lemanchot-cracks/test/UL-Road-HandHeld/",
+      "dataset_name": "lemanchot-ULRoadHandheld-general-visible",
+      "dataset_path": "/data/lemanchot-analysis/UL-Road-HandHeld/",
       "categories": {
         "background": 0,
         "crack": 1
