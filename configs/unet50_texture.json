@@ -55,5 +55,8 @@
       "max_epoch": 100,
       "batch_size": 8
     }
+  },
+  "wrapper" : {
+    "name" : "default_pipeline"
   }
 }

@@ -63,6 +63,7 @@
     },
     "pipeline" : {
         "simple_train" : {
+            "wrapper" : "default_pipeline",
             "max_epoch" : 1,
             "batch_size" : 2
         }
