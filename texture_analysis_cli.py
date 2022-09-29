@@ -78,7 +78,7 @@ def main():
         dataset = ImageDataset(
             root=dataset_path,
             folder_name="img",
-            transforms=Compose([ToTensor(), Pad((0, 8, 0, 8))])
+            transforms=Compose([Resize((800, 1056)), ToTensor()])
         )
         shuffle = False
     else:

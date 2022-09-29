@@ -14,5 +14,6 @@ services:
               capabilities: [gpu]
               count: 1
     volumes:
+      - /data/lemanchot-checkpoints:/lemanchot-analysis/checkpoints
       - /data:/data
       - ~/.ssh/id_rsa:/root/.ssh/id_rsa

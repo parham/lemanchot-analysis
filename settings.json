@@ -200,7 +200,7 @@
       "checkpoint_file": "simple_multilabel-unet_resnet18-c4ddbd00_texture_model.pt",
       "load_weights_only": true,
       "experiment_config_name": "unet50_texture",
-      "dataset_name": "lemanchot-analysis-predict",
+      "dataset_name": "lemanchot-910-predict",
       "dataset_path": "/data/lemanchot-analysis/910",
       "weight_dataset": false,
       "image_saving": {
