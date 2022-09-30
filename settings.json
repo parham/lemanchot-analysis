@@ -165,7 +165,7 @@
       "log_env_host": true,
       "enable_logging": true,
       "enable_image_logging": 1,
-      "pipeline": "simple_multilabel_test",
+      "pipeline": "simple_multilabel",
       "checkpoint_save": true,
       "checkpoint_load": false,
       "checkpoint_file": null,
@@ -183,6 +183,35 @@
         "water": 5,
         "plastic": 6
       }
+    },    
+    "zephyrus_concrete": {
+      "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
+      "project_name": "texture-analysis",
+      "workspace": "parham",
+      "log_git_metadata": true,
+      "log_env_gpu": true,
+      "log_env_cpu": true,
+      "log_env_host": true,
+      "enable_logging": true,
+      "enable_image_logging": 1,
+      "pipeline": "simple_multilabel",
+      "checkpoint_save": true,
+      "checkpoint_load": false,
+      "checkpoint_file": null,
+      "load_weights_only": false,
+      "experiment_config_name": "unet50_texture",
+      "dataset_name": "lemanchot-concrete-bridge",
+      "dataset_path": "/data/lemanchot-analysis/concrete-bridge",
+      "weight_dataset": true,
+      "categories": {
+        "background": 0, 
+        "metal": 1, 
+        "vegetation": 2,
+        "concrete": 3, 
+        "wood": 4,
+        "water": 5, 
+        "sky": 6
+      }
     },
     "zephyrus_texture_test": {
       "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
@@ -195,7 +224,7 @@
       "enable_logging": true,
       "enable_image_logging": 999,
       "pipeline": "simple_multilabel_predict",
-      "checkpoint_save": false,
+      "checkpoint_save": true,
       "checkpoint_load": true,
       "checkpoint_file": "simple_multilabel-unet_resnet18-c4ddbd00_texture_model.pt",
       "load_weights_only": true,

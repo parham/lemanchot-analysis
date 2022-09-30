@@ -53,7 +53,7 @@
   "pipeline": {
     "simple_multilabel": {
       "wrapper" : "default_pipeline",
-      "max_epoch": 100,
+      "max_epoch": 300,
       "batch_size": 8
     },
     "simple_multilabel_predict": {

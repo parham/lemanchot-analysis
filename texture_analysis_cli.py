@@ -55,9 +55,9 @@ def main():
     ######### Transformation ##########
     # Initialize Transformation for training
     if args.mode == 'train':
-        input_transforms = Compose([Grayscale(), Resize((512, 512))])
+        input_transforms = Compose([Resize((512, 512))])
         target_transform = Compose(
-            [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
+            [Resize((512, 512), InterpolationMode.NEAREST)]
         )
         both_transforms = BothCompose(
             [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
@@ -85,7 +85,7 @@ def main():
         dataset = SegmentationDataset(
             root=dataset_path,
             img_folder="img",
-            img_ext=".jpg",
+            img_ext=".png",
             gt_folder="gt",
             classes=categories,
             input_transforms=input_transforms,

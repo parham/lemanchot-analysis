@@ -34,7 +34,7 @@ def generate_weighted_sampler(
     sum = 0.0
     ind_weight = list()
     for idx in range(len(dataset)):
-        _, sample = dataset[idx]
+        sample = dataset[idx]
         ind_weight.append(sample.sum(dim=(-2, -1)))
         sum += ind_weight[-1]
 
