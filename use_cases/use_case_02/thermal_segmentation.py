@@ -75,7 +75,7 @@ def main():
     # Create transformations
     logging.info('Creating and Applying transformations ...')
     transforms = Compose([
-        # ImageResize(70),
+        ImageResize(100),
         ImageResizeByCoefficient(32),
         NumpyImageToTensor(),
         FilterOutAlphaChannel(),
@@ -84,7 +84,7 @@ def main():
     # Create the dataset
     dataset = MATLABDataset(
         root_dir = args.dir,
-        input_tag = 'viz_roi',
+        input_tag = 'ir_roi',
         transforms = transforms
     )
     data_loader = DataLoader(
