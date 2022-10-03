@@ -5,3 +5,4 @@ lemanchot/models/__pycache__/*
 checkpoints/*
 lemanchot/metrics/__pycache__/*
 lemanchot/pipeline/__pycache__/*
+lemanchot/dataset/__pycache__/*
