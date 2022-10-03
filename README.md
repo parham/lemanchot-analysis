@@ -36,17 +36,58 @@ This section includes four use cases of employing coupled thermal and visible ca
 
 One of the applications for coupled thermal and visible sensors is to enhance defect detection in visual inspection using thermal images in case of illumination or contrast issues. This section presents a process pipeline for automatic crack detection using coupled thermal and visible images. The objective is to demonstrate the effect of the Thermal-Visible image fusion on crack detection in typical- and worst-case scenarios. The worst-case scenario occurs when shadows, low illumination, or low contrast disrupt the detection process.
 
+<p align="center">
+  <img src="resources/use_case_1.png" width="500" title="Dataset for Use Case 1">
+</p>
+
+<p align="center">
+  <img src="resources/result_uc_1_1.png" width="500" title="Result for Use Case 1">
+</p>
+
+<p align="center">
+  <img src="resources/result_uc_1_2.png" width="500" title="Result for Use Case 1">
+</p>
+
 ### Case Study 2 : Abnormality Classification using Coupled Thermal and Visible Images
 
 Another area in which coupled thermal and visible images can be beneficial is remote inspection when physical access is limited. In such scenarios, comprehensive information in different modalities is needed to avoid data misinterpretation. In the case of thermographic inspection, the abnormalities are recognizable in thermal images, and several methods exist that can semi-automate the detection process. However, distinguishing between surface and subsurface defects is hard or impossible with only thermal information in an automated process pipeline. To address this challenge, coupled thermal and visible images can be employed to enhance the classification process. In this use case, thermal and visible images are used to classify detected defects into surface and subsurface abnormalities using texture analysis.
+
+<p align="center">
+  <img src="resources/result_uc_2_1.png" width="500" title="Result for Use Case 2">
+</p>
 
 ### Case Study 3 : Enhance the Analysis of Drone-based Road Inspection using Coupled Thermal and Visible Images
 
 In this use case, the use of visible images for helping to extract the region of interest in thermal images is investigated comprehensively for drone-based inspection of road pavement. 
 
+<p align="center">
+  <img src="resources/use_case_2.png" width="500" title="Dataset for Use Case 3">
+</p>
+
+<p align="center">
+  <img src="resources/result_uc_3_1.png" width="500" title="Result for Use Case 3">
+</p>
+
+<p align="center">
+  <img src="resources/result_uc_3_2.png" width="500" title="Result for Use Case 3">
+</p>
+
 ### Case Study 4 : nhance the Analysis of Bridge Inspection using Coupled Thermal and Visible Images
 
 This use case investigates the use of coupled thermal and visible cameras to enhance the drone-based thermographic inspection of concrete bridges.
+
+<p align="center">
+  <img src="resources/use_case_3.png" width="500" title="Dataset for Use Case 4">
+</p>
+
+<p align="center">
+  <img src="resources/result_uc_4_1.png" width="500" title="Result for Use Case 4">
+</p>
+
+<p align="center">
+  <img src="resources/result_uc_4_2.png" width="500" title="Result for Use Case 4">
+</p>
+
 
 ## Citation
 
