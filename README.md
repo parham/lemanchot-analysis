@@ -14,29 +14,11 @@
   </p>
 </p>
 
-## Experiments
-
-### Case Study 1 : ULAVAL Handheld 
-
-In this case study, the objective is to use thermal images to enhance the detection in visible images. The resulted fused images are then used to detect cracks. During the discussion section, we are going to compare the result of crack detection in: (1) the normal images, (2) the fusion images, (3) comapre the results in worst case scenarios (shadows and low illuminatio and low contrast).
-
-### Case Study 1 : Piping inspection:
-
-In this case study, firstly, we are going to use manual registration to align thermal and visible images, then the the region of interest is extracted. Later, the textures of thermal and visible images are analyzed to classify the abnormalities.
-
-### Case Study 3 : ULAVAL Road
-
-The thermal and visible images collected from a road inspection were analyzed. then the visible images are used to segment pavement areas. Later, the region of interest will be extracted in thermal images.
-
-### Case Study 4 : Building Inspection
-
-Using visible images to extract the region of interest in building inspection.
-
 # LeManchot-Analysis
 
-<!-- ![Diagram Image Link](./design/method.puml) -->
+Remote thermographic inspection of industrial and construction components is a relatively new field of research with growing interest among researchers and companies, especially in the light of recent advancements in Unmanned Aerial Vehicles (UAVs). Due to the unique capabilities of drones to carry a wide range of sensors as payload and facilitate data acquisition through their maneuver abilities, collecting synchronized multi-modal data has become a possibility in terms of cost and time. In addition, using multiple sensors can significantly enhance the analysis result and provide a more accurate assessment of the components' operability and structural integrity. Complementary modalities oblige companies to build automated process pipelines that can avoid data misinterpretation and deliver more precise and comprehensive evaluations, which is one of the objectives of NDT4.0. In this paper, we investigate the applications of texture-based segmentation of visible modality to enhance thermal analysis in a drone-based multi-modal inspection. The proposed process pipeline texturally segments the visible images and uses the result to improve the detection and characterization of possible abnormalities in thermal images. Moreover, we introduced four case studies with different process pipelines and datasets to demonstrate the presented approach's benefits in various industrial applications.
 
-.... under construction
+**Keywords** `Multi-Modal Data Processing`  `Unmanned Aerial Vehicle`   `Texture Segmentation`   `Remote Inspection`   `Thermography`   `Thermal Image Segmentation`
 
 ## Usage
 
@@ -45,6 +27,26 @@ For setting the path for system settings you need to initialize system environme
 ``` $ export LEMANCHOT_VT_SETTING_PATH = [ADD YOUR PATH HERE] ```
 For the system to be able to load the experiment configuration, you need to initialize configuration dir path:
 ``` $ export LEMANCHOT_VT_CONFIG_DIR = [CONFIG DIR] ```
+
+## Use Cases
+
+This section includes four use cases of employing coupled thermal and visible cameras aiming toward the enhancement of post-analysis during a drone-based automated process pipeline in different inspection scenarios in different industries. The **Use Case 1** explains the benefits of fusing visible images with thermal images to enhance the defect detection process. **Use Case 2** explains the multi-modal approach for abnormality classification in piping inspection. Employing visible images to extract the region of interest in thermal images to enhance the drone-based thermographic inspection of roads is described in **Use Case 3**. Finally, a drone-based inspection of concrete bridges using coupled thermal and visible cameras is investigated in **Use Case 4**.
+
+### Case Study 1 : Enhance Visual Inspection of Roads using Coupled Thermal and Visible Cameras 
+
+One of the applications for coupled thermal and visible sensors is to enhance defect detection in visual inspection using thermal images in case of illumination or contrast issues. This section presents a process pipeline for automatic crack detection using coupled thermal and visible images. The objective is to demonstrate the effect of the Thermal-Visible image fusion on crack detection in typical- and worst-case scenarios. The worst-case scenario occurs when shadows, low illumination, or low contrast disrupt the detection process.
+
+### Case Study 2 : Abnormality Classification using Coupled Thermal and Visible Images
+
+Another area in which coupled thermal and visible images can be beneficial is remote inspection when physical access is limited. In such scenarios, comprehensive information in different modalities is needed to avoid data misinterpretation. In the case of thermographic inspection, the abnormalities are recognizable in thermal images, and several methods exist that can semi-automate the detection process. However, distinguishing between surface and subsurface defects is hard or impossible with only thermal information in an automated process pipeline. To address this challenge, coupled thermal and visible images can be employed to enhance the classification process. In this use case, thermal and visible images are used to classify detected defects into surface and subsurface abnormalities using texture analysis.
+
+### Case Study 3 : Enhance the Analysis of Drone-based Road Inspection using Coupled Thermal and Visible Images
+
+In this use case, the use of visible images for helping to extract the region of interest in thermal images is investigated comprehensively for drone-based inspection of road pavement. 
+
+### Case Study 4 : nhance the Analysis of Bridge Inspection using Coupled Thermal and Visible Images
+
+This use case investigates the use of coupled thermal and visible cameras to enhance the drone-based thermographic inspection of concrete bridges.
 
 ## Citation
 
