@@ -1,6 +1,6 @@
 
 """ 
-    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
+    @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
     @supervisor Professor Xavier Maldague
@@ -9,7 +9,6 @@
 
 import cv2
 import numpy as np
-
 import phasepack.phasecong as pc
 
 from lemanchot.metrics.core import Function_Metric, assert_image_shapes_equal, metric_register 

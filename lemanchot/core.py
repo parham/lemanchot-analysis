@@ -1,6 +1,6 @@
 
 """ 
-    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
+    @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
     @supervisor Professor Xavier Maldague
@@ -22,10 +22,13 @@ from typing import List
 from dotmap import DotMap
 from datetime import datetime
 
+import numpy as np
 import torch
 import yaml
 
 from comet_ml import Experiment
+
+from .visualization import mask2colormap
 
 """Generate random strings
 
@@ -33,6 +36,12 @@ Returns:
     str: random string
 """
 generate_random_str = lambda x: ''.join(random.choice(string.ascii_lowercase) for i in range(x))
+
+"""
+Get the value associated with a key in a dictionary 
+or return a default value.
+"""
+get_or_default = lambda data, key, vdefault: data[key] if key in data else vdefault
 
 class BaseCore(torch.nn.Module):
     """Base class for all module like components"""
@@ -215,7 +224,7 @@ def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
             log_env_host=profile.log_env_host,
             disabled=not profile.enable_logging
         )
-        exp_obj.set_name('%s_%s_%s' % (profile['name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
+        exp_obj.set_name('%s::%s_%s_%s' % (profile['pipeline'], profile['experiment_config_name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
         exp_obj.add_tag(dataset)
         return exp_obj
 
@@ -224,3 +233,16 @@ def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
 
     return __experiment_instance
 
+def make_tensor_for_comet(img : torch.Tensor):
+    # B x C x W x H
+    if len(img.shape) != 3:
+        raise ValueError('The tensor should have C x H x W format')
+
+    tmp = mask2colormap(img)
+    channel = tmp.shape[0]
+    if channel == 3:
+        tmp = tmp.permute((1,2,0))
+    else:
+        raise ValueError('the image format is not supported for comet.ml')
+    tmp = tmp.cpu().detach().numpy()
+    return tmp

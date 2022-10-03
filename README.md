@@ -1,4 +1,3 @@
-
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
@@ -17,21 +16,23 @@
 
 ## Experiments
 
-### Case Study 1 : ULAVAL Road Inspection:
-- We are going to use coupled thermal and visible images for inspection of pavement roads.
-- Since the drone's altitude is static for each data session, we will use the GCP placed at begining of each session to determine the parameters for modality registration.
-**OBJECTIVES**: We will use the visible image to segment vegetation and pavement in visible images, then use these blobs to segment thermal images.
+### Case Study 1 : ULAVAL Handheld 
 
-### Case Study 2 : Piping Inspection
-- We are going to use coupled thermal and visible images for piping inspection.
-**OBJECTIVE**: (a) Fusion of thermal and visible images, (b) Distinguish normal and abnormal defects for industrial inspection.
+In this case study, the objective is to use thermal images to enhance the detection in visible images. The resulted fused images are then used to detect cracks. During the discussion section, we are going to compare the result of crack detection in: (1) the normal images, (2) the fusion images, (3) comapre the results in worst case scenarios (shadows and low illuminatio and low contrast).
 
-### Case Study 3 : Bridge Inspection
-- We are going to use coupled thermal and visible images for bridge inspection.
-**OBJECTIVE**: (a) Registration of thermal and visible images, (b) Extract concrete areas from thermal images using segmentation of visible images.
+### Case Study 1 : Piping inspection:
 
+In this case study, firstly, we are going to use manual registration to align thermal and visible images, then the the region of interest is extracted. Later, the textures of thermal and visible images are analyzed to classify the abnormalities.
 
-# LeManchot-VT-Smart
+### Case Study 3 : ULAVAL Road
+
+The thermal and visible images collected from a road inspection were analyzed. then the visible images are used to segment pavement areas. Later, the region of interest will be extracted in thermal images.
+
+### Case Study 4 : Building Inspection
+
+Using visible images to extract the region of interest in building inspection.
+
+# LeManchot-Analysis
 
 <!-- ![Diagram Image Link](./design/method.puml) -->
 
@@ -42,9 +43,7 @@
 For setting the path for system settings you need to initialize system environment variable: 
 
 ``` $ export LEMANCHOT_VT_SETTING_PATH = [ADD YOUR PATH HERE] ```
-
 For the system to be able to load the experiment configuration, you need to initialize configuration dir path:
-
 ``` $ export LEMANCHOT_VT_CONFIG_DIR = [CONFIG DIR] ```
 
 ## Citation
@@ -52,11 +51,13 @@ For the system to be able to load the experiment configuration, you need to init
 .... the paper will be publish soon!
 
 ## Contributors
+
 **Parham Nooralishahi** - parham.nooralishahi@gmail.com | [@phm](https://www.linkedin.com/in/parham-nooralishahi/) <br/>
 **Gabriel Ramos** - gabriel.ramos.1@ulaval.ca | [@gabriel](https://www.linkedin.com/in/gramos-ing/) <br/>
 **Sandra Pozzer** - sandra.pozzer.1@ulaval.ca | [@sandra](https://www.linkedin.com/in/sandra-pozzer/) <br/>
 
 ## Team
+
 **Parham Nooralishahi** is a specialist in embedded and intelligent vision systems and currently is a Ph.D. student at Universite Laval working on developing drone-enabled techniques for the inspection of large and complex industrial components using multi-modal data processing. He is a researcher with a demonstrated history of working in the telecommunication industry and industrial inspection and in-depth expertise in robotics & drones, embedded systems, advanced computer vision and machine learning techniques. He has a Master’s degree in Computer Science (Artificial Intelligence). During his bachelor's degree, he was involved in designing and developing the controlling and monitoring systems for fixed-wing drone for search and rescue purposes. Also, during his Master's degree, he worked extensively on machine learning and computer vision techniques for robotic and soft computing applications.
 
 **Gabriel Ramos** received his Bachelor's degree in Mechanical Engineering (B.Eng.) from Universit\'e Laval, Quebec, Canada in 2017. 

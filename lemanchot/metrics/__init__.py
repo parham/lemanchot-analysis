@@ -1,6 +1,6 @@
 
 """ 
-    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
+    @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
     @supervisor Professor Xavier Maldague
@@ -9,8 +9,8 @@
 
 from .core import *
 from .confusion_matrix import *
-from .fsim import *
 from .hausdorff_distance import *
+from .fsim import *
 from .miou import *
 from .psnr import *
 from .rmse import *
@@ -18,3 +18,4 @@ from .sam import *
 from .sre import *
 from .ssim import *
 from .uiq import *
+from .smp import *

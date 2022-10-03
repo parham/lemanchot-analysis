@@ -1,20 +1,18 @@
 
-""" 
-    @project LeManchot : Multi-Modal Data Acquisition and Processing of Drone-based Inspection
+"""
+    @project LeManchot-Analysis : Core components
     @organization Laval University
     @lab MiViM Lab
     @supervisor Professor Xavier Maldague
     @industrial-partner TORNGATS
 """
 
-import numpy as np
-
 from dataclasses import dataclass
 from typing import Dict, List
 
 from comet_ml import Experiment
-
 from ignite.engine import Engine
+import numpy as np
 
 from lemanchot.metrics import BaseMetric, metric_register
 
@@ -33,12 +31,12 @@ def measure_accuracy_cm__(
 
     Args:
         cmatrix (np.ndarray): confusion matrix
-        labels (List[str]): _description_
+        labels (List[str]): the list of labels
 
     Returns:
-        Dict: _description_
+        Dict: the calculated metrics (precision, recall, accuracy, fscore)
     """
-    fp = cmatrix.sum(axis=0) - np.diag(cmatrix)  
+    fp = cmatrix.sum(axis=0) - np.diag(cmatrix)
     fn = cmatrix.sum(axis=1) - np.diag(cmatrix)
     tp = np.diag(cmatrix)
     tn = cmatrix.sum() - (fp + fn + tp)
@@ -64,12 +62,16 @@ def measure_accuracy_cm__(
 
 @metric_register('confusion_matrix')
 class ConfusionMatrix(BaseMetric):
+    """
+    ConfusionMatrix is a class for calculating confusion matrix
+    """
     def __init__(self, config) -> None:
         super().__init__(config)
         lbl = list(self.categories.values())
         lbl.sort()
         self.class_ids = lbl
         self.class_labels = [list(self.categories.keys())[self.class_ids.index(v)] for v in self.class_ids]
+        self.cal_stats = True
         self.reset()
 
     def reset(self):
@@ -92,6 +94,13 @@ class ConfusionMatrix(BaseMetric):
         self.step_confusion_matrix = newc_step
 
     def update(self, data, **kwargs):
+        """ Update the inner state of the confusion matrix with the new data """
+        num_samples = data[1].shape[0]
+        for i in range(num_samples):
+            tmp = self._prepare(i, data[0], data[1])
+            self._update_imp(tmp, **kwargs)
+
+    def _update_imp(self, data, **kwargs):
         output, target = data[-2], data[-1]
         # Flattening the output and target
         out = output.flatten()
@@ -115,33 +124,27 @@ class ConfusionMatrix(BaseMetric):
                 cmatrix[tind, oind] += 1
         self.step_confusion_matrix = cmatrix
         self.confusion_matrix += cmatrix
-    
-    def compute(self,  
+
+    def compute(self,
         engine : Engine,
         experiment : Experiment,
         prefix : str = '',
         **kwargs
-    ):
+    ): 
+        """ Compute the confusion matrix and associated metrics """
         experiment.log_confusion_matrix(
-            matrix=self.confusion_matrix, 
-            labels=self.class_labels, 
+            matrix=self.confusion_matrix,
+            labels=self.class_labels,
             title=f'{prefix}Confusion Matrix',
-            file_name=f'{prefix}confusion-matrix.json', 
-            step=engine.state.iteration, 
+            file_name=f'{prefix}confusion-matrix.json',
+            step=engine.state.iteration,
             epoch=engine.state.epoch
         )
-        
-        # Calculate confusion matrix based metrics
-        stats = {}
 
-        sts = measure_accuracy_cm__(self.confusion_matrix)
-        stats = {**stats, **sts}
-        
-        experiment.log_metrics(stats, 
-            prefix=prefix, 
-            step=engine.state.iteration, 
-            epoch=engine.state.epoch
-        )
+        # Calculate confusion matrix based metrics
+        if self.cal_stats:
+            stats = measure_accuracy_cm__(self.confusion_matrix)
+            self.log_metrics(engine, experiment, stats, prefix=prefix)
 
         return CMRecord(
             self.confusion_matrix,

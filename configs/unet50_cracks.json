@@ -1,0 +1,70 @@
+{
+  "model": {
+    "name": "unet_resnet18",
+    "config": {
+      "channels": 1,
+      "num_classes": 2,
+      "weights": "imagenet"
+    }
+  },
+  "metrics": {
+    "ssim" : {
+      "max_p" : 8
+    },
+    "smp": {
+      "mode" : "multilabel",
+      "threshold" : 0.5,
+      "num_classes" : 2,
+      "metrics": {
+        "cm": {
+          "dim": 0
+        },
+        "f1" : {
+         "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+         },
+        "iou" : {
+          "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+        }
+      }
+    }
+  },
+  "loss": {
+    "name": "cross_entropy",
+    "config": {
+      "reduction": "mean"
+    }
+  },
+  "optimizer": {
+    "name": "Adam",
+    "config": {
+      "lr": 0.001,
+      "weight_decay": 0.005
+    }
+  },
+  "scheduler" : {
+    "name" : "CosineAnnealingLR",
+    "config" : {
+      "start_value": 0.001,
+      "end_value": 0,
+      "cycle_size": 200,
+      "cycle_mult": 2,
+      "mult": 0.5
+    }
+  },
+  "pipeline": {
+    "simple_multilabel": {
+      "wrapper" : "default_pipeline",
+      "max_epoch": 100,
+      "batch_size": 8
+    },
+    "simple_multilabel_test": {
+      "wrapper" : "default_pipeline",
+      "max_epoch": 1,
+      "batch_size": 8
+    }
+  }
+}

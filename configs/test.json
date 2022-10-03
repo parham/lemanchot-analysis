@@ -3,40 +3,67 @@
         "name" : "unet_resnet18",
         "config" : {
             "channels" : 3,
-            "num_classes" : 5
+            "num_classes" : 7,
+            "activation" : "sigmoid",
+            "weights" : "imagenet"
         }
     },
     "metrics" : {
         "confusion_matrix" : {
-            "just_test" : "test"
+            "cal_stats" : false
         },
         "rmse" : {
-            "max_p" : 255
+            "max_p" : 8
         },
         "fsim" : {
             "T1" : 0.85,
             "T2" : 160
         },
         "ssim" : {
-            "max_p" : 255
+            "max_p" : 8
+        },
+        "smp" : {
+            "mode" : "multiclass",
+            "ignore_index" : -1,
+            "threshold" : 0.1,
+            "num_classes" : 7,
+            "metrics" : {
+                "fbeta" : {
+                    "beta" : 1.0,
+                    "reduction" : "micro",
+                    "zero_division" : 1
+                }
+            }
         }
     },
     "loss" : {
-        "name" : "cross_entropy",
+        "name" : "dice",
         "config" : {
-            "reduction" : "mean",
-            "ignore_index" : 0
+            "mode" : "multiclass",
+            "number_classes" : 7
         }
     },
     "optimizer" : {
-        "name" : "SGD",
+        "name" : "Adam",
         "config" : {
-            "lr" : 0.1,
-            "momentum": 0.9
+            "lr" : 0.85
+        }
+    },
+    "scheduler" : {
+        "name" : "ReduceLROnPlateau",
+        "config" : {
+            "metric_name" : "loss",
+            "save_history" : true,
+            "mode" : "min",
+            "factor" : 0.9,
+            "patience" : 1,
+            "threshold_mode" : "rel",
+            "threshold" : 1e-4
         }
     },
     "pipeline" : {
         "simple_train" : {
+            "wrapper" : "default_pipeline",
             "max_epoch" : 1,
             "batch_size" : 2
         }
