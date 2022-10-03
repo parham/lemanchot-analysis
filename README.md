@@ -116,4 +116,4 @@ During his bachelor's degree and his early career, he specialised in numerical s
 Parham Nooralishahi - parham.nooralishahi@gmail.com | [@phm](https://www.linkedin.com/in/parham-nooralishahi/) <br/>
 
 ## Acknowledgements
-This research is supported by the Canada Research Chair in Multi-polar Infrared Vision (MiViM), the Natural Sciences, and Engineering Research Council (NSERC) of Canada through a discovery grant and by the "oN Duty!" NSERC Collaborative Research and Training Experience (CREATE) Program. Special thanks to TORNGATS company for their support in testing and manufacturing of the parts.
+We acknowledge the support of the Natural Sciences and Engineering Council of Canada (NSERC), CREATE-oN DuTy Program [funding reference number 496439-2017], DG program, the Canada Research Chair in Multipolar Infrared Vision (MIVIM), and the Canada Foundation for Innovation. Special thanks to TORNGATS company for providing the required equipment and support for performing the experiments. Also, we are grateful to Montmorency Forest of Universit\'e Laval for the kind authorization received to use their experimental road.
