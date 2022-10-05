@@ -72,9 +72,6 @@ pyrightconfig.json
 # Pycharm
 .idea
 
-# VS Code
-.vscode/
-
 # Spyder
 .spyproject/
 
@@ -95,6 +92,6 @@ logs/
 models/*
 
 # Programming environement
-.vscode
+.vscode/*
 pyrightconfig.json
 .python-version

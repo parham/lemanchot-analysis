@@ -1,0 +1,32 @@
+{
+    "model" : {
+        "name" : "dbscan",
+        "config" : {
+            "eps" : 1.2,
+            "min_samples" : 70,
+            "leaf_size" : 30
+        }
+    },
+    "metrics" : {
+        "confusion_matrix" : {
+            "just_test" : "test"
+        },
+        "rmse" : {
+            "max_p" : 255
+        },
+        "fsim" : {
+            "T1" : 0.85,
+            "T2" : 160
+        },
+        "ssim" : {
+            "max_p" : 255
+        }
+    },
+    "pipeline" : {
+        "classics" : {
+            "max_epoch" : 1,
+            "batch_size" : 1,
+            "iou_thresh" : 0.1
+        }
+    }
+}

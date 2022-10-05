@@ -25,7 +25,8 @@ class BaseModule(BaseCore):
 __model_handler = {}
 
 def model_register(name : Union[str, List[str]]):
-    """Register a model into the model repository
+    """
+    Register a model into the model repository
 
     Args:
         name (Union[str, List[str]]): the model's or list of model's name(s)
@@ -42,16 +43,19 @@ def model_register(name : Union[str, List[str]]):
     return __embed_func
 
 def list_models() -> List[str]:
-    """List of registered models
+    """
+    List of registered models
 
     Returns:
         List[str]: list of registered models
     """
+
     global __model_handler
     return list(__model_handler.keys())
 
 def load_model(experiment_config : DotMap) -> BaseModule:
-    """Load an instance of a registered model based on the given name
+    """
+    Load an instance of a registered model based on the given name
 
     Args:
         experiment_config (DotMap): configuration

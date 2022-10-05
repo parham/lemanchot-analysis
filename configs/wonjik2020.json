@@ -1,0 +1,49 @@
+{
+    "model" : {
+        "name" : "wonjik2020",
+        "config" : {
+            "num_dim" : 3,
+            "num_channels" : 100,
+            "num_convs" : 4
+        }
+    },
+    "metrics" : {
+        "confusion_matrix" : {
+            "just_test" : "test"
+        },
+        "rmse" : {
+            "max_p" : 255
+        },
+        "fsim" : {
+            "T1" : 0.85,
+            "T2" : 160
+        },
+        "ssim" : {
+            "max_p" : 255
+        }
+    },
+    "loss" : {
+        "name" : "unsupervised_twofactor_loss",
+        "config" : {
+            "num_channels" : 100,
+            "similarity_loss" : 0.9,
+            "continuity_loss" : 0.6
+        }
+    },
+    "optimizer" : {
+        "name" : "SGD",
+        "config" : {
+            "lr" : 0.1,
+            "momentum": 0.9
+        }
+    },
+    "pipeline" : {
+        "wonjik2020" : {
+            "max_epoch" : 10,
+            "batch_size" : 1
+        },
+        "wonjik2020_iterative" : {
+            "max_iteration" : 50
+        }
+    }
+}
