@@ -1,5 +1,5 @@
 services:
-  lemanchot_analysis:
+  lemanchot_analysis_01:
     image: lemanchotanalysis:latest
     stdin_open: true
     tty: true
@@ -12,7 +12,24 @@ services:
           devices:
             - driver: nvidia
               capabilities: [gpu]
-              count: 1
+              device_ids: ['0']
+    volumes:
+      - /data:/data
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+  lemanchot_analysis_02:
+    image: lemanchotanalysis:latest
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 12G
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              device_ids: ['3']
     volumes:
       - /data:/data
       - ~/.ssh/id_rsa:/root/.ssh/id_rsa
