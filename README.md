@@ -24,9 +24,7 @@
 For setting the path for system settings you need to initialize system environment variable: 
 
 ``` $ export LEMANCHOT_VT_SETTING_PATH = [ADD YOUR PATH HERE] ```
-
 For the system to be able to load the experiment configuration, you need to initialize configuration dir path:
-
 ``` $ export LEMANCHOT_VT_CONFIG_DIR = [CONFIG DIR] ```
 
 ## Use Cases
