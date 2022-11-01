@@ -6,6 +6,7 @@
     @industrial-partner TORNGATS
 """
 import os
+import json
 import time
 from itertools import product
 from typing import Callable, Dict, List, NoReturn, Optional, Tuple, T as Array
@@ -17,6 +18,8 @@ from lemanchot.core import make_tensor_for_comet
 from lemanchot.models import BaseModule
 from lemanchot.pipeline.core import get_device, get_profile, pipeline_register
 from lemanchot.pipeline.wrapper import BaseWrapper, wrapper_register
+
+from sheldon_data_stages.stages.rle.handler_rle import generateJSON
 
 
 def sliding_slices(size: int, kernel: int, stride: Optional[int] = None) -> slice:
@@ -110,6 +113,17 @@ class PredictWrapper(BaseWrapper):
                 sample = make_tensor_for_comet(img)
                 label = os.path.basename(name).split('.')[0]
                 img_saver(label, sample)
+                ohe = torch.where(img[0, 1:, ...] != 0, 1, 0).type(torch.uint8).cpu().numpy()
+                data = generateJSON(
+                        ohe,
+                        {
+                            "fileID": name,
+                            "classes": ["crack"],
+                        },
+                    )
+                with open(f"/data/MetroPanama/results/{label}.json", "w") as f:
+                    json.dump(data, f)
+
 
 
 @pipeline_register("simple_predict")
@@ -131,11 +145,11 @@ def simple_multilabel_step__(
     engine: Engine, batch, model: BaseModule, **kwargs
 ) -> Dict:
 
-    n, _, h, w = batch.shape
-    outputs = torch.zeros((n, 7, h, w), device=batch.device)
+    n, c, h, w = batch.shape
+    outputs = torch.zeros((n, 2, h, w), device=batch.device)
     model.eval()
-    # for s in sliding_window(batch.shape, axis=[-2, -1], kernel=(512, 512), stride=(512, 512)):
-    outputs = model(batch)
+    for s in sliding_window(batch.shape, axis=[-2, -1], kernel=(512, 512), stride=(512, 512)):
+        outputs[s] = model(batch[s])
 
     outputs = torch.threshold(outputs.sigmoid(), 0.5, 0)
 

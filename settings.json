@@ -155,6 +155,32 @@
         "crack": 1
       }
     },
+    "panama_cracks_test": {
+      "api_key": "MwJctMQ3Z3FCETgMehReIQjHY",
+      "project_name": "metro-panama",
+      "workspace": "grams",
+      "log_git_metadata": false,
+      "log_env_gpu": false,
+      "log_env_cpu": false,
+      "log_env_host": false,
+      "enable_logging": true,
+      "enable_image_logging": 999,
+      "pipeline": "simple_multilabel_predict",
+      "checkpoint_save": false,
+      "checkpoint_load": true,
+      "checkpoint_file": "simple_multilabel-unet_resnet18-782542fc_crack_model.pt",
+      "load_weights_only": true,
+      "experiment_config_name": "unet50_cracks",
+      "dataset_name": "MetroPanamaTrial",
+      "dataset_path": "/data/MetroPanama/",
+      "image_saving": {
+        "root_dir" : "/data/MetroPanama/results/"
+      },
+      "categories": {
+        "background": 0,
+        "crack": 1
+      }
+    },
     "zephyrus_texture": {
       "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
       "project_name": "texture-analysis",

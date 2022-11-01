@@ -65,6 +65,11 @@
       "wrapper" : "default_pipeline",
       "max_epoch": 1,
       "batch_size": 8
+    },
+    "simple_multilabel_predict": {
+      "wrapper" : "default_predict",
+      "max_epoch": 1,
+      "batch_size": 1
     }
   }
 }
