@@ -12,15 +12,20 @@ import logging
 
 from torch.cuda import device_count
 from torch.utils.data import DataLoader
-from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Pad
+from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize
 from ignite.utils import setup_logger
 
 from lemanchot.core import get_profile, get_profile_names
-from lemanchot.dataset import SegmentationDataset, generate_weighted_sampler, ImageDataset
+from lemanchot.dataset import (
+    SegmentationDataset,
+    generate_weighted_sampler,
+    ImageDataset,
+)
 from lemanchot.pipeline import load_segmentation
 from lemanchot.transform import (
     BothCompose,
     BothToTensor,
+    BothNormalize,
     TargetDilation,
     TrivialAugmentWide,
     InterpolationMode,
@@ -36,8 +41,8 @@ parser.add_argument(
 parser.add_argument(
     "--mode",
     required=False,
-    choices={'train', 'test', 'predict'},
-    default='train',
+    choices={"train", "test", "predict"},
+    default="train",
     type=str,
     help="Set the mode for Dataset initialization.",
 )
@@ -54,15 +59,17 @@ def main():
     categories = profile.categories
     ######### Transformation ##########
     # Initialize Transformation for training
-    if args.mode == 'train':
+    if args.mode == "train":
         input_transforms = Compose([Resize((512, 512))])
-        target_transform = Compose(
-            [Resize((512, 512), InterpolationMode.NEAREST)]
-        )
+        target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)])
         both_transforms = BothCompose(
-            [TrivialAugmentWide(31, InterpolationMode.NEAREST), BothToTensor()]
+            [
+                TrivialAugmentWide(31, InterpolationMode.NEAREST),
+                BothToTensor(),
+                BothNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            ]
         )
-    elif args.mode == 'test':
+    elif args.mode == "test":
         input_transforms = Compose([Grayscale(), Resize((512, 512))])
         target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
         both_transforms = BothCompose([BothToTensor()])
@@ -74,18 +81,26 @@ def main():
     engine = run_record["engine"]
     engine.logger = setup_logger("trainer")
     ######### Dataset & Dataloader ##########
-    if args.mode == 'predict':
+    if args.mode == "predict":
         dataset = ImageDataset(
             root=dataset_path,
             folder_name="img",
-            transforms=Compose([Grayscale(), ToTensor()])
+            transforms=Compose([
+                # Grayscale(),
+                Resize((512, 512)),
+                ToTensor(),
+                Normalize(
+                    mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225]
+                )
+            ]),
         )
         shuffle = False
     else:
         dataset = SegmentationDataset(
             root=dataset_path,
             img_folder="img",
-            img_ext=".png",
+            img_ext=".jpg",
             gt_folder="gt",
             classes=categories,
             input_transforms=input_transforms,
@@ -94,7 +109,7 @@ def main():
         )
         shuffle = True
 
-    if profile.weight_dataset and args.mode == 'train':
+    if profile.weight_dataset and args.mode == "train":
         # This function is very long.
         sampler = generate_weighted_sampler(dataset.gt_dataset)
         shuffle = False

@@ -13,6 +13,7 @@ from typing import Callable, Dict, List, NoReturn, Optional, Tuple, T as Array
 
 import numpy as np
 import torch
+from torchvision.transforms.functional import resize
 from ignite.engine import Engine
 from lemanchot.core import make_tensor_for_comet
 from lemanchot.models import BaseModule
@@ -113,7 +114,7 @@ class PredictWrapper(BaseWrapper):
                 sample = make_tensor_for_comet(img)
                 label = os.path.basename(name).split('.')[0]
                 img_saver(label, sample)
-                ohe = torch.where(img[0, 1:, ...] != 0, 1, 0).type(torch.uint8).cpu().numpy()
+                ohe = img[1:, ...].type(torch.uint8).cpu().numpy()
                 data = generateJSON(
                         ohe,
                         {
@@ -151,6 +152,7 @@ def simple_multilabel_step__(
     for s in sliding_window(batch.shape, axis=[-2, -1], kernel=(512, 512), stride=(512, 512)):
         outputs[s] = model(batch[s])
 
-    outputs = torch.threshold(outputs.sigmoid(), 0.5, 0)
+    outputs = torch.where(outputs.sigmoid() > 0.85, 1, 0)
+    outputs = resize(outputs, (3168, 4752))
 
     return {"y_pred": outputs}

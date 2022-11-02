@@ -23,6 +23,7 @@ from torchvision.transforms.functional import (
     crop,
     get_dimensions,
     to_tensor,
+    normalize,
 )
 
 from lemanchot.core import get_device
@@ -69,6 +70,16 @@ class BothToTensor(torch.nn.Module):
 
     def forward(self, img, target):
         return to_tensor(img), target
+
+
+class BothNormalize(torch.nn.Module):
+    def __init__(self, mean, std):
+        super().__init__()
+        self.mean = mean
+        self.std = std
+
+    def forward(self, img, target):
+        return normalize(img, self.mean, self.std), target
 
 
 class BothCompose:
@@ -156,12 +167,14 @@ class ToLongTensor(torch.nn.Module):
     def forward(self, img):
         return img.to(dtype=torch.long)
 
+
 class ToUINT8Tensor(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
 
     def forward(self, img):
         return img.to(dtype=torch.uint8)
+
 
 class ToGrayscale(torch.nn.Module):
     def __init__(self) -> None:
@@ -199,8 +212,10 @@ class TargetDilation(torch.nn.Module):
                 1,
             )
         else:
-            raise NotImplementedError("Dilation not implemented for targets with more than 2 channels.")
-        
+            raise NotImplementedError(
+                "Dilation not implemented for targets with more than 2 channels."
+            )
+
 
 class ClassMapToMDTarget(torch.nn.Module):
     def __init__(self, categories: List, background_classid: int = 0) -> None:

@@ -111,9 +111,9 @@
       }
     },
     "zephyrus_cracks": {
-      "api_key": "8CuCMLyaa23fZDEY2uTxm5THf",
-      "project_name": "texture-analysis",
-      "workspace": "parham",
+      "api_key": "MwJctMQ3Z3FCETgMehReIQjHY",
+      "project_name": "public-cracks-analysis",
+      "workspace": "grams",
       "log_git_metadata": true,
       "log_env_gpu": true,
       "log_env_cpu": true,
@@ -168,7 +168,7 @@
       "pipeline": "simple_multilabel_predict",
       "checkpoint_save": false,
       "checkpoint_load": true,
-      "checkpoint_file": "simple_multilabel-unet_resnet18-782542fc_crack_model.pt",
+      "checkpoint_file": "simple_multilabel-unet_resnet18-0fdd24d6.pt",
       "load_weights_only": true,
       "experiment_config_name": "unet50_cracks",
       "dataset_name": "MetroPanamaTrial",

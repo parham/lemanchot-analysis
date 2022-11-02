@@ -154,6 +154,9 @@ class SegmentationDataset(VisionDataset):
         sample = self.samples_dataset[index]
         target = self.gt_dataset[index]
 
+        if isinstance(sample, tuple):
+            path, sample = sample
+
         if self.both_transforms is not None:
             sample, target = self.both_transforms(sample, target)
 
