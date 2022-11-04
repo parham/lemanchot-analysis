@@ -168,13 +168,13 @@
       "pipeline": "simple_multilabel_predict",
       "checkpoint_save": false,
       "checkpoint_load": true,
-      "checkpoint_file": "simple_multilabel-unet_resnet18-0fdd24d6.pt",
+      "checkpoint_file": "simple_multilabel-unet_resnet18-782542fc_crack_model.pt",
       "load_weights_only": true,
       "experiment_config_name": "unet50_cracks",
-      "dataset_name": "MetroPanamaTrial",
-      "dataset_path": "/data/MetroPanama/",
+      "dataset_name": "Pont-P14275S",
+      "dataset_path": "./datasets/",
       "image_saving": {
-        "root_dir" : "/data/MetroPanama/results/"
+        "root_dir" : "./datasets/results/"
       },
       "categories": {
         "background": 0,

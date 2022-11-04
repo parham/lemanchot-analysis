@@ -10,7 +10,6 @@ import argparse
 import sys
 import logging
 
-from torch.cuda import device_count
 from torch.utils.data import DataLoader
 from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize
 from ignite.utils import setup_logger
@@ -86,13 +85,13 @@ def main():
             root=dataset_path,
             folder_name="img",
             transforms=Compose([
-                # Grayscale(),
-                Resize((512, 512)),
+                Grayscale(),
+                # Resize((512, 512)),
                 ToTensor(),
-                Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
-                )
+                # Normalize(
+                #     mean=[0.485, 0.456, 0.406],
+                #     std=[0.229, 0.224, 0.225]
+                # )
             ]),
         )
         shuffle = False

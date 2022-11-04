@@ -114,16 +114,16 @@ class PredictWrapper(BaseWrapper):
                 sample = make_tensor_for_comet(img)
                 label = os.path.basename(name).split('.')[0]
                 img_saver(label, sample)
-                ohe = img[1:, ...].type(torch.uint8).cpu().numpy()
-                data = generateJSON(
-                        ohe,
-                        {
-                            "fileID": name,
-                            "classes": ["crack"],
-                        },
-                    )
-                with open(f"/data/MetroPanama/results/{label}.json", "w") as f:
-                    json.dump(data, f)
+                # ohe = img[1:, ...].type(torch.uint8).cpu().numpy()
+                # data = generateJSON(
+                #         ohe,
+                #         {
+                #             "fileID": name,
+                #             "classes": ["crack"],
+                #         },
+                #     )
+                # with open(f"{label}.json", "w") as f:
+                #     json.dump(data, f)
 
 
 
@@ -153,6 +153,6 @@ def simple_multilabel_step__(
         outputs[s] = model(batch[s])
 
     outputs = torch.where(outputs.sigmoid() > 0.85, 1, 0)
-    outputs = resize(outputs, (3168, 4752))
+    # outputs = resize(outputs, (3168, 4752))
 
     return {"y_pred": outputs}
