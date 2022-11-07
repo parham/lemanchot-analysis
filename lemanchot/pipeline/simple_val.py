@@ -92,7 +92,7 @@ class ValidatorWrapper(BaseWrapper):
         return res
 
 
-@pipeline_register("simple_multilabel_predict")
+@pipeline_register("simple_multilabel_val")
 @torch.no_grad()
 def simple_multilabel_predict__(
     engine: Engine, batch, device, model: BaseModule, criterion, experiment: Experiment

@@ -366,9 +366,10 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         img_saver=img_saver if validator_name is not None else None
     )
     if validator_name is not None:
+        val_step_func = load_pipeline("simple_multilabel_val")
         val_func = load_wrapper(
             wrapper_name=validator_name,
-            step_func=step_func,
+            step_func=val_step_func,
             device=device,
             model=model,
             loss=loss,
