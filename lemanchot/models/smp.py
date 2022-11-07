@@ -16,7 +16,7 @@ from lemanchot.models.core import BaseModule, model_register
 
 @model_register("unet_densenet121")
 class Unet_Resnet18(BaseModule):
-    """Implementation of SMP UNET RESNET-18"""
+    """Implementation of SMP UNET DENSENET-121"""
 
     def __init__(self, name: str, config: DotMap) -> None:
         super().__init__(name="unet_densenet121", config=config)
@@ -88,7 +88,7 @@ class UnetPlusPlus_Resnet18(BaseModule):
 
 @model_register("unetplusplus_resnet50")
 class UnetPlusPlus_Resnet50(BaseModule):
-    """Implementation of SMP UNET++ RESNET-18"""
+    """Implementation of SMP UNET++ RESNET-50"""
 
     def __init__(self, name: str, config: DotMap) -> None:
         super().__init__(name="unetplusplus_resnet50", config=config)

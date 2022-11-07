@@ -10,10 +10,10 @@ import argparse
 import sys
 import logging
 
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize
 from ignite.utils import setup_logger
-
+from ignite.engine.events import Events
 from lemanchot.core import get_profile, get_profile_names
 from lemanchot.dataset import (
     SegmentationDataset,
@@ -60,7 +60,9 @@ def main():
     # Initialize Transformation for training
     if args.mode == "train":
         input_transforms = Compose([Resize((512, 512))])
-        target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)])
+        target_transform = Compose(
+            [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
+        )
         both_transforms = BothCompose(
             [
                 TrivialAugmentWide(31, InterpolationMode.NEAREST),
@@ -84,15 +86,14 @@ def main():
         dataset = ImageDataset(
             root=dataset_path,
             folder_name="img",
-            transforms=Compose([
-                Grayscale(),    
-                # Resize((512, 512)),
-                ToTensor(),
-                Normalize(
-                    mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225]
-                )
-            ]),
+            transforms=Compose(
+                [
+                    Grayscale(),
+                    # Resize((512, 512)),
+                    ToTensor(),
+                    Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                ]
+            ),
         )
         shuffle = False
     else:
@@ -107,6 +108,20 @@ def main():
             both_transforms=both_transforms,
         )
         shuffle = True
+        if run_record["validator"] is not None and args.mode == 'train':
+            dataset, val_dataset = random_split(dataset, [0.8, 0.2])
+            val_loader = DataLoader(
+                val_dataset,
+                batch_size=engine.state.batch_size,
+                shuffle=False,
+            )
+            validator = run_record["validator"]
+            validator.logger = setup_logger("validator")
+
+            @engine.on(Events.EPOCH_COMPLETED(every=3))
+            def log_validation_results(engine):
+                validator.run(val_loader)
+                
 
     if profile.weight_dataset and args.mode == "train":
         # This function is very long.

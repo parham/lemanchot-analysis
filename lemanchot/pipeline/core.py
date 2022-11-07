@@ -353,6 +353,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         img_saver = ImageSaver(**image_saving)
 
     wrapper_name = pipeline_config.wrapper
+    validator_name = pipeline_config.validator
     seg_func = load_wrapper(
         wrapper_name=wrapper_name,
         step_func=step_func,
@@ -362,8 +363,22 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         optimizer=optimizer,
         metrics=metrics,
         experiment=experiment,
-        img_saver=img_saver,
+        img_saver=img_saver if validator_name is not None else None
     )
+    if validator_name is not None:
+        val_func = load_wrapper(
+            wrapper_name=validator_name,
+            step_func=step_func,
+            device=device,
+            model=model,
+            loss=loss,
+            metrics=metrics,
+            experiment=experiment,
+            img_saver=img_saver
+        )
+        validator = Engine(val_func)
+    else:
+        validator = None
 
     # Log hyperparameters
     experiment.log_parameters(experiment_config.toDict())
@@ -388,6 +403,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
 
     run_record = {
         "engine": engine,
+        "validator": validator,
         "model": model,
         "optimizer": optimizer,
         "loss": loss,
@@ -409,13 +425,19 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             n_saved=1,
             global_step_transform=global_step_from_engine(engine),
         )
-        engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
         # Logging Model
         if enable_checkpoint_log:
             checkpoint_logger = ModelLogger_CometML(
                 pipeline_name, model.name, experiment, checkpoint_saver
             )
+        if validator is None:
+            engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
             engine.add_event_handler(
+                Events.EPOCH_COMPLETED, checkpoint_logger, run_record
+            )
+        else:
+            validator.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)
+            validator.add_event_handler(
                 Events.EPOCH_COMPLETED, checkpoint_logger, run_record
             )
 
@@ -454,6 +476,9 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             experiment.log_metrics(
                 dict(metrics), step=engine.state.iteration, epoch=engine.state.epoch
             )
+    
+    if validator is not None:
+        validator.add_event_handler(Events.ITERATION_COMPLETED(every=1), __log_metrics)
 
     @engine.on(Events.STARTED)
     def __train_process_started(engine):

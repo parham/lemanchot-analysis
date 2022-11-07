@@ -142,7 +142,7 @@ def simple_predict_step__(engine: Engine, batch, model: BaseModule, **kwargs) ->
 
 @pipeline_register("simple_multilabel_predict")
 @torch.no_grad()
-def simple_multilabel_step__(
+def simple_multilabel_predict__(
     engine: Engine, batch, model: BaseModule, **kwargs
 ) -> Dict:
 
@@ -153,6 +153,5 @@ def simple_multilabel_step__(
         outputs[s] = model(batch[s])
 
     outputs = torch.where(outputs.sigmoid() > 0.85, 1, 0)
-    # outputs = resize(outputs, (3168, 4752))
 
     return {"y_pred": outputs}
