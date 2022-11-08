@@ -112,8 +112,8 @@
     },
     "zephyrus_cracks": {
       "api_key": "MwJctMQ3Z3FCETgMehReIQjHY",
-      "project_name": "public-cracks-analysis",
-      "workspace": "grams",
+      "project_name": "comparative-analysis",
+      "workspace": "parham",
       "log_git_metadata": true,
       "log_env_gpu": true,
       "log_env_cpu": true,
@@ -150,32 +150,6 @@
       "experiment_config_name": "unet50_cracks",
       "dataset_name": "lemanchot-ULRoadHandheld-worst-visible",
       "dataset_path": "/data/lemanchot-analysis/UL-Road-HandHeld/",
-      "categories": {
-        "background": 0,
-        "crack": 1
-      }
-    },
-    "panama_cracks_test": {
-      "api_key": "MwJctMQ3Z3FCETgMehReIQjHY",
-      "project_name": "metro-panama",
-      "workspace": "grams",
-      "log_git_metadata": false,
-      "log_env_gpu": false,
-      "log_env_cpu": false,
-      "log_env_host": false,
-      "enable_logging": true,
-      "enable_image_logging": 999,
-      "pipeline": "simple_multilabel_predict",
-      "checkpoint_save": false,
-      "checkpoint_load": true,
-      "checkpoint_file": "simple_multilabel-unet_resnet18-782542fc_crack_model.pt",
-      "load_weights_only": true,
-      "experiment_config_name": "unet50_cracks",
-      "dataset_name": "Pont-P14275S",
-      "dataset_path": "./datasets/",
-      "image_saving": {
-        "root_dir" : "./datasets/results/"
-      },
       "categories": {
         "background": 0,
         "crack": 1

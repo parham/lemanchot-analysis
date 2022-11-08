@@ -5,15 +5,10 @@
     @supervisor Professor Xavier Maldague
     @industrial-partner TORNGATS
 """
-import json
-import os
 import time
 from itertools import product
-from typing import Callable, Dict, List, NoReturn, Optional
-from typing import T as Array
-from typing import Tuple
+from typing import Callable, Dict
 
-import numpy as np
 import torch
 from comet_ml import Experiment
 from ignite.engine import Engine

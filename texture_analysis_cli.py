@@ -11,7 +11,7 @@ import sys
 import logging
 
 from torch.utils.data import DataLoader, random_split
-from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize
+from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize, InterpolationMode
 from ignite.utils import setup_logger
 from ignite.engine.events import Events
 from lemanchot.core import get_profile, get_profile_names
@@ -27,7 +27,6 @@ from lemanchot.transform import (
     BothNormalize,
     TargetDilation,
     TrivialAugmentWide,
-    InterpolationMode,
 )
 
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
@@ -89,7 +88,6 @@ def main():
             transforms=Compose(
                 [
                     Grayscale(),
-                    # Resize((512, 512)),
                     ToTensor(),
                     Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                 ]

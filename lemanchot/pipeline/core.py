@@ -8,9 +8,7 @@
 
 import logging
 import os
-import time
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union
 from uuid import uuid4
 
 import numpy as np
@@ -20,27 +18,20 @@ from dotmap import DotMap
 from ignite.engine import Engine
 from ignite.engine.events import Events
 from ignite.handlers import ModelCheckpoint, global_step_from_engine
-from ignite.handlers.param_scheduler import (
-    CosineAnnealingScheduler,
-    LRScheduler,
-    ReduceLROnPlateauScheduler,
-)
-from lemanchot.core import (
-    exception_logger,
-    get_config,
-    get_device,
-    get_experiment,
-    get_or_default,
-    get_profile,
-    load_settings,
-)
+from ignite.handlers.param_scheduler import (CosineAnnealingScheduler,
+                                             LRScheduler,
+                                             ReduceLROnPlateauScheduler)
+from torch.optim.lr_scheduler import ExponentialLR, StepLR
+
+from lemanchot.core import (exception_logger, get_config, get_device,
+                            get_experiment, get_or_default, get_profile,
+                            load_settings)
 from lemanchot.loss import load_loss
 from lemanchot.metrics import load_metrics
 from lemanchot.models import BaseModule, load_model
 from lemanchot.pipeline.saver import ImageSaver, ModelLogger_CometML
 from lemanchot.pipeline.wrapper import load_wrapper
 from lemanchot.visualization import COLORS
-from torch.optim.lr_scheduler import ExponentialLR, StepLR
 
 
 def load_optimizer(model: BaseModule, experiment_config: DotMap) -> optim.Optimizer:
@@ -373,7 +364,8 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             device=device,
             model=model,
             loss=loss,
-            metrics=metrics,
+            # Since metrics accumulate internal values we need to generate new instances.
+            metrics=load_metrics(experiment_config, profile.categories), 
             experiment=experiment,
             img_saver=img_saver
         )
