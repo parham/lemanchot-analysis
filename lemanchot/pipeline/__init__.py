@@ -12,3 +12,4 @@ from .saver import *
 from .simple_train import *
 from .simple_test import *
 from .simple_predict import *
+from .simple_val import *

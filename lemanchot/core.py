@@ -226,6 +226,8 @@ def get_experiment(profile_name : str, dataset : str = None) -> Experiment:
         )
         exp_obj.set_name('%s::%s_%s_%s' % (profile['pipeline'], profile['experiment_config_name'], tnow.strftime('%Y%m%d-%H%M'), dataset))
         exp_obj.add_tag(dataset)
+        config = get_config(profile.experiment_config_name)
+        exp_obj.add_tag(config.model.name)
         return exp_obj
 
     if __experiment_instance is None:

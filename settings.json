@@ -121,6 +121,8 @@
       "enable_logging": true,
       "enable_image_logging": 1,
       "pipeline": "simple_multilabel",
+      "checkpoint_dir": "./checkpoints",
+      "checkpoint_log_cometml": true,
       "checkpoint_save": true,
       "checkpoint_load": false,
       "load_weights_only": false,

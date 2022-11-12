@@ -1,6 +1,6 @@
 {
   "model": {
-    "name": "unet_resnet50",
+    "name": "unet_resnet18",
     "config": {
       "channels": 1,
       "num_classes": 2,
@@ -60,7 +60,7 @@
       "wrapper" : "default_pipeline",
       "max_epoch": 100,
       "batch_size": 8,
-      "validator": "default_val"
+      "validator": "default_validator"
     },
     "simple_multilabel_test": {
       "wrapper" : "default_pipeline",

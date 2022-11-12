@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize, InterpolationMode
 from ignite.utils import setup_logger
 from ignite.engine.events import Events
-from lemanchot.core import get_profile, get_profile_names
+from lemanchot.core import get_profile, get_profile_names, get_or_default
 from lemanchot.dataset import (
     SegmentationDataset,
     generate_weighted_sampler,
@@ -58,7 +58,7 @@ def main():
     ######### Transformation ##########
     # Initialize Transformation for training
     if args.mode == "train":
-        input_transforms = Compose([Resize((512, 512))])
+        input_transforms = Compose([Grayscale(), Resize((512, 512))])
         target_transform = Compose(
             [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
         )
@@ -66,11 +66,10 @@ def main():
             [
                 TrivialAugmentWide(31, InterpolationMode.NEAREST),
                 BothToTensor(),
-                BothNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ]
         )
     elif args.mode == "test":
-        input_transforms = Compose([Grayscale(), Resize((512, 512))])
+        input_transforms = Compose([Resize((512, 512))])
         target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
         both_transforms = BothCompose([BothToTensor()])
 
@@ -107,7 +106,9 @@ def main():
         )
         shuffle = True
         if run_record["validator"] is not None and args.mode == 'train':
-            dataset, val_dataset = random_split(dataset, [0.8, 0.2])
+            train_set_size = int(len(dataset) * 0.8)
+            val_set_size = len(dataset) - train_set_size
+            dataset, val_dataset = random_split(dataset, [train_set_size, val_set_size])
             val_loader = DataLoader(
                 val_dataset,
                 batch_size=engine.state.batch_size,
@@ -119,7 +120,10 @@ def main():
             @engine.on(Events.EPOCH_COMPLETED(every=3))
             def log_validation_results(engine):
                 validator.run(val_loader)
-                
+                vloss = get_or_default(validator.state.metrics, "loss", 0)
+                print(
+                    f"validation loss: {vloss:.4f}"
+                )
 
     if profile.weight_dataset and args.mode == "train":
         # This function is very long.
