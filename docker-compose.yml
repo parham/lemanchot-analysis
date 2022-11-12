@@ -29,7 +29,25 @@ services:
           devices:
             - driver: nvidia
               capabilities: [gpu]
-              device_ids: ['3']
+              device_ids: ['1']
+    volumes:
+      - /data/lemanchot-checkpoints:/lemanchot-analysis/checkpoints
+      - /data:/data
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+  lemanchot_analysis_03:
+    image: lemanchotanalysis:latest
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.20'
+          memory: 12G
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              device_ids: ['2']
     volumes:
       - /data/lemanchot-checkpoints:/lemanchot-analysis/checkpoints
       - /data:/data

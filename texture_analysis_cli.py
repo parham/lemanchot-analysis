@@ -115,11 +115,16 @@ def main():
                 shuffle=False,
             )
             validator = run_record["validator"]
+            validator.state_dict_user_keys.append("global_epoch")
+            validator.state_dict_user_keys.append("global_step")
+            setattr(validator.state, "global_step", 0)
             validator.logger = setup_logger("validator")
 
             @engine.on(Events.EPOCH_COMPLETED(every=3))
-            def log_validation_results(engine):
-                validator.run(val_loader)
+            def run_validation(engine):
+                setattr(validator.state, "global_epoch", engine.state.epoch)
+                print(f"Validator global epoch = {validator.state.global_epoch}")
+                validator.run(val_loader, max_epochs=1)
                 vloss = get_or_default(validator.state.metrics, "loss", 0)
                 print(
                     f"validation loss: {vloss:.4f}"

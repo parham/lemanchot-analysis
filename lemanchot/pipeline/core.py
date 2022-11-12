@@ -481,10 +481,17 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
     if validator is not None:
         def __log_val_metrics(engine, prefix:str = 'val'):
             profile = get_profile(engine.state.profile_name)
+            engine.state.global_step += 1
+            iteration = engine.state.global_step
             if profile.enable_logging:
+                epoch = engine.state.global_epoch
                 metrics = engine.state.metrics
+                vloss = engine.state.metrics['loss']
+                print(
+                    f"Validation {iteration} - epoch loss: {vloss:.4f}"
+                )
                 experiment.log_metrics(
-                    dict(metrics), prefix=prefix
+                    dict(metrics), prefix=prefix, step=iteration, epoch=epoch
                 )
         validator.add_event_handler(Events.ITERATION_COMPLETED(every=1), __log_val_metrics)
 
