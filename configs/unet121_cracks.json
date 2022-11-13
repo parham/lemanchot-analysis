@@ -1,6 +1,6 @@
 {
   "model": {
-    "name": "unet_resnet50",
+    "name": "unet_densenet121",
     "config": {
       "channels": 1,
       "num_classes": 2,
