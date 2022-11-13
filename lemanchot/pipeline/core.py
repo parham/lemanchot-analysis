@@ -416,13 +416,13 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         checkpoint_saver = ModelCheckpoint(
             dirname=checkpoint_dir,
             filename_pattern=checkpoint_file,
-            score_function=lambda e: e.state.metrics["loss"],
-            score_name="loss",
+            score_function= lambda en: en.state.metrics["iou"].item(),
+            score_name="iou",
             filename_prefix="",
             require_empty=False,
             create_dir=True,
             n_saved=1,
-            global_step_transform=global_step_from_engine(engine),
+            # global_step_transform=global_step_from_engine(engine)
         )
         if validator is None:
             engine.add_event_handler(Events.EPOCH_COMPLETED, checkpoint_saver, run_record)

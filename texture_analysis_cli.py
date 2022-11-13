@@ -10,7 +10,7 @@ import argparse
 import sys
 import logging
 
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, Subset
 from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize, InterpolationMode
 from ignite.utils import setup_logger
 from ignite.engine.events import Events
@@ -69,7 +69,7 @@ def main():
             ]
         )
     elif args.mode == "test":
-        input_transforms = Compose([Resize((512, 512))])
+        input_transforms = Compose([Grayscale(), Resize((512, 512))])
         target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
         both_transforms = BothCompose([BothToTensor()])
 
