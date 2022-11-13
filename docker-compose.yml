@@ -14,8 +14,9 @@ services:
               capabilities: [gpu]
               device_ids: ['0']
     volumes:
+      - /data/lemanchot-checkpoints:/lemanchot-analysis/checkpoints
       - /data:/data
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+      - ~/.ssh/:/root/.ssh/id_rsa
   lemanchot_analysis_02:
     image: lemanchotanalysis:latest
     stdin_open: true
@@ -33,7 +34,7 @@ services:
     volumes:
       - /data/lemanchot-checkpoints:/lemanchot-analysis/checkpoints
       - /data:/data
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+      - ~/.ssh/:/root/.ssh/id_rsa
   lemanchot_analysis_03:
     image: lemanchotanalysis:latest
     stdin_open: true
@@ -51,4 +52,4 @@ services:
     volumes:
       - /data/lemanchot-checkpoints:/lemanchot-analysis/checkpoints
       - /data:/data
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa
+      - ~/.ssh/:/root/.ssh/id_rsa
