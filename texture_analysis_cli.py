@@ -104,7 +104,6 @@ def main():
             target_transforms=target_transform,
             both_transforms=both_transforms,
         )
-        dataset = Subset(dataset, list(range(0, len(dataset)))[0:100])
         shuffle = True
         if run_record["validator"] is not None and args.mode == 'train':
             train_set_size = int(len(dataset) * 0.8)
@@ -121,7 +120,7 @@ def main():
             setattr(validator.state, "global_step", 0)
             validator.logger = setup_logger("validator")
 
-            @engine.on(Events.EPOCH_COMPLETED(every=1))
+            @engine.on(Events.EPOCH_COMPLETED(every=3))
             def run_validation(engine):
                 setattr(validator.state, "global_epoch", engine.state.epoch)
                 print(f"Validator global epoch = {validator.state.global_epoch}")
