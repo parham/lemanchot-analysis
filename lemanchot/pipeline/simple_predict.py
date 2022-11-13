@@ -20,8 +20,6 @@ from lemanchot.models import BaseModule
 from lemanchot.pipeline.core import get_device, get_profile, pipeline_register
 from lemanchot.pipeline.wrapper import BaseWrapper, wrapper_register
 
-from sheldon_data_stages.stages.rle.handler_rle import generateJSON
-
 
 def sliding_slices(size: int, kernel: int, stride: Optional[int] = None) -> slice:
     """sliding_slices.

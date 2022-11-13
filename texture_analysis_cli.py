@@ -10,7 +10,7 @@ import argparse
 import sys
 import logging
 
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, random_split, Subset
 from torchvision.transforms import Resize, Compose, Grayscale, ToTensor, Normalize, InterpolationMode
 from ignite.utils import setup_logger
 from ignite.engine.events import Events
@@ -69,7 +69,7 @@ def main():
             ]
         )
     elif args.mode == "test":
-        input_transforms = Compose([Resize((512, 512))])
+        input_transforms = Compose([Grayscale(), Resize((512, 512))])
         target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
         both_transforms = BothCompose([BothToTensor()])
 
@@ -104,6 +104,7 @@ def main():
             target_transforms=target_transform,
             both_transforms=both_transforms,
         )
+        dataset = Subset(dataset, list(range(0, len(dataset)))[0:100])
         shuffle = True
         if run_record["validator"] is not None and args.mode == 'train':
             train_set_size = int(len(dataset) * 0.8)
@@ -120,7 +121,7 @@ def main():
             setattr(validator.state, "global_step", 0)
             validator.logger = setup_logger("validator")
 
-            @engine.on(Events.EPOCH_COMPLETED(every=3))
+            @engine.on(Events.EPOCH_COMPLETED(every=1))
             def run_validation(engine):
                 setattr(validator.state, "global_epoch", engine.state.epoch)
                 print(f"Validator global epoch = {validator.state.global_epoch}")
