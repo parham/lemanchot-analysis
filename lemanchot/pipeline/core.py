@@ -421,7 +421,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
             filename_prefix="",
             require_empty=False,
             create_dir=True,
-            n_saved=1,
+            n_saved=2,
             # global_step_transform=global_step_from_engine(engine)
         )
         if validator is None:
