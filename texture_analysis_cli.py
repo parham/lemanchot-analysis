@@ -111,7 +111,7 @@ def main():
             both_transforms=both_transforms,
         )
         shuffle = True
-        if run_record["validator"] is not None and args.mode == 'train':
+        if run_record.get('validator', None) is not None and args.mode == 'train':
             train_set_size = int(len(dataset) * 0.8)
             val_set_size = len(dataset) - train_set_size
             dataset, val_dataset = random_split(dataset, [train_set_size, val_set_size])

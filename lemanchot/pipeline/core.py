@@ -505,4 +505,7 @@ def load_segmentation(profile_name: str, database_name: str) -> Dict:
         logging.info("Training ended ...")
         experiment.end()
 
+    if validator is None:
+        run_record.pop('validator')
+
     return run_record
