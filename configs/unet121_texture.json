@@ -2,23 +2,17 @@
   "model": {
     "name": "unet_densenet121",
     "config": {
-      "channels": 1,
-      "num_classes": 2,
-      "weights": null
+      "channels": 3,
+      "num_classes": 7,
+      "weights": "imagenet"
     }
   },
   "metrics": {
-    "ssim" : {
-      "max_p" : 8
-    },
     "smp": {
       "mode" : "multilabel",
       "threshold" : 0.5,
-      "num_classes" : 2,
+      "num_classes" : 7,
       "metrics": {
-        "cm": {
-          "dim": 0
-        },
         "f1" : {
          "reduction" : "macro",
          "class_weights" : null,
@@ -33,24 +27,25 @@
     }
   },
   "loss": {
-    "name": "cross_entropy",
+    "name": "binary_cross_entropy",
     "config": {
       "reduction": "mean"
     }
   },
   "optimizer": {
-    "name": "Adam",
+    "name": "SGD",
     "config": {
-      "lr": 0.001,
+      "lr": 0.5,
+      "momentum": 0.9,
       "weight_decay": 0.005
     }
   },
   "scheduler" : {
     "name" : "CosineAnnealingLR",
     "config" : {
-      "start_value": 0.001,
+      "start_value": 0.5,
       "end_value": 0,
-      "cycle_size": 200,
+      "cycle_size": 8,
       "cycle_mult": 2,
       "mult": 0.5
     }
@@ -58,7 +53,7 @@
   "pipeline": {
     "simple_multilabel": {
       "wrapper" : "default_pipeline",
-      "max_epoch": 100,
+      "max_epoch": 300,
       "batch_size": 8,
       "validator": null
     },
@@ -71,7 +66,7 @@
     "simple_multilabel_predict": {
       "wrapper" : "default_predict",
       "max_epoch": 1,
-      "batch_size": 1,
+      "batch_size": 4,
       "validator": null
     }
   }

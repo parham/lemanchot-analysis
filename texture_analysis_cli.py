@@ -58,20 +58,22 @@ def main():
     ######### Transformation ##########
     # Initialize Transformation for training
     if args.mode == "train":
-        input_transforms = Compose([Grayscale(), Resize((512, 512))])
-        target_transform = Compose(
-            [Resize((512, 512), InterpolationMode.NEAREST), TargetDilation(3)]
-        )
+        input_transforms = Compose([Resize((512, 512))])
+        target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
         both_transforms = BothCompose(
             [
                 TrivialAugmentWide(31, InterpolationMode.NEAREST),
                 BothToTensor(),
+                BothNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
             ]
         )
     elif args.mode == "test":
-        input_transforms = Compose([Grayscale(), Resize((512, 512))])
+        input_transforms = Compose([Resize((512, 512))])
         target_transform = Compose([Resize((512, 512), InterpolationMode.NEAREST)])
-        both_transforms = BothCompose([BothToTensor()])
+        both_transforms = BothCompose([
+            BothToTensor(),
+            BothNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
 
     # Load segmentation
     run_record = load_segmentation(
@@ -96,9 +98,9 @@ def main():
     else:
         dataset = SegmentationDataset(
             root=dataset_path,
-            img_folder="worst_case/fused_dp",
-            img_ext=".jpg",
-            gt_folder="rle_worst",
+            img_folder="img",
+            img_ext=".png",
+            gt_folder="gt",
             classes=categories,
             input_transforms=input_transforms,
             target_transforms=target_transform,
