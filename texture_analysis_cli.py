@@ -96,9 +96,9 @@ def main():
     else:
         dataset = SegmentationDataset(
             root=dataset_path,
-            img_folder="img",
+            img_folder="worst_case/fused_dp",
             img_ext=".jpg",
-            gt_folder="gt",
+            gt_folder="rle_worst",
             classes=categories,
             input_transforms=input_transforms,
             target_transforms=target_transform,

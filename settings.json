@@ -149,10 +149,10 @@
       "checkpoint_dir": "./checkpoints",
       "checkpoint_save": false,
       "checkpoint_load": true,
-      "checkpoint_file": "simple_multilabel-fpn_resnet50-df2ef91d.pt",
+      "checkpoint_file": "simple_multilabel-unet_resnet50-e954bd5a_crack_model.pt",
       "load_weights_only": true,
-      "experiment_config_name": "fpn50_cracks",
-      "dataset_name": "lemanchot-ULRoadHandheld-general-visible",
+      "experiment_config_name": "unet50_cracks",
+      "dataset_name": "lemanchot-ULRoadHandheld-worst-fused_dp",
       "dataset_path": "/data/lemanchot-analysis/UL-Road-HandHeld/",
       "weight_dataset": false,
       "categories": {
