@@ -29,6 +29,10 @@ from lemanchot.transform import (
     TrivialAugmentWide,
 )
 
+# Fix for SSL Error while donwloading model weights from TorchHub
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+
 parser = argparse.ArgumentParser(description="Texture Segmentation of Inspection")
 parser.add_argument(
     "--profile",
