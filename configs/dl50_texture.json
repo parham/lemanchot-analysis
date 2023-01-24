@@ -1,0 +1,73 @@
+{
+  "model": {
+    "name": "deeplabv3plus_resnet50",
+    "config": {
+      "channels": 3,
+      "num_classes": 7,
+      "weights": "imagenet"
+    }
+  },
+  "metrics": {
+    "smp": {
+      "mode" : "multilabel",
+      "threshold" : 0.5,
+      "num_classes" : 7,
+      "metrics": {
+        "f1" : {
+         "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+         },
+        "iou" : {
+          "reduction" : "macro",
+         "class_weights" : null,
+         "zero_division" : 1
+        }
+      }
+    }
+  },
+  "loss": {
+    "name": "binary_cross_entropy",
+    "config": {
+      "reduction": "mean"
+    }
+  },
+  "optimizer": {
+    "name": "SGD",
+    "config": {
+      "lr": 0.5,
+      "momentum": 0.9,
+      "weight_decay": 0.005
+    }
+  },
+  "scheduler" : {
+    "name" : "CosineAnnealingLR",
+    "config" : {
+      "start_value": 0.5,
+      "end_value": 0,
+      "cycle_size": 8,
+      "cycle_mult": 2,
+      "mult": 0.5
+    }
+  },
+  "pipeline": {
+    "simple_multilabel": {
+      "wrapper" : "default_pipeline",
+      "max_epoch": 300,
+      "batch_size": 8,
+      "validator": null
+    },
+    "simple_multilabel_test": {
+      "wrapper" : "default_pipeline",
+      "max_epoch": 1,
+      "batch_size": 8,
+      "validator": null
+    },
+    "simple_multilabel_predict": {
+      "wrapper" : "default_predict",
+      "max_epoch": 1,
+      "batch_size": 4,
+      "validator": null
+    }
+  }
+}

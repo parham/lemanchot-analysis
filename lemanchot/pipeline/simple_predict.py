@@ -144,12 +144,12 @@ def simple_multilabel_predict__(
     engine: Engine, batch, model: BaseModule, **kwargs
 ) -> Dict:
 
-    n, c, h, w = batch.shape
-    outputs = torch.zeros((n, 2, h, w), device=batch.device)
+    # n, c, h, w = batch.shape
+    # outputs = torch.zeros((n, 7, h, w), device=batch.device)
     model.eval()
-    for s in sliding_window(batch.shape, axis=[-2, -1], kernel=(512, 512), stride=(512, 512)):
-        outputs[s] = model(batch[s])
-
-    outputs = torch.where(outputs.sigmoid() > 0.85, 1, 0)
+    # for s in sliding_window(batch.shape, axis=[-2, -1], kernel=(512, 512), stride=(512, 512)):
+    outputs = model(batch)
+    
+    outputs = torch.where(outputs.sigmoid() > 0.5, 1, 0)
 
     return {"y_pred": outputs}
