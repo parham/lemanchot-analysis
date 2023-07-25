@@ -15,9 +15,29 @@
 </p>
 
 # LeManchot-Analysis
-<p align="justify"> Remote thermographic inspection of industrial and construction components is a relatively new field of research with growing interest among researchers and companies, especially in the light of recent advancements in Unmanned Aerial Vehicles (UAVs). Due to the unique capabilities of drones to carry a wide range of sensors as payload and facilitate data acquisition through their maneuver abilities, collecting synchronized multi-modal data has become a possibility in terms of cost and time. In addition, using multiple sensors can significantly enhance the analysis result and provide a more accurate assessment of the components' operability and structural integrity. Complementary modalities oblige companies to build automated process pipelines that can avoid data misinterpretation and deliver more precise and comprehensive evaluations, which is one of the objectives of NDT4.0. In this paper, we investigate the applications of texture-based segmentation of visible modality to enhance thermal analysis in a drone-based multi-modal inspection. The proposed process pipeline texturally segments the visible images and uses the result to improve the detection and characterization of possible abnormalities in thermal images. Moreover, we introduced four case studies with different process pipelines and datasets to demonstrate the presented approach's benefits in various industrial applications.</p></p>
+<p align="justify"> Remote thermographic inspection of industrial and construction components is a relatively new field of research with growing interest among researchers and companies, especially in the light of recent advancements in Unmanned Aerial Vehicles (UAVs). Due to the unique capabilities of drones to carry a wide range of sensors as payload and facilitate data acquisition through their maneuver abilities, collecting synchronized multi-modal data has become a possibility in terms of cost and time. In addition, using multiple sensors can significantly enhance the analysis result and provide a more accurate assessment of the components' operability and structural integrity. Complementary modalities oblige companies to build automated process pipelines that can avoid data misinterpretation and deliver more precise and comprehensive evaluations, which is one of the objectives of NDT4.0. In this paper, we investigate the applications of texture-based segmentation of visible modality to enhance thermal analysis in a drone-based multi-modal inspection. The proposed process pipeline texturally segments the visible images and uses the result to improve the detection and characterization of possible abnormalities in thermal images. Moreover, we introduced four case studies with different process pipelines and datasets to demonstrate the presented approach's benefits in various industrial applications.</p>
 
 **Keywords** `Multi-Modal Data Processing`  `Unmanned Aerial Vehicle`   `Texture Segmentation`   `Remote Inspection`   `Thermography`   `Thermal Image Segmentation`
+
+## Citation
+
+```
+@article{nooralishahi2022texture,
+  title={Texture analysis to enhance drone-based multi-modal inspection of structures},
+  author={Nooralishahi, Parham and Ramos, Gabriel and Pozzer, Sandra and Ibarra-Castanedo, Clemente and Lopez, Fernando and Maldague, Xavier PV},
+  journal={Drones},
+  volume={6},
+  number={12},
+  pages={407},
+  year={2022},
+  publisher={MDPI}
+}
+```
+
+## Links
+
+- **Analysis & all Trainings**: <a href="https://www.comet.com/parham/comparaWtive-analysis/view/OIZqWwU2dPR1kOhWH9268msAC/experiments">comet.ml repo</a>
+
 
 ## Usage
 
@@ -86,11 +106,6 @@ This use case investigates the use of coupled thermal and visible cameras to enh
 <p align="center">
   <img src="resources/result_uc_4_2.png" width="500" title="Result for Use Case 4">
 </p>
-
-
-## Citation
-
-.... the paper will be publish soon!
 
 ## Contributors
 
