@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://github.com/parham/parham.github.io/blob/main/assets/img/favicon.png"/ width="200">
+</div>
+
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
